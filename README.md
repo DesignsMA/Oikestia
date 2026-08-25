@@ -1,1 +1,2 @@
-Oi
+# Oikestia
+A real-estate platform designed to help users find, buy, rent, and discover properties in one place. Users can browse homes and apartments, explore properties by location and preferences, and connect with opportunities that match their needs. The project focuses on making property discovery simple, intuitive, and accessible.
