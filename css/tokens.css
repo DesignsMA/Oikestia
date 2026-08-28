@@ -1,0 +1,67 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
+:root {
+  /* ========================================
+     NIVEL 1: TOKENS PRIMITIVOS
+     ======================================== */
+
+  /* Brand Colors */
+  --color-primary: #ff6c02;
+  --color-secondary: #ff1878;
+  --color-tertiary: #20e7ad;
+
+  /* Neutral Colors */
+  --color-neutral: #18181b;
+  --color-white: #ffffff;
+  --color-black: #000000;
+
+  /* Typography */
+  --font-family-primary: "Montserrat", sans-serif;
+
+
+  /* ========================================
+     NIVEL 2: TOKENS FUNCIONALES
+     ======================================== */
+
+  /* Backgrounds */
+  --bg-primary: var(--color-white);
+  --bg-dark: var(--color-neutral);
+  --bg-accent-primary: var(--color-primary);
+  --bg-accent-secondary: var(--color-secondary);
+  --bg-accent-tertiary: var(--color-tertiary);
+
+  /* Text */
+  --text-primary: var(--color-neutral);
+  --text-inverse: var(--color-white);
+
+  --text-link: var(--color-primary);
+  --text-link-hover: var(--color-secondary);
+
+  /* Interactive Elements */
+  --bg-button-primary: var(--color-primary);
+  --bg-button-secondary: var(--color-secondary);
+  --bg-button-tertiary: var(--color-tertiary);
+
+  --text-button-primary: var(--color-white);
+  --text-button-secondary: var(--color-white);
+  --text-button-tertiary: var(--color-neutral);
+
+  /* Borders */
+  --border-primary: var(--color-neutral);
+  --border-light: #e4e4e7;
+
+
+  /* ========================================
+     TIPOGRAFIA
+     ======================================== */
+
+  --font-heading: var(--font-family-primary);
+  --font-body: var(--font-family-primary);
+  --font-label: var(--font-family-primary);
+
+  /* Font Weights */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+}
