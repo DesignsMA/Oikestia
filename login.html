@@ -10,23 +10,28 @@
     <meta name="keywords" content="real estate, property search, home buying, apartment rentals, property listings, real estate platform, property discovery, real estate marketplace, login">
     <meta name="robots" content="index, follow, all">
     <link rel="icon" type="image/svg+xml" href="assets/images/logo.svg">
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://necolas.github.io/normalize.css/8.0.1/normalize.css">
+    <link rel="stylesheet" href="css/tokens.css">
+    <link rel="stylesheet" href="css/styles.css">
 </head>
 
 <body>
     <main>
         <section class="login-section">
-            <img src="./assets/images/login-bg.jpg" alt="Modern tall building black and orange.">
+            <div class="login-bg">
+                <img src="./assets/images/login-bg.jpg" alt="Modern tall building black and orange." class="login-bg-image">
+            </div>
             <form action="/" method="POST">
                 <img src="./assets/images/logo.svg" alt="Oikestia logo">
-                <p>Bienvenido devuelta. Inicia sesión en tu cuenta.</p>
+                <h1>Oikestia</h1>
+                <p class="login-title">Bienvenido devuelta. Inicia sesión en tu cuenta.</p>
                 <fieldset class="login-fieldset">
                     <label for="email">Email</label>
                     <div class="login-email">
                         <input type="email" id="email" name="email" placeholder="nombre@gmail.com" required>
                     </div>
 
-                    <div>
+                    <div class="login-forgot-password">
                         <label for="password">Contraseña</label>
                         <a href="">¿Olvidaste la contraseña?</a>
                     </div>
@@ -35,9 +40,12 @@
                     </div>
 
                 </fieldset>
-                <input type="submit" value="Iniciar sesión">
+                <input type="submit" value="Iniciar sesión" href="./index.html" class="login-submit">
+                <div class="login-signup">
+                    <label>¿Aún no tienes cuenta?</label>
+                    <a href="sign-up.html">Crea una cuenta</a>
+                </div>
             </form>
-            <p>¿Aún no tienes cuenta?</p>&nbsp;<a href="sign-up.html">Crea una cuenta</a>
         </section>
     </main>    
 </body>
