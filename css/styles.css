@@ -82,7 +82,7 @@ html, body {
     margin: 0 3rem;
     min-height: 100vh;
     padding-block: clamp(1.5rem, 4vh, 4rem);
-    padding-bottom: 8rem;
+    padding: 8rem 0;
 }
 
 .login-section > form p,
@@ -91,14 +91,15 @@ html, body {
 }
 
 .login-section > form > img {
-    width: clamp(30vw, 50vw, 400px);
+    width: clamp(200px, 50vw, 600px);
     height: auto;
     align-self: center;
 }
 
 
 .login-section > form h1 {
-    font-size: max(var(--font-size-4xl), 2.5vw);
+    font-family: var(--font-family-secondary);
+    font-size: clamp(var(--font-size-4xl), 5vw, 7vw);
     font-weight: var(--font-weight-bold);
     margin: 0;
     align-self: center;
