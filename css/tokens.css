@@ -11,9 +11,14 @@
   --color-tertiary: #20e7ad;
 
   /* Neutral Colors */
-  --color-neutral: #18181b;
+  --color-neutral: #ffdbc2;
   --color-white: #ffffff;
   --color-black: #000000;
+  --color-neutral-light: #f9f6f9;
+  --color-neutral-dark: #27272a;
+  --color-neutral-darker: #3f3f46;
+  --color-neutral-darkest: #52525b;
+
 
   /* Typography */
   --font-family-primary: "Montserrat", sans-serif;
