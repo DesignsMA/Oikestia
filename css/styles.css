@@ -18,6 +18,12 @@ h1 {
     align-self: center;
 }
 
+h2 {
+    font-family: var(--font-family-secondary);
+    font-size: clamp(var(--font-size-xl), 2.5vw, 3.3vw);
+    font-weight: var(--font-weight-bold);
+}
+
 fieldset {
     display: flex;
     flex-direction: column;
@@ -53,7 +59,15 @@ fieldset input:hover {
     border-color: var(--color-primary);
 }
 
+.link {
+    color: var(--text-link);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
 
+.link:hover {
+    color: var(--text-link-hover);
+}
 
 
 

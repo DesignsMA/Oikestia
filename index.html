@@ -24,10 +24,66 @@
     <link rel="stylesheet" href="css/tokens.css">
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/homepage.css">
+    <link rel="stylesheet" href="css/card-detailed.css">
+    <link rel="stylesheet" href="css/card-compact.css">
 
 </head>
 
 <body>
+
+    <!-- Iconos Tabler -->
+    <svg xmlns="http://www.w3.org/2000/svg" class="icon-sprite" aria-hidden="true" style="display: none">
+        <symbol id="i-heart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19.5 12.572l-7.5 7.428l-7.5 -7.428a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572" />
+        </symbol>
+        <symbol id="i-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 11a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" />
+            <path d="M17.657 16.657l-4.243 4.243a2 2 0 0 1 -2.827 0l-4.244 -4.243a8 8 0 1 1 11.314 0z" />
+        </symbol>
+        <symbol id="i-bed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 9a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+            <path d="M22 17v-3h-20" />
+            <path d="M2 8v9" />
+            <path d="M12 14h10v-2a3 3 0 0 0 -3 -3h-7v5" />
+        </symbol>
+        <symbol id="i-bath" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 12h16a1 1 0 0 1 1 1v3a4 4 0 0 1 -4 4h-10a4 4 0 0 1 -4 -4v-3a1 1 0 0 1 1 -1" />
+            <path d="M6 12v-7a2 2 0 0 1 2 -2h3v2.25" />
+            <path d="M4 21l1 -1.5" />
+            <path d="M20 21l-1 -1.5" />
+        </symbol>
+        <symbol id="i-ruler" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 4h14a1 1 0 0 1 1 1v5a1 1 0 0 1 -1 1h-7a1 1 0 0 0 -1 1v7a1 1 0 0 1 -1 1h-5a1 1 0 0 1 -1 -1v-14a1 1 0 0 1 1 -1" />
+            <path d="M4 8l2 0" />
+            <path d="M4 12l3 0" />
+            <path d="M4 16l2 0" />
+            <path d="M8 4l0 2" />
+            <path d="M12 4l0 3" />
+            <path d="M16 4l0 2" />
+        </symbol>
+        <symbol id="i-agent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" />
+            <path d="M6 21v-2a4 4 0 0 1 4 -4h4" />
+            <path d="M15 19l2 2l4 -4" />
+        </symbol>
+        <symbol id="i-arrow-up-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 7l-10 10" />
+            <path d="M8 7l9 0l0 9" />
+        </symbol>
+        <symbol id="i-facebook" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M7 10v4h3v7h4v-7h3l1 -4h-4v-2a1 1 0 0 1 1 -1h3v-4h-3a5 5 0 0 0 -5 5v2h-3" />
+        </symbol>
+        <symbol id="i-instagram" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 8a4 4 0 0 1 4 -4h8a4 4 0 0 1 4 4v8a4 4 0 0 1 -4 4h-8a4 4 0 0 1 -4 -4z" />
+            <path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" />
+            <path d="M16.5 7.5v.01" />
+        </symbol>
+        <symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 4l11.733 16h4.267l-11.733 -16z" />
+            <path d="M4 20l6.768 -6.768m2.46 -2.46l6.772 -6.772" />
+        </symbol>
+    </svg>
+
     <header class="homepage-header">
         <div class="header-content">        
             <div class="header-logo">
@@ -36,11 +92,13 @@
             </div>
             
             <nav class="nav-links">
-                <a class="nav-link" href="index.html" target="_blank">Descubre</a>
+                <a class="nav-link" href="index.html" target="_blank">Buscar</a>
                 <a class="nav-link" href="listings.html">Publicaciones</a>
             </nav>
 
-            <a href="account.html" class="user-account">
+            <button type="submit" class="publish-btn">Publicar</button>
+
+            <a href="login.html" class="user-account">
                 <img src="assets/images/user-placeholder.webp" alt="User Account" width="30" class="user-icon">
             </a>
         </div>
@@ -55,217 +113,430 @@
             <p>Descubre propiedades exclusivas seleccionadas para tu estilo de vida.</p>
             <p>¡Haz tu búsqueda y encuentra la propiedad perfecta!</p>
 
-            <form role="search">
-                <div>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-search"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M3 10a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" /><path d="M21 21l-6 -6" /></svg>
-                    <input required type="text" placeholder="Ubicación, código postal o dirección">
+            <form role="search" class="search-bar">
+                <div class="search-form">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icon-tabler-search"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 10a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"/><path d="M21 21l-6 -6"/></svg>
+                    <input required type="search" name="q" autocomplete="off" placeholder="Ubicación, código postal o dirección" aria-label="Buscar por ubicación">
                 </div>
-                
-                <details class="filter-pane price-filter" open>
-                        <summary>
-                            <div>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-buildings"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M4 21v-15c0 -1 1 -2 2 -2h5c1 0 2 1 2 2v15" /><path d="M16 8h2c1 0 2 1 2 2v11" /><path d="M3 21h18" /><path d="M10 12v.01" /><path d="M10 16v.01" /><path d="M10 8v.01" /><path d="M7 12v.01" /><path d="M7 16v.01" /><path d="M7 8v.01" /><path d="M17 12v.01" /><path d="M17 16v.01" /></svg>&nbsp;Precio
-                            </div>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-chevron-down"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M6 9l6 6l6 -6" /></svg>
-                        </summary>
 
-                        <div class="filter-content">
-                            <label>
-                                <input type="checkbox" name="price" value="any"> Cualquier precio &nbsp; <span></span>
-                            </label>
-                        </div>
+                <details class="filter-pane price-filter">
+                    <summary>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icon-tabler-cash"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 15h-3a1 1 0 0 1 -1 -1v-8a1 1 0 0 1 1 -1h12a1 1 0 0 1 1 1v3"/><path d="M7 10a1 1 0 0 1 1 -1h12a1 1 0 0 1 1 1v8a1 1 0 0 1 -1 1h-12a1 1 0 0 1 -1 -1l0 -8"/><path d="M12 14a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"/></svg>
+                        <span class="filter-label">
+                            <span class="filter-label-title">Precio</span>
+                            <span class="filter-label-value">Cualquier precio</span>
+                        </span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="filter-chevron"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M6 9l6 6l6 -6"/></svg>
+                    </summary>
+
+                    <div class="filter-content">
+                        <label><input type="radio" name="price" value="any" checked> Cualquier precio</label>
+                        <label><input type="radio" name="price" value="0-1m"> Hasta $1,000,000</label>
+                        <label><input type="radio" name="price" value="1m-3m"> $1,000,000 – $3,000,000</label>
+                        <label><input type="radio" name="price" value="3m-6m"> $3,000,000 – $6,000,000</label>
+                        <label><input type="radio" name="price" value="6m+"> Más de $6,000,000</label>
+                    </div>
                 </details>
-                
-                <details class="filter-pane property-type-filter" open>
-                        <summary>
-                            <div>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-buildings"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M4 21v-15c0 -1 1 -2 2 -2h5c1 0 2 1 2 2v15" /><path d="M16 8h2c1 0 2 1 2 2v11" /><path d="M3 21h18" /><path d="M10 12v.01" /><path d="M10 16v.01" /><path d="M10 8v.01" /><path d="M7 12v.01" /><path d="M7 16v.01" /><path d="M7 8v.01" /><path d="M17 12v.01" /><path d="M17 16v.01" /></svg>&nbsp;Tipo de propiedad
-                            </div>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-chevron-down"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M6 9l6 6l6 -6" /></svg>
-                        </summary>
-                            
-                        <div class="filter-content">
-                            <label>
-                                <input type="checkbox" name="property-type" value="house"> Casa
-                            </label>
-                            <label>
-                                <input type="checkbox" name="property-type" value="apartment"> Departamento
-                            </label>
-                            <label>
-                                <input type="checkbox" name="property-type" value="condo"> Terreno
-                            </label>
-                        </div>
-                </details>  
 
-                <button type="submit">Buscar</button>
+                <details class="filter-pane property-type-filter">
+                    <summary>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icon-tabler-buildings"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 21v-15c0 -1 1 -2 2 -2h5c1 0 2 1 2 2v15"/><path d="M16 8h2c1 0 2 1 2 2v11"/><path d="M3 21h18"/><path d="M10 12v.01"/><path d="M10 16v.01"/><path d="M10 8v.01"/><path d="M7 12v.01"/><path d="M7 16v.01"/><path d="M7 8v.01"/><path d="M17 12v.01"/><path d="M17 16v.01"/></svg>
+                        <span class="filter-label">
+                            <span class="filter-label-title">Tipo de propiedad</span>
+                            <span class="filter-label-value">Todos</span>
+                        </span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="filter-chevron"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M6 9l6 6l6 -6"/></svg>
+                    </summary>
+
+                    <div class="filter-content">
+                        <label><input type="checkbox" name="property-type" value="house"> Casa</label>
+                        <label><input type="checkbox" name="property-type" value="apartment"> Departamento</label>
+                        <label><input type="checkbox" name="property-type" value="land"> Terreno</label>
+                    </div>
+                </details>
+
+                <button type="submit" class="search-submit">Buscar</button>
             </form>
-            <div>
-                <button class="property-type-button">Casas</button>
-                <button class="property-type-button">Departamentos</button>
-                <button class="property-type-button">Terrenos</button>
-            </div>
+
+            <div class="quick-filters">
+                <button type="button" class="property-type-button">Casas</button>
+                <button type="button" class="property-type-button">Departamentos</button>
+                <button type="button" class="property-type-button">Terrenos</button>
+            </div>        
         </section>
 
         <section class="for-you-section">
             <h2>Ofertas para ti</h2>
-            <p>Explora propiedades seleccionadas especialmente para ti, basadas en tus preferencias y búsquedas anteriores.</p>
-            <button class="view-all-button">Ver todas las ofertas</button>
 
-            <section class="for-you-listings">
-                <article class="property-card">
-                    <img src="assets/images/property1.jpg" alt="Property 1" class="property-image">
-                    <p class="property-price">$350,000</p>
+            <div class="for-you-description">
+                <p>Selección personalizada basada en tus búsquedas recientes.</p>
+                <a href="listings.html" class="view-all-link link">Ver todas
+                    <svg class="icon" aria-hidden="true" width="18" height="18"><use href="#i-arrow-up-right" /></svg>
+                </a>
+            </div>
 
-                    <button class="for-you-fav">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-heart"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M19.5 12.572l-7.5 7.428l-7.5 -7.428a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572" /></svg>
-                    </button>
+            <div class="for-you-listings">
 
-                    <h3 class="property-title">Casa Moderna en el Centro</h3>
+                <article class="property-card-detailed">
+                    <div class="card-media">
+                        <img src="assets/images/property1.webp" alt="Casa contemporánea iluminada con alberca" class="card-image">
+                        <p class="card-price">$1,250,000</p>
+                        <button type="button" class="card-fav" aria-label="Guardar en favoritos">
+                            <svg aria-hidden="true"><use href="#i-heart" /></svg>
+                        </button>
+                    </div>
 
-                    <p class="property-location">Ciudad de México, CDMX</p>
+                    <div class="card-body">
+                        <h3 class="card-title">Casa Contemporánea en Lomas de Angelópolis</h3>
 
-                    <p class="property-type">Casa</p>
-                    
-                    <ul class="property-features">
-                        <li class="property-feature">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-bed"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M5 9a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M22 17v-3h-20" /><path d="M2 8v9" /><path d="M12 14h10v-2a3 3 0 0 0 -3 -3h-7v5" /></svg>&nbsp;4 Habs
-                        </li class="property-feature">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-bath"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M4 12h16a1 1 0 0 1 1 1v3a4 4 0 0 1 -4 4h-10a4 4 0 0 1 -4 -4v-3a1 1 0 0 1 1 -1" /><path d="M6 12v-7a2 2 0 0 1 2 -2h3v2.25" /><path d="M4 21l1 -1.5" /><path d="M20 21l-1 -1.5" /></svg>&nbsp;4.5 Baños
-                        <li class="property-feature">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-ruler"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M5 4h14a1 1 0 0 1 1 1v5a1 1 0 0 1 -1 1h-7a1 1 0 0 0 -1 1v7a1 1 0 0 1 -1 1h-5a1 1 0 0 1 -1 -1v-14a1 1 0 0 1 1 -1" /><path d="M4 8l2 0" /><path d="M4 12l3 0" /><path d="M4 16l2 0" /><path d="M8 4l0 2" /><path d="M12 4l0 3" /><path d="M16 4l0 2" /></svg>&nbsp;450 m²
-                        </li>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-arrow-up-right"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M17 7l-10 10" /><path d="M8 7l9 0l0 9" /></svg>
-                    </ul>
+                        <p class="card-location">
+                            <svg aria-hidden="true"><use href="#i-pin" /></svg>Lomas de Angelópolis, Puebla, Pue.
+                        </p>
+
+                        <ul class="card-features">
+                            <li><svg aria-hidden="true"><use href="#i-bed" /></svg>4 Habs</li>
+                            <li><svg aria-hidden="true"><use href="#i-bath" /></svg>4.5 Baños</li>
+                            <li><svg aria-hidden="true"><use href="#i-ruler" /></svg>450 m²</li>
+                        </ul>
+
+                        <p class="card-agent">
+                            <svg aria-hidden="true"><use href="#i-agent" /></svg>Ana G. (Agente)
+                        </p>
+                    </div>
                 </article>
 
-                <article class="property-card">
-                    <img src="assets/images/property1.jpg" alt="Property 1" class="property-image">
-                    <p class="property-price">$350,000</p>
+                <article class="property-card-detailed">
+                    <div class="card-media">
+                        <img src="assets/images/property2.webp" alt="Departamento con vista panorámica a la ciudad" class="card-image">
+                        <p class="card-price">$850,000</p>
+                        <button type="button" class="card-fav" aria-label="Guardar en favoritos">
+                            <svg aria-hidden="true"><use href="#i-heart" /></svg>
+                        </button>
+                    </div>
 
-                    <button class="for-you-fav">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-heart"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M19.5 12.572l-7.5 7.428l-7.5 -7.428a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572" /></svg>
-                    </button>
+                    <div class="card-body">
+                        <h3 class="card-title">Departamento Panorámico en Angelópolis</h3>
 
-                    <h3 class="property-title">Casa Moderna en el Centro</h3>
+                        <p class="card-location">
+                            <svg aria-hidden="true"><use href="#i-pin" /></svg>Angelópolis, Puebla, Pue.
+                        </p>
 
-                    <p class="property-location">Ciudad de México, CDMX</p>
+                        <ul class="card-features">
+                            <li><svg aria-hidden="true"><use href="#i-bed" /></svg>2 Habs</li>
+                            <li><svg aria-hidden="true"><use href="#i-bath" /></svg>2 Baños</li>
+                            <li><svg aria-hidden="true"><use href="#i-ruler" /></svg>120 m²</li>
+                        </ul>
 
-                    <p class="property-type">Casa</p>
-                    
-                    <ul class="property-features">
-                        <li class="property-feature">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-bed"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M5 9a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M22 17v-3h-20" /><path d="M2 8v9" /><path d="M12 14h10v-2a3 3 0 0 0 -3 -3h-7v5" /></svg>&nbsp;4 Habs
-                        </li class="property-feature">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-bath"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M4 12h16a1 1 0 0 1 1 1v3a4 4 0 0 1 -4 4h-10a4 4 0 0 1 -4 -4v-3a1 1 0 0 1 1 -1" /><path d="M6 12v-7a2 2 0 0 1 2 -2h3v2.25" /><path d="M4 21l1 -1.5" /><path d="M20 21l-1 -1.5" /></svg>&nbsp;4.5 Baños
-                        <li class="property-feature">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-ruler"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M5 4h14a1 1 0 0 1 1 1v5a1 1 0 0 1 -1 1h-7a1 1 0 0 0 -1 1v7a1 1 0 0 1 -1 1h-5a1 1 0 0 1 -1 -1v-14a1 1 0 0 1 1 -1" /><path d="M4 8l2 0" /><path d="M4 12l3 0" /><path d="M4 16l2 0" /><path d="M8 4l0 2" /><path d="M12 4l0 3" /><path d="M16 4l0 2" /></svg>&nbsp;450 m²
-                        </li>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-arrow-up-right"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M17 7l-10 10" /><path d="M8 7l9 0l0 9" /></svg>
-                    </ul>
+                        <p class="card-agent">
+                            <svg aria-hidden="true"><use href="#i-agent" /></svg>Ana G. (Agente)
+                        </p>
+                    </div>
                 </article>
 
-            </section>
-
-            <section class="discover-listings">
-
-                <h2>Explora más propiedades</h2>
-
-                <article class="property-card">
-                    <img src="assets/images/property1.jpg" alt="Property 1" class="property-image">
-                    <p class="property-price">$350,000</p>
-
-                    <button class="for-you-fav">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-heart"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M19.5 12.572l-7.5 7.428l-7.5 -7.428a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572" /></svg>
-                    </button>
-
-                    <h3 class="property-title">Casa Moderna en el Centro</h3>
-
-                    <p class="property-location">Ciudad de México, CDMX</p>
-
-                    <p class="property-type">Casa</p>
-                    
-                    <ul class="property-features">
-                        <li class="property-feature">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-bed"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M5 9a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M22 17v-3h-20" /><path d="M2 8v9" /><path d="M12 14h10v-2a3 3 0 0 0 -3 -3h-7v5" /></svg>&nbsp;4 Habs
-                        </li class="property-feature">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-bath"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M4 12h16a1 1 0 0 1 1 1v3a4 4 0 0 1 -4 4h-10a4 4 0 0 1 -4 -4v-3a1 1 0 0 1 1 -1" /><path d="M6 12v-7a2 2 0 0 1 2 -2h3v2.25" /><path d="M4 21l1 -1.5" /><path d="M20 21l-1 -1.5" /></svg>&nbsp;4.5 Baños
-                        <li class="property-feature">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-ruler"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M5 4h14a1 1 0 0 1 1 1v5a1 1 0 0 1 -1 1h-7a1 1 0 0 0 -1 1v7a1 1 0 0 1 -1 1h-5a1 1 0 0 1 -1 -1v-14a1 1 0 0 1 1 -1" /><path d="M4 8l2 0" /><path d="M4 12l3 0" /><path d="M4 16l2 0" /><path d="M8 4l0 2" /><path d="M12 4l0 3" /><path d="M16 4l0 2" /></svg>&nbsp;450 m²
-                        </li>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-arrow-up-right"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M17 7l-10 10" /><path d="M8 7l9 0l0 9" /></svg>
-                    </ul>
-                </article>
-
-                <article class="property-card">
-                    <img src="assets/images/property1.jpg" alt="Property 1" class="property-image">
-                    <p class="property-price">$350,000</p>
-
-                    <button class="for-you-fav">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-heart"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M19.5 12.572l-7.5 7.428l-7.5 -7.428a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572" /></svg>
-                    </button>
-
-                    <h3 class="property-title">Casa Moderna en el Centro</h3>
-
-                    <p class="property-location">Ciudad de México, CDMX</p>
-
-                    <p class="property-type">Casa</p>
-                    
-                    <ul class="property-features">
-                        <li class="property-feature">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-bed"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M5 9a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M22 17v-3h-20" /><path d="M2 8v9" /><path d="M12 14h10v-2a3 3 0 0 0 -3 -3h-7v5" /></svg>&nbsp;4 Habs
-                        </li class="property-feature">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-bath"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M4 12h16a1 1 0 0 1 1 1v3a4 4 0 0 1 -4 4h-10a4 4 0 0 1 -4 -4v-3a1 1 0 0 1 1 -1" /><path d="M6 12v-7a2 2 0 0 1 2 -2h3v2.25" /><path d="M4 21l1 -1.5" /><path d="M20 21l-1 -1.5" /></svg>&nbsp;4.5 Baños
-                        <li class="property-feature">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-ruler"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M5 4h14a1 1 0 0 1 1 1v5a1 1 0 0 1 -1 1h-7a1 1 0 0 0 -1 1v7a1 1 0 0 1 -1 1h-5a1 1 0 0 1 -1 -1v-14a1 1 0 0 1 1 -1" /><path d="M4 8l2 0" /><path d="M4 12l3 0" /><path d="M4 16l2 0" /><path d="M8 4l0 2" /><path d="M12 4l0 3" /><path d="M16 4l0 2" /></svg>&nbsp;450 m²
-                        </li>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-arrow-up-right"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M17 7l-10 10" /><path d="M8 7l9 0l0 9" /></svg>
-                    </ul>
-                </article>
-
-                <article class="property-card">
-                    <img src="assets/images/property1.jpg" alt="Property 1" class="property-image">
-                    <p class="property-price">$350,000</p>
-
-                    <button class="for-you-fav">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-heart"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M19.5 12.572l-7.5 7.428l-7.5 -7.428a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572" /></svg>
-                    </button>
-
-                    <h3 class="property-title">Casa Moderna en el Centro</h3>
-
-                    <p class="property-location">Ciudad de México, CDMX</p>
-
-                    <p class="property-type">Casa</p>
-                    
-                    <ul class="property-features">
-                        <li class="property-feature">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-bed"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M5 9a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M22 17v-3h-20" /><path d="M2 8v9" /><path d="M12 14h10v-2a3 3 0 0 0 -3 -3h-7v5" /></svg>&nbsp;4 Habs
-                        </li class="property-feature">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-bath"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M4 12h16a1 1 0 0 1 1 1v3a4 4 0 0 1 -4 4h-10a4 4 0 0 1 -4 -4v-3a1 1 0 0 1 1 -1" /><path d="M6 12v-7a2 2 0 0 1 2 -2h3v2.25" /><path d="M4 21l1 -1.5" /><path d="M20 21l-1 -1.5" /></svg>&nbsp;4.5 Baños
-                        <li class="property-feature">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-ruler"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M5 4h14a1 1 0 0 1 1 1v5a1 1 0 0 1 -1 1h-7a1 1 0 0 0 -1 1v7a1 1 0 0 1 -1 1h-5a1 1 0 0 1 -1 -1v-14a1 1 0 0 1 1 -1" /><path d="M4 8l2 0" /><path d="M4 12l3 0" /><path d="M4 16l2 0" /><path d="M8 4l0 2" /><path d="M12 4l0 3" /><path d="M16 4l0 2" /></svg>&nbsp;450 m²
-                        </li>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-arrow-up-right"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M17 7l-10 10" /><path d="M8 7l9 0l0 9" /></svg>
-                    </ul>
-                </article>
-
-                <button>Cargar más resultados</button>
-            </section>
+            </div>
         </section>
 
-        <footer class="homepage-footer">
-            <img src="assets/images/logo-big.svg" alt="Oikestia Logo" width="200" class="logo">
+        <section class="discover-section">
+            <h2>Explora más propiedades</h2>
+            <p>Desplázate para seguir descubriendo publicaciones cerca de ti.</p>
+
+            <div class="discover-listings">
+
+                <article class="property-card-compact">
+                    <div class="card-media">
+                        <img src="assets/images/property3.webp" alt="Cocina minimalista de una casa" class="card-image">
+                        <p class="card-price">$420,000</p>
+                    </div>
+                    <div class="card-body">
+                        <h3 class="card-title">Casa Minimalista en La Vista</h3>
+                        <p class="card-location">La Vista, Puebla, Pue.</p>
+                        <div class="card-footer">
+                            <ul class="card-features">
+                                <li><svg aria-hidden="true"><use href="#i-bed" /></svg>3</li>
+                                <li><svg aria-hidden="true"><use href="#i-ruler" /></svg>210 m²</li>
+                            </ul>
+                            <a href="listing.html" class="card-link" aria-label="Ver Casa Minimalista Sur">
+                                <svg aria-hidden="true"><use href="#i-arrow-up-right" /></svg>
+                            </a>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="property-card-compact">
+                    <div class="card-media">
+                        <img src="assets/images/property4.webp" alt="Terreno baldío con acceso a camino" class="card-image">
+                        <p class="card-price">$180,000</p>
+                        <span class="card-tag">Terreno</span>
+                    </div>
+                    <div class="card-body">
+                        <h3 class="card-title">Terreno Baldío en Cholula</h3>
+                        <p class="card-location">San Pedro Cholula, Pue.</p>
+                        <div class="card-footer">
+                            <ul class="card-features">
+                                <li><svg aria-hidden="true"><use href="#i-ruler" /></svg>600 m²</li>
+                            </ul>
+                            <a href="listing.html" class="card-link" aria-label="Ver Lote Residencial Bosques">
+                                <svg aria-hidden="true"><use href="#i-arrow-up-right" /></svg>
+                            </a>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="property-card-compact">
+                    <div class="card-media">
+                        <img src="assets/images/property5.webp" alt="Casa con terraza y alberca al atardecer" class="card-image">
+                        <p class="card-price">$2,100,000</p>
+                    </div>
+                    <div class="card-body">
+                        <h3 class="card-title">Casa con Vista al Club</h3>
+                        <p class="card-location">Club de Golf, Puebla, Pue.</p>
+                        <div class="card-footer">
+                            <ul class="card-features">
+                                <li><svg aria-hidden="true"><use href="#i-bed" /></svg>5</li>
+                                <li><svg aria-hidden="true"><use href="#i-ruler" /></svg>850 m²</li>
+                            </ul>
+                            <a href="listing.html" class="card-link" aria-label="Ver Residencia con Vista al Club">
+                                <svg aria-hidden="true"><use href="#i-arrow-up-right" /></svg>
+                            </a>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="property-card-compact">
+                    <div class="card-media">
+                        <img src="assets/images/property6.webp" alt="Fachada de departamento boutique de concreto y madera" class="card-image">
+                        <p class="card-price">$350,000</p>
+                    </div>
+                    <div class="card-body">
+                        <h3 class="card-title">Departamento Boutique en el Centro</h3>
+                        <p class="card-location">Centro Histórico, Puebla, Pue.</p>
+                        <div class="card-footer">
+                            <ul class="card-features">
+                                <li><svg aria-hidden="true"><use href="#i-bed" /></svg>1</li>
+                                <li><svg aria-hidden="true"><use href="#i-ruler" /></svg>85 m²</li>
+                            </ul>
+                            <a href="listing.html" class="card-link" aria-label="Ver Depa Boutique Centro">
+                                <svg aria-hidden="true"><use href="#i-arrow-up-right" /></svg>
+                            </a>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="property-card-compact">
+                    <div class="card-media">
+                        <img src="assets/images/property1.webp" alt="Casa de dos pisos con jardín" class="card-image">
+                        <p class="card-price">$640,000</p>
+                    </div>
+                    <div class="card-body">
+                        <h3 class="card-title">Casa Familiar en San Manuel</h3>
+                        <p class="card-location">San Manuel, Puebla, Pue.</p>
+                        <div class="card-footer">
+                            <ul class="card-features">
+                                <li><svg aria-hidden="true"><use href="#i-bed" /></svg>4</li>
+                                <li><svg aria-hidden="true"><use href="#i-ruler" /></svg>320 m²</li>
+                            </ul>
+                            <a href="listing.html" class="card-link" aria-label="Ver Casa Familiar Cumbres">
+                                <svg aria-hidden="true"><use href="#i-arrow-up-right" /></svg>
+                            </a>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="property-card-compact">
+                    <div class="card-media">
+                        <img src="assets/images/property2.webp" alt="Departamento luminoso con balcón" class="card-image">
+                        <p class="card-price">$295,000</p>
+                    </div>
+                    <div class="card-body">
+                        <h3 class="card-title">Departamento en Zavaleta</h3>
+                        <p class="card-location">Zavaleta, Puebla, Pue.</p>
+                        <div class="card-footer">
+                            <ul class="card-features">
+                                <li><svg aria-hidden="true"><use href="#i-bed" /></svg>2</li>
+                                <li><svg aria-hidden="true"><use href="#i-ruler" /></svg>95 m²</li>
+                            </ul>
+                            <a href="listing.html" class="card-link" aria-label="Ver Departamento Torre Aura">
+                                <svg aria-hidden="true"><use href="#i-arrow-up-right" /></svg>
+                            </a>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="property-card-compact">
+                    <div class="card-media">
+                        <img src="assets/images/property3.webp" alt="Interior de casa de campo" class="card-image">
+                        <p class="card-price">$510,000</p>
+                    </div>
+                    <div class="card-body">
+                        <h3 class="card-title">Casa de Campo en Atlixco</h3>
+                        <p class="card-location">Atlixco, Pue.</p>
+                        <div class="card-footer">
+                            <ul class="card-features">
+                                <li><svg aria-hidden="true"><use href="#i-bed" /></svg>3</li>
+                                <li><svg aria-hidden="true"><use href="#i-ruler" /></svg>1,200 m²</li>
+                            </ul>
+                            <a href="listing.html" class="card-link" aria-label="Ver Casa de Campo El Encino">
+                                <svg aria-hidden="true"><use href="#i-arrow-up-right" /></svg>
+                            </a>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="property-card-compact">
+                    <div class="card-media">
+                        <img src="assets/images/property4.webp" alt="Terreno baldío plano con acceso a camino" class="card-image">
+                        <p class="card-price">$97,000</p>
+                        <span class="card-tag">Terreno</span>
+                    </div>
+                    <div class="card-body">
+                        <h3 class="card-title">Terreno Baldío en Cuautlancingo</h3>
+                        <p class="card-location">Cuautlancingo, Pue.</p>
+                        <div class="card-footer">
+                            <ul class="card-features">
+                                <li><svg aria-hidden="true"><use href="#i-ruler" /></svg>400 m²</li>
+                            </ul>
+                            <a href="listing.html" class="card-link" aria-label="Ver Terreno Baldío en Cuautlancingo">
+                                <svg aria-hidden="true"><use href="#i-arrow-up-right" /></svg>
+                            </a>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="property-card-compact">
+                    <div class="card-media">
+                        <img src="assets/images/property5.webp" alt="Penthouse con terraza" class="card-image">
+                        <p class="card-price">$1,780,000</p>
+                    </div>
+                    <div class="card-body">
+                        <h3 class="card-title">Departamento Penthouse en Angelópolis</h3>
+                        <p class="card-location">Angelópolis, Puebla, Pue.</p>
+                        <div class="card-footer">
+                            <ul class="card-features">
+                                <li><svg aria-hidden="true"><use href="#i-bed" /></svg>3</li>
+                                <li><svg aria-hidden="true"><use href="#i-ruler" /></svg>280 m²</li>
+                            </ul>
+                            <a href="listing.html" class="card-link" aria-label="Ver Penthouse Skyline">
+                                <svg aria-hidden="true"><use href="#i-arrow-up-right" /></svg>
+                            </a>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="property-card-compact">
+                    <div class="card-media">
+                        <img src="assets/images/property6.webp" alt="Casa en esquina con fachada blanca" class="card-image">
+                        <p class="card-price">$389,000</p>
+                    </div>
+                    <div class="card-body">
+                        <h3 class="card-title">Casa de Esquina en Mayorazgo</h3>
+                        <p class="card-location">Mayorazgo, Puebla, Pue.</p>
+                        <div class="card-footer">
+                            <ul class="card-features">
+                                <li><svg aria-hidden="true"><use href="#i-bed" /></svg>3</li>
+                                <li><svg aria-hidden="true"><use href="#i-ruler" /></svg>180 m²</li>
+                            </ul>
+                            <a href="listing.html" class="card-link" aria-label="Ver Casa Esquina Mitras">
+                                <svg aria-hidden="true"><use href="#i-arrow-up-right" /></svg>
+                            </a>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="property-card-compact">
+                    <div class="card-media">
+                        <img src="assets/images/property1.webp" alt="Residencia con alberca al frente" class="card-image">
+                        <p class="card-price">$920,000</p>
+                    </div>
+                    <div class="card-body">
+                        <h3 class="card-title">Casa Familiar en La Paz</h3>
+                        <p class="card-location">La Paz, Puebla, Pue.</p>
+                        <div class="card-footer">
+                            <ul class="card-features">
+                                <li><svg aria-hidden="true"><use href="#i-bed" /></svg>4</li>
+                                <li><svg aria-hidden="true"><use href="#i-ruler" /></svg>520 m²</li>
+                            </ul>
+                            <a href="listing.html" class="card-link" aria-label="Ver Residencia Las Lomas">
+                                <svg aria-hidden="true"><use href="#i-arrow-up-right" /></svg>
+                            </a>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="property-card-compact">
+                    <div class="card-media">
+                        <img src="assets/images/property2.webp" alt="Estudio pequeño amueblado" class="card-image">
+                        <p class="card-price">$165,000</p>
+                    </div>
+                    <div class="card-body">
+                        <h3 class="card-title">Departamento Estudio en Cholula</h3>
+                        <p class="card-location">San Andrés Cholula, Pue.</p>
+                        <div class="card-footer">
+                            <ul class="card-features">
+                                <li><svg aria-hidden="true"><use href="#i-bed" /></svg>1</li>
+                                <li><svg aria-hidden="true"><use href="#i-ruler" /></svg>48 m²</li>
+                            </ul>
+                            <a href="listing.html" class="card-link" aria-label="Ver Estudio Universidad">
+                                <svg aria-hidden="true"><use href="#i-arrow-up-right" /></svg>
+                            </a>
+                        </div>
+                    </div>
+                </article>
+
+            </div>
+
+            <button type="button" class="load-more-button">Cargar más resultados</button>
+        </section>
+
+    </main>
+
+    <footer class="homepage-footer">
+        <div class="footer-content">
+
+            <div class="footer-brand">
+                <img src="assets/images/logo.svg" alt="Oikestia Logo" width="100" class="logo">
+                <p>Encuentra, compara y publica propiedades en un solo lugar. Cada propietario que publica en Oikestia pasa por nuestro proceso de verificación.</p>
+
+                <div class="footer-social">
+                    <a href="" aria-label="Facebook"><svg aria-hidden="true"><use href="#i-facebook" /></svg></a>
+                    <a href="" aria-label="Instagram"><svg aria-hidden="true"><use href="#i-instagram" /></svg></a>
+                    <a href="" aria-label="X"><svg aria-hidden="true"><use href="#i-x" /></svg></a>
+                </div>
+            </div>
+
+            <div class="footer-column">
+                <h3>Explorar</h3>
+                <a href="listings.html">Publicaciones</a>
+                <a href="index.html">Casas</a>
+                <a href="index.html">Departamentos</a>
+                <a href="index.html">Terrenos</a>
+            </div>
+
+            <div class="footer-column">
+                <h3>Propietarios</h3>
+                <a href="signup.html">Publicar una propiedad</a>
+                <a href="">Proceso de verificación</a>
+                <a href="">Guía de precios</a>
+            </div>
+
+            <div class="footer-column">
+                <h3>Oikestia</h3>
+                <a href="">Sobre nosotros</a>
+                <a href="">Blog</a>
+                <a href="">Contacta a Soporte</a>
+            </div>
+
+        </div>
+
+        <div class="footer-bottom">
+            <p>© 2026 Oikestia. Todos los derechos reservados.</p>
 
             <nav>
                 <a href="">Política de Privacidad</a>
                 <a href="">Términos de Servicio</a>
-                <a href="">Contacta a Soporte</a>
+                <a href="">Aviso de Cookies</a>
             </nav>
-
-            <p>© 2026 Oikestia. Todos los derechos reservados.</p>
-
-        </footer>
-
-    </main>
+        </div>
+    </footer>
 
 </body>
 

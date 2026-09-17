@@ -1,0 +1,193 @@
+/* ============================================================
+   CARD DETALLADA  ->  .property-card-detailed
+   Usada en "Ofertas para ti": imagen grande, precio destacado,
+   favorito, características completas y agente.
+   ============================================================ */
+
+.property-card-detailed {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    background-color: var(--color-white);
+    border: 1px solid var(--border-light);
+    border-radius: 0.6rem;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.property-card-detailed:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.12),
+        0 12px 40px rgb(from var(--color-primary) r g b / 0.12);
+}
+
+/* ---- Media ---- */
+
+.property-card-detailed .card-media {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    background-color: var(--color-neutral-light);
+}
+
+.property-card-detailed .card-image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s ease;
+}
+
+.property-card-detailed:hover .card-image {
+    transform: scale(1.05);
+}
+
+.property-card-detailed .card-price {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    margin: 0;
+    padding: 0.4rem 0.9rem;
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-neutral-dark);
+    background-color: var(--color-white);
+    border-radius: 0.4rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+}
+
+.property-card-detailed .card-fav {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.6rem;
+    height: 2.6rem;
+    padding: 0;
+    color: var(--color-neutral-darker);
+    background-color: var(--color-white);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+    transition: color 0.3s ease, background-color 0.3s ease, transform 0.3s ease;
+}
+
+.property-card-detailed .card-fav svg {
+    width: 20px;
+    height: 20px;
+}
+
+.property-card-detailed .card-fav:hover {
+    color: var(--color-white);
+    background-color: var(--color-primary);
+    transform: scale(1.1);
+}
+
+/* El corazón se rellena cuando la card está marcada como favorita:
+   basta con añadir la clase .is-fav al <article> */
+.property-card-detailed.is-fav .card-fav {
+    color: var(--color-white);
+    background-color: var(--color-primary-darker);
+}
+
+.property-card-detailed.is-fav .card-fav svg {
+    fill: currentColor;
+}
+
+/* ---- Cuerpo ---- */
+
+.property-card-detailed .card-body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1rem 1.2rem 1.2rem;
+}
+
+.property-card-detailed .card-title {
+    margin: 0;
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-neutral-dark);
+    line-height: 1.3;
+}
+
+.property-card-detailed .card-location {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin: 0;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-primary-dark);
+}
+
+.property-card-detailed .card-location svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+}
+
+.property-card-detailed .card-features {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1.2rem;
+    margin: auto 0 0;
+    padding: 0.8rem 0 0;
+    list-style: none;
+    border-top: 1px solid var(--border-light);
+}
+
+.property-card-detailed .card-features li {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-neutral-darkest);
+}
+
+.property-card-detailed .card-features svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    color: var(--color-neutral-darker);
+}
+
+.property-card-detailed .card-agent {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin: 0;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-secondary-dark);
+}
+
+.property-card-detailed .card-agent svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+}
+
+/* ---- Responsive ---- */
+
+@media (max-width: 768px) {
+    .property-card-detailed .card-title {
+        font-size: var(--font-size-lg);
+    }
+
+    .property-card-detailed .card-price {
+        font-size: var(--font-size-md);
+    }
+
+    .property-card-detailed .card-features {
+        gap: 0.9rem;
+    }
+}
