@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear cuenta  Oikestia</title>
+    <meta name="description" content="Crea una cuenta en Oikestia para acceder a todas las funcionalidades y encontrar tu hogar ideal.">
+
+    <meta name="theme-color" content="#ff6c02">
+
+    <meta name="keywords" content="real estate, property search, home buying, apartment rentals, property listings, real estate platform, property discovery, real estate marketplace, login, sign up, user authentication, account creation, property management, real estate services, home search, property investment, real estate solutions, property search engine, real estate listings, property search platform">
+
+    <meta name="robots" content="index, follow, all">
+    
+    <link rel="icon" type="image/svg+xml" href="assets/images/logo.svg">
+
+    <link rel="stylesheet" href="css/tokens.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/signup.css">
+
+</head>
+
+<body>
+    <main>
+        <section class="signup-section">
+            <img src="./assets/images/signup-bg.jpg" alt="Modern interior with an outdoor view of a city skyline.">
+
+            <section class="signup-form-section">
+                <h1>Crear cuenta</h1>
+                <p>Selecciona el tipo de perfil que mejor te describe para continuar con el registro, podrás cambiarlo en cualquier momento.</p>
+
+                <div class="signup-switch-role">
+                   <button class="signup-switch-role-btn" id="user-role-btn">Soy un usuario</button>
+                   <button class="signup-switch-role-btn" id="user-role-btn">Soy un propietario</button>
+                </div>
+
+                <form action="./index.html" method="GET" class="signup-form-user">
+                    <fieldset class="signup-fieldset">
+                        <label for="name">Nombre</label>
+                        <div class="signup-name">
+                            <input type="text" id="name" name="name" placeholder="John Doe" required>
+                        </div>
+                        
+                        <label for="email">Email</label>
+                        <div class="signup-email">
+                            <input type="email" id="email" name="email" placeholder="nombre@gmail.com" required>
+                        </div>
+
+                        <label for="tel">Teléfono de contacto</label>
+                        <div class="signup-name">
+                            <input
+                                type="tel"
+                                id="tel"
+                                name="tel"
+                                inputmode="tel"
+                                autocomplete="tel"
+                                placeholder="+1 234 567 8901"
+                                pattern="^\+?[0-9\s()\-]{8,20}$"
+                                minlength="8"
+                                maxlength="20"
+                                required>
+                        </div>
+
+                        <label for="password">Contraseña</label>
+                        <div class="signup-password">
+                            <input type="password" id="password" name="password" placeholder="" required>
+                        </div>
+
+                        <label for="confirm-password">Confirmar contraseña</label>
+                        <div class="signup-password">
+                            <input type="password" id="confirm-password" name="confirm-password" placeholder="Confirmar contraseña" required>
+                        </div>
+
+                    </fieldset>
+                    <input type="submit" value="Registrarse como usuario">
+                </form>
+
+                <form action="./index.html" method="GET" class="signup-form-owner">
+                    <div>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-id"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M3 7a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v10a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3l0 -10" /><path d="M7 10a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M15 8l2 0" /><path d="M15 12l2 0" /><path d="M7 16l10 0" /></svg>
+                        <div>
+                            <h4>Proceso de verificación</h4>
+                            <p>Para registrarte como propietario, es necesario que completes un proceso de verificación de identidad. Esto nos ayuda a garantizar la seguridad y confiabilidad de nuestra plataforma.</p>
+                        </div>
+                    </div>
+                    <fieldset class="signup-fieldset">
+                        <label for="name">Nombre Completo</label>
+                        <div class="signup-name">
+                            <input type="text" id="name" name="name" placeholder="Nombre completo según documento oficial" required>
+                        </div>
+                        
+                        <label for="email">Email</label>
+                        <div class="signup-email">
+                            <input type="email" id="email" name="email" placeholder="nombre@gmail.com" required>
+                        </div>
+                        
+                        <label for="tel">Teléfono de contacto</label>
+                        <div class="signup-name">
+                            <input
+                                type="tel"
+                                id="tel"
+                                name="tel"
+                                inputmode="tel"
+                                autocomplete="tel"
+                                placeholder="+1 234 567 8901"
+                                pattern="^\+?[0-9\s()\-]{8,20}$"
+                                minlength="8"
+                                maxlength="20"
+                                required>
+                        </div>
+
+                        <label for="password">Contraseña</label>
+                        <div class="signup-password">
+                            <input type="password" id="password" name="password" placeholder="" required>
+                        </div>
+
+                        <label for="confirm-password">Confirmar contraseña</label>
+                        <div class="signup-password">
+                            <input type="password" id="confirm-password" name="confirm-password" placeholder="Confirmar contraseña" required>
+                        </div>
+
+                    </fieldset>
+                    <input type="submit" value="Comenzar verificación">
+                </form>
+
+                <p>¿Ya tienes cuenta?</p>&nbsp;<a  href="login.html">Inicia sesión</a>
+            </section>
+        </section>
+    </main>    
+</body>
+
+</html>
