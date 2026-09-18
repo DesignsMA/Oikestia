@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#e96701">
+    <title>Casa Lumina | Oikestia</title>
+
+    <meta name="description" content="Casa Lumina: residencia moderna de 3 habitaciones en Monterrey. Conoce fotos, amenidades, ubicación y contacta directamente al propietario verificado en Oikestia.">
+
+    <meta name="keywords" content="real estate, property search, home buying, apartment rentals, property listings, real estate platform, property discovery, real estate marketplace">
+    <meta name="robots" content="index, follow, all">
+
+    <link rel="icon" type="image/svg+xml" href="./assets/images/logo.svg">
+
+    <!--Open Graph Meta Tags -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Casa Lumina | Oikestia">
+    <meta property="og:description" content="Casa Lumina: residencia moderna de 3 habitaciones en Monterrey. Conoce fotos, amenidades, ubicación y contacta directamente al propietario verificado en Oikestia.">
+    <meta property="og:image" content="./assets/images/logo.svg">
+    <meta property="og:url" content="https://oikestia.com">
+
+    <link rel="stylesheet" href="https://necolas.github.io/normalize.css/8.0.1/normalize.css">
+    <link rel="stylesheet" href="css/tokens.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/homepage.css">
+    <link rel="stylesheet" href="css/listing.css">
+</head>
+
+<body>
+
+    <!-- Iconos Tabler -->
+    <svg xmlns="http://www.w3.org/2000/svg" class="icon-sprite" aria-hidden="true" style="display: none">
+        <symbol id="i-heart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19.5 12.572l-7.5 7.428l-7.5 -7.428a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572" />
+        </symbol>
+        <symbol id="i-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 11a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" />
+            <path d="M17.657 16.657l-4.243 4.243a2 2 0 0 1 -2.827 0l-4.244 -4.243a8 8 0 1 1 11.314 0z" />
+        </symbol>
+        <symbol id="i-bed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 9a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+            <path d="M22 17v-3h-20" />
+            <path d="M2 8v9" />
+            <path d="M12 14h10v-2a3 3 0 0 0 -3 -3h-7v5" />
+        </symbol>
+        <symbol id="i-bath" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 12h16a1 1 0 0 1 1 1v3a4 4 0 0 1 -4 4h-10a4 4 0 0 1 -4 -4v-3a1 1 0 0 1 1 -1" />
+            <path d="M6 12v-7a2 2 0 0 1 2 -2h3v2.25" />
+            <path d="M4 21l1 -1.5" />
+            <path d="M20 21l-1 -1.5" />
+        </symbol>
+        <symbol id="i-ruler" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 4h14a1 1 0 0 1 1 1v5a1 1 0 0 1 -1 1h-7a1 1 0 0 0 -1 1v7a1 1 0 0 1 -1 1h-5a1 1 0 0 1 -1 -1v-14a1 1 0 0 1 1 -1" />
+            <path d="M4 8l2 0" />
+            <path d="M4 12l3 0" />
+            <path d="M4 16l2 0" />
+            <path d="M8 4l0 2" />
+            <path d="M12 4l0 3" />
+            <path d="M16 4l0 2" />
+        </symbol>
+        <symbol id="i-agent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" />
+            <path d="M6 21v-2a4 4 0 0 1 4 -4h4" />
+            <path d="M15 19l2 2l4 -4" />
+        </symbol>
+        <symbol id="i-arrow-up-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 7l-10 10" />
+            <path d="M8 7l9 0l0 9" />
+        </symbol>
+        <symbol id="i-facebook" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M7 10v4h3v7h4v-7h3l1 -4h-4v-2a1 1 0 0 1 1 -1h3v-4h-3a5 5 0 0 0 -5 5v2h-3" />
+        </symbol>
+        <symbol id="i-instagram" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 8a4 4 0 0 1 4 -4h8a4 4 0 0 1 4 4v8a4 4 0 0 1 -4 4h-8a4 4 0 0 1 -4 -4z" />
+            <path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" />
+            <path d="M16.5 7.5v.01" />
+        </symbol>
+        <symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 4l11.733 16h4.267l-11.733 -16z" />
+            <path d="M4 20l6.768 -6.768m2.46 -2.46l6.772 -6.772" />
+        </symbol>
+
+        <symbol id="i-gallery" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+            <path d="M7 5.667a2.667 2.667 0 0 1 2.667 -2.667h8.666a2.667 2.667 0 0 1 2.667 2.667v8.666a2.667 2.667 0 0 1 -2.667 2.667h-8.666a2.667 2.667 0 0 1 -2.667 -2.667l0 -8.666" />
+            <path d="M4.012 7.26a2.005 2.005 0 0 0 -1.012 1.737v10c0 1.1 .9 2 2 2h10c.75 0 1.158 -.385 1.5 -1" />
+            <path d="M17 7h.01" />
+            <path d="M7 13l3.644 -3.644a1.21 1.21 0 0 1 1.712 0l3.644 3.644" />
+            <path d="M15 12l1.644 -1.644a1.21 1.21 0 0 1 1.712 0l2.644 2.644" />
+        </symbol>
+        <symbol id="i-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" /><path d="M12 7v5l3 3" /></symbol>
+        <symbol id="i-garage" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M5 20a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M15 20a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M5 20h-2v-6l2 -5h9l4 5h1a2 2 0 0 1 2 2v4h-2m-4 0h-6m-6 -6h15m-6 0v-5" /><path d="M3 6l9 -4l9 4" /></symbol>
+
+        <!-- Contacto del propietario -->
+        <symbol id="i-verified" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" /><path d="M9 12l2 2l4 -4" /></symbol>
+        <symbol id="i-phone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M5 4h4l2 5l-2.5 1.5a11 11 0 0 0 5 5l1.5 -2.5l5 2v4a2 2 0 0 1 -2 2a16 16 0 0 1 -15 -15a2 2 0 0 1 2 -2" /></symbol>
+        <symbol id="i-calendar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z" /><path d="M16 3v4" /><path d="M8 3v4" /><path d="M4 11h16" /><path d="M11 15h1" /><path d="M12 15v3" /></symbol>
+
+        <!-- Amenidades -->
+        <symbol id="i-pool" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M3 7c3 -2 6 -2 9 0s6 2 9 0" /><path d="M3 12c3 -2 6 -2 9 0s6 2 9 0" /><path d="M3 17c3 -2 6 -2 9 0s6 2 9 0" /></symbol>
+        <symbol id="i-flame" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M12 12c2 -2.96 0 -7 -1 -8c0 3.038 -1.773 4.741 -3 6c-1.226 1.26 -2 3.24 -2 5a6 6 0 1 0 12 0c0 -1.532 -1.056 -3.94 -2 -5c-1.786 3 -2.791 3 -4 2z" /></symbol>
+        <symbol id="i-smart-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M19 8.71l-5.333 -4.148a2.666 2.666 0 0 0 -3.274 0l-5.334 4.148a2.665 2.665 0 0 0 -1.029 2.105v7.2a1.6 1.6 0 0 0 1.6 1.6h12.8a1.6 1.6 0 0 0 1.6 -1.6v-7.2c0 -.823 -.38 -1.6 -1.03 -2.105" /><path d="M16 15c-2.21 1.333 -5.792 1.333 -8 0" /></symbol>
+        <symbol id="i-air" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M12 3v18" /><path d="M3 12h18" /><path d="M5.6 5.6l12.8 12.8" /><path d="M18.4 5.6l-12.8 12.8" /></symbol>
+        <symbol id="i-wine" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M8 21l8 0" /><path d="M12 15l0 6" /><path d="M17 3l1 7c0 2.761 -2.686 5 -6 5s-6 -2.239 -6 -5l1 -7z" /></symbol>
+        <symbol id="i-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M12 3a12 12 0 0 0 8.5 3a12 12 0 0 1 -8.5 15a12 12 0 0 1 -8.5 -15a12 12 0 0 0 8.5 -3" /><path d="M12 11m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" /><path d="M12 12l0 2.5" /></symbol>
+    </svg>
+
+    <header class="homepage-header">
+        <div class="header-content">        
+            <div class="header-logo">
+                <img src="./assets/images/logo.svg" alt="Oikestia Logo" width="200" class="logo">
+                <h1>Oikestia</h1>
+            </div>
+            
+            <nav class="nav-links">
+                <a class="nav-link" href="index.html" target="_blank">Buscar</a>
+                <a class="nav-link" href="listings.html">Publicaciones</a>
+            </nav>
+
+            <button type="submit" class="publish-btn">Publicar</button>
+
+            <a href="login.html" class="user-account">
+                <img src="assets/images/user-placeholder.webp" alt="User Account" width="30" class="user-icon">
+            </a>
+        </div>
+    </header>
+
+    <main>
+        <section class="listing-section">
+
+            <div class="listing-gallery">
+                <div class="gallery-item">
+                    <img src="assets/images/listing-placeholder.webp" alt="Fachada de Casa Lumina al atardecer" class="listing-image">
+                </div>
+                <div class="gallery-item">
+                    <img src="assets/images/listing-placeholder1.webp" alt="Sala principal de Casa Lumina" class="listing-image">
+                </div>
+                <div class="gallery-item">
+                    <div class="gallery-item-overlay">
+                        <svg aria-hidden="true"><use href="#i-gallery" /></svg>
+                        <a href="#" class="overlay-link link">Ver todas las fotos.</a>
+                    </div>
+                    <img src="assets/images/listing-placeholder2.webp" alt="Cocina y comedor de Casa Lumina" class="listing-image">
+                </div>
+            </div>
+
+            <div class="listing-layout">
+
+                <!-- ============ Contenido de la propiedad ============ -->
+                <article class="listing-main">
+
+                    <div class="listing-state">
+                        <span class="listing-for-sale">En venta</span>
+                        <span class="listing-info">
+                            <svg aria-hidden="true"><use href="#i-clock" /></svg>
+                            <span class="listing-date">Publicado hace 3 días</span>
+                        </span>
+                    </div>
+
+                    <h1 class="listing-title">Casa Lumina, Moderna y Acogedora</h1>
+
+                    <div class="listing-info">
+                        <svg aria-hidden="true"><use href="#i-pin" /></svg>
+                        <p>Av. Principal 123, Valle Oriente, San Pedro Garza García, N.L.</p>
+                    </div>
+
+                    <ul class="listing-features">
+                        <li class="feature-item">
+                            <svg aria-hidden="true"><use href="#i-bed" /></svg>
+                            <span class="feature-value">3</span>
+                            <span class="feature-label">Habitaciones</span>
+                        </li>
+                        <li class="feature-item">
+                            <svg aria-hidden="true"><use href="#i-bath" /></svg>
+                            <span class="feature-value">2</span>
+                            <span class="feature-label">Baños</span>
+                        </li>
+                        <li class="feature-item">
+                            <svg aria-hidden="true"><use href="#i-garage" /></svg>
+                            <span class="feature-value">1</span>
+                            <span class="feature-label">Cochera</span>
+                        </li>
+                        <li class="feature-item">
+                            <svg aria-hidden="true"><use href="#i-ruler" /></svg>
+                            <span class="feature-value">400</span>
+                            <span class="feature-label">m² de construcción</span>
+                        </li>
+                    </ul>
+
+                    <h2>Acerca de la propiedad</h2>
+                    <p>Casa Lumina se levanta sobre una de las lomas más altas del valle y aprovecha esa posición en cada habitación: los muros de cristal corredizo abren la planta baja hacia la terraza y borran el límite entre el interior y el jardín.</p>
+                    <p>El nivel principal ofrece techos de cuatro metros, una sala y comedor de concepto abierto y una cocina con isla de mármol, alacena independiente y electrodomésticos de línea profesional. La iluminación es natural durante casi todo el día gracias a la orientación poniente.</p>
+                    <p>La recámara principal funciona como una suite privada, con terraza envolvente, vestidor y un baño con tina exenta frente a la vista de la ciudad. La propiedad incluye además sala de cine, cava climatizada, alberca desbordante y cocina exterior completamente equipada.</p>
+
+                    <h2>Características y amenidades</h2>
+                    <ul class="listing-amenities">
+                        <li><svg aria-hidden="true"><use href="#i-pool" /></svg>Alberca desbordante</li>
+                        <li><svg aria-hidden="true"><use href="#i-air" /></svg>Aire acondicionado central</li>
+                        <li><svg aria-hidden="true"><use href="#i-flame" /></svg>Chimeneas en sala y recámara</li>
+                        <li><svg aria-hidden="true"><use href="#i-wine" /></svg>Cava climatizada</li>
+                        <li><svg aria-hidden="true"><use href="#i-smart-home" /></svg>Sistema de casa inteligente</li>
+                        <li><svg aria-hidden="true"><use href="#i-shield" /></svg>Acceso controlado y vigilancia</li>
+                    </ul>
+
+                    <h2>Ubicación</h2>
+                    <div class="listing-map">
+                        <!-- Aquí va el iframe del mapa -->
+                    </div>
+
+                </article>
+
+                <!-- ============ Columna de contacto ============ -->
+                <aside class="listing-sidebar" aria-label="Contacto de la propiedad">
+
+                    <!-- Información del propietario -->
+                    <aside class="listing-owner" aria-label="Información del propietario">
+                        <div class="owner-identity">
+                            <img src="assets/images/user-placeholder.webp" alt="Foto de Alejandro Pierce" class="owner-avatar">
+                            <div>
+                                <h2 class="owner-name">
+                                    Alejandro Pierce
+                                    <svg class="owner-verified" aria-label="Propietario verificado" role="img"><use href="#i-verified" /></svg>
+                                </h2>
+                                <p class="owner-role">Propietario verificado</p>
+                            </div>
+                        </div>
+
+                        <a href="tel:+528112345678" class="owner-phone">
+                            <svg aria-hidden="true"><use href="#i-phone" /></svg>(81) 1234-5678
+                        </a>
+                    </aside>
+
+                    <!-- Formulario de contacto -->
+                    <section class="listing-contact">
+                        <h2>¿Te interesa esta propiedad?</h2>
+
+                        <form action="./index.html" method="POST">
+                            <fieldset class="contact-fieldset">
+                                <label for="fullname">Nombre completo</label>
+                                <input type="text" id="fullname" name="fullname" placeholder="Juana Pérez" required>
+
+                                <label for="email">Correo electrónico</label>
+                                <input type="email" id="email" name="email" placeholder="nombre@gmail.com" required>
+
+                                <label for="message">Mensaje</label>
+                                <textarea id="message" name="message" placeholder="Me interesa agendar una visita para Casa Lumina..." required></textarea>
+                            </fieldset>
+
+                            <input type="submit" value="Enviar correo" class="contact-submit">
+
+                            <button type="button" class="tour-button">
+                                <svg aria-hidden="true"><use href="#i-calendar" /></svg>Solicitar visita
+                            </button>
+                        </form>
+                    </section>
+
+                </aside>
+
+            </div>
+        </section>
+    </main>
+
+    <footer class="homepage-footer">
+        <div class="footer-content">
+
+            <div class="footer-brand">
+                <img src="assets/images/logo.svg" alt="Oikestia Logo" width="100" class="logo">
+                <p>Encuentra, compara y publica propiedades en un solo lugar. Cada propietario que publica en Oikestia pasa por nuestro proceso de verificación.</p>
+
+                <div class="footer-social">
+                    <a href="" aria-label="Facebook"><svg aria-hidden="true"><use href="#i-facebook" /></svg></a>
+                    <a href="" aria-label="Instagram"><svg aria-hidden="true"><use href="#i-instagram" /></svg></a>
+                    <a href="" aria-label="X"><svg aria-hidden="true"><use href="#i-x" /></svg></a>
+                </div>
+            </div>
+
+            <div class="footer-column">
+                <h3>Explorar</h3>
+                <a href="listings.html">Publicaciones</a>
+                <a href="index.html">Casas</a>
+                <a href="index.html">Departamentos</a>
+                <a href="index.html">Terrenos</a>
+            </div>
+
+            <div class="footer-column">
+                <h3>Propietarios</h3>
+                <a href="signup.html">Publicar una propiedad</a>
+                <a href="">Proceso de verificación</a>
+                <a href="">Guía de precios</a>
+            </div>
+
+            <div class="footer-column">
+                <h3>Oikestia</h3>
+                <a href="">Sobre nosotros</a>
+                <a href="">Blog</a>
+                <a href="">Contacta a Soporte</a>
+            </div>
+
+        </div>
+
+        <div class="footer-bottom">
+            <p>© 2026 Oikestia. Todos los derechos reservados.</p>
+
+            <nav>
+                <a href="">Política de Privacidad</a>
+                <a href="">Términos de Servicio</a>
+                <a href="">Aviso de Cookies</a>
+            </nav>
+        </div>
+    </footer>
+
+</body>
+
+</html>
