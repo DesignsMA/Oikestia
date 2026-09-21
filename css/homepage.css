@@ -59,19 +59,6 @@ body {
 }
 
 
-.homepage-header a {
-    margin-top: -0.5rem;
-    color: var(--text-link);
-    text-decoration: underline;
-    text-decoration-thickness: 3px;
-    text-underline-offset: 7px;
-    transition: color 0.3s ease;
-}
-
-.homepage-header a:hover {
-    color: var(--text-link-hover);
-}
-
 .nav-links {
     display: flex;
     gap: 0.8rem;
@@ -81,6 +68,25 @@ body {
     margin-left: auto;
     margin-right: auto;
 }
+
+.nav-link {
+    margin-top: -0.5rem;
+    color: var(--text-link);
+    text-decoration: underline;
+    text-decoration-thickness: 3px;
+    text-underline-offset: 7px;
+    transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+    color: var(--text-link-hover);
+}
+
+.link-inactive {
+    color: var(--color-neutral-dark);
+    cursor: default;
+}
+
 
 .user-account {
     display: flex;
@@ -472,11 +478,6 @@ body {
     margin: 0 0 1rem;
 }
 
-/*
-   Contenedor 4x3: cuatro columnas fijas y altura recortada a tres
-   filas. El resto de las cards se alcanzan con scroll vertical, asi
-   que se pueden inyectar cuantas se quieran sin romper el layout.
-*/
 .discover-listings {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
