@@ -1,0 +1,13 @@
+# Normalizar fin de línea: evita saltos CRLF de Windows en scripts de Docker
+* text=auto eol=lf
+
+# Archivos de shell y Python siempre con LF
+*.sh text eol=lf
+*.py text eol=lf
+Dockerfile text eol=lf
+
+# Binarios e imágenes sin transformación
+*.webp binary
+*.png binary
+*.jpg binary
+*.svg text

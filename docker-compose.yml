@@ -1,0 +1,55 @@
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    volumes:
+      - mongo-data:/data/db
+    ports:
+      - "27017:27017"
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      mongo:
+        condition: service_healthy
+    environment:
+      MONGODB_URI: mongodb://mongo:27017
+      MONGODB_DB: ${MONGODB_DB:-oikestia}
+      DATA_ENCRYPTION_KEY: ${DATA_ENCRYPTION_KEY}
+      SESSION_SECRET: ${SESSION_SECRET}
+      DASH_HANDOFF_SECRET: ${DASH_HANDOFF_SECRET}
+      DASH_PUBLIC_URL: http://localhost:8050
+      APP_PUBLIC_URL: http://localhost:3000
+      DEV_AUTO_VERIFY: ${DEV_AUTO_VERIFY:-true}
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+      NOMINATIM_CONTACT_EMAIL: ${NOMINATIM_CONTACT_EMAIL:-}
+      NOMINATIM_URL: ${NOMINATIM_URL:-https://nominatim.openstreetmap.org}
+      GEOCODER: ${GEOCODER:-on}
+    ports:
+      - "3000:3000"
+
+  dashboard:
+    build:
+      context: ./apps/dashboard
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      mongo:
+        condition: service_healthy
+    environment:
+      MONGODB_URI: mongodb://mongo:27017
+      MONGODB_DB: ${MONGODB_DB:-oikestia}
+      DASH_HANDOFF_SECRET: ${DASH_HANDOFF_SECRET}
+    ports:
+      - "8050:8050"
+
+volumes:
+  mongo-data:

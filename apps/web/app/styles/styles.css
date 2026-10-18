@@ -1,0 +1,118 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: var(--font-body);
+    font-weight: var(--font-weight-medium);
+}
+
+p, a {
+    font-size: max(var(--font-size-md), 1.2vw);
+}
+
+h1 {
+    font-family: var(--font-family-secondary);
+    font-size: clamp(var(--font-size-2xl), 6vw, 8vw);
+    font-weight: var(--font-weight-bold);
+    margin: 0;
+    align-self: center;
+}
+
+h2 {
+    font-family: var(--font-family-secondary);
+    font-size: clamp(var(--font-size-xl), 2.5vw, 3.3vw);
+    font-weight: var(--font-weight-bold);
+}
+
+fieldset {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    font-size: max(var(--font-size-md), 1.2vw);
+    margin: 2vh 0;
+    border: none;
+    padding: 0;
+}
+
+fieldset label {
+    cursor: pointer;
+}
+
+fieldset input {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid var(--border-light);
+    border-radius: 10px;
+    margin-top: 0.5rem;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+}
+
+fieldset input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0px 22px rgb(from var(--color-primary) r g b / 0.15);
+}
+
+fieldset input:hover {
+    border-color: var(--color-primary);
+}
+
+.link {
+    color: var(--text-link);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.link:hover {
+    color: var(--text-link-hover);
+}
+
+/* Avisos de estado (contacto, panel) */
+.contact-aviso {
+    box-sizing: border-box;
+    margin: 0.5rem 0;
+    padding: 0.7rem 0.9rem;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    border: 1px solid;
+    border-radius: 10px;
+}
+
+.contact-ok {
+    color: var(--color-secondary-dark);
+    background-color: rgb(from var(--color-secondary) r g b / 0.08);
+    border-color: var(--color-secondary);
+}
+
+.contact-error {
+    color: var(--color-primary-darker);
+    background-color: rgb(from var(--color-primary) r g b / 0.08);
+    border-color: var(--color-primary);
+}
+
+
+/* Animaciones */
+
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes GradientFade {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
