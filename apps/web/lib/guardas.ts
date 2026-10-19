@@ -7,11 +7,7 @@ export function ipDe(req: NextRequest): string {
   return req.headers.get("x-real-ip") ?? "local";
 }
 
-/**
- * Origen de peticiones mutantes (CSRF básico): los navegadores
- * envían Sec-Fetch-Site y Origin; se rechazan las cross-site. Sin esos
- * headers (curl, herramientas) se permite.
- */
+/** Origen de peticiones mutantes (CSRF básico) vía Sec-Fetch-Site / Origin. */
 export function origenOk(req: NextRequest): boolean {
   const sitio = req.headers.get("sec-fetch-site");
   if (sitio) return sitio === "same-origin" || sitio === "same-site" || sitio === "none";

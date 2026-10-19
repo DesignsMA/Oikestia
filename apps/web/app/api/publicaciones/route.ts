@@ -38,11 +38,7 @@ function simplificar(l: ListingDoc) {
   };
 }
 
-/**
- * Crea una publicación (multipart: campos planos + archivos repetidos en
- * "fotos"). Solo propietarios verificados (o con DEV_AUTO_VERIFY en dev).
- * El asistente de /propietario/publicar la envía con fetch y recibe JSON.
- */
+/** Crea una publicación (multipart: campos + archivos en "fotos"). Solo propietarios verificados. */
 export async function POST(req: NextRequest) {
   const user = await getSessionUser();
   if (!user) {
@@ -159,9 +155,7 @@ export async function POST(req: NextRequest) {
 
     const res = await listings.insertOne(doc as unknown as ListingDoc);
 
-    // Geocodificación en segundo plano (cascada de ~3 intentos a 1 req/s):
-    // la respuesta no espera el mapa y, si Nominatim no encuentra la
-    // dirección, la ficha muestra solo el texto.
+    // Geocodificación en segundo plano: no espera el mapa ni falla el alta.
     void geocodificarDireccion(doc.direccion)
       .then(async (coords) => {
         if (coords) {

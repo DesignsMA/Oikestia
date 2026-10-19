@@ -7,11 +7,7 @@ import { createSession } from "@/lib/auth";
 import { consumir, reiniciar, QUINCE_MIN } from "@/lib/rate-limit";
 import { ipDe } from "@/lib/guardas";
 
-/**
- * Límite de intentos persistente en Mongo: 5 intentos / 15 min
- * por IP y 10 / 15 min por identificador de cuenta. En un login
- * exitoso se vacían ambos contadores.
- */
+/** Límite de intentos: 5/15 min por IP, 10/15 min por cuenta; se vacía al acertar. */
 const MAX_POR_IP = 5;
 const MAX_POR_CUENTA = 10;
 

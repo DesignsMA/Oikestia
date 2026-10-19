@@ -1,13 +1,6 @@
 /**
- * Geocodificación de direcciones con Nominatim (OpenStreetMap).
- * Política de uso: identificación obligatoria (User-Agent con contacto),
- * máximo 1 petición por segundo y sin bulk — solo geocodificar direcciones
- * nuevas al publicar, nunca en bucle.
- *
- * Variables:
- *   NOMINATIM_CONTACT_EMAIL  para el User-Agent (recomendado en producción)
- *   NOMINATIM_URL            por defecto https://nominatim.openstreetmap.org
- *   GEOCODER=off             desactiva la geocodificación (pruebas sin red)
+ * Geocodificación con Nominatim (OpenStreetMap): 1 req/s, User-Agent con
+ * contacto. NOMINATIM_URL cambia la instancia; GEOCODER=off la desactiva.
  */
 
 let ultimoRequest = 0;
@@ -35,10 +28,7 @@ async function esperaCuota(): Promise<void> {
   ultimoRequest = Date.now();
 }
 
-/**
- * Geocodifica una consulta de texto libre. Devuelve [lng, lat] (GeoJSON) o
- * null. Nunca lanza: publicar no debe fallar por el mapa.
- */
+/** Geocodifica texto libre → [lng, lat] (GeoJSON) o null. Nunca lanza. */
 export async function geocodificar(consulta: string): Promise<[number, number] | null> {
   if (!activo()) return null;
   const q = consulta.trim();
@@ -78,12 +68,7 @@ export async function geocodificar(consulta: string): Promise<[number, number] |
 
 export type Direccion = { calle: string; colonia: string; ciudad: string; estado: string; cp: string };
 
-/**
- * Dirección de una publicación → coordenadas. Nominatim es exigente con
- * direcciones largas (colonia con guiones, "C.P."), así que se intenta de
- * más completa a más simple hasta encontrar coincidencia. Cada intento
- * espera la cuota de 1 req/s.
- */
+/** Dirección → coordenadas, probando variantes de la dirección de más completa a más simple. */
 export async function geocodificarDireccion(d: Direccion): Promise<[number, number] | null> {
   if (!activo()) return null;
   const variantes = [

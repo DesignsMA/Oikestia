@@ -1,11 +1,7 @@
 import Link from "next/link";
 import { getSessionUser } from "@/lib/auth";
 
-/**
- * Encabezado fijo con blur, idéntico al legacy (.homepage-header).
- * Muestra Inicio, Publicaciones y Buscar en mapa; y según la sesión
- * el acceso a Iniciar sesión / Crear cuenta o a Cerrar sesión.
- */
+/** Encabezado fijo con blur; según la sesión muestra acceso o cierre de sesión. */
 export default async function Header() {
   const user = await getSessionUser();
 

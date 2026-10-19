@@ -1,10 +1,4 @@
-"""Validación de configuración al arrancar el dashboard.
-
-En producción explícita (APP_ENV=production, inyectado por
-docker-compose.prod.yml) el proceso no debe arrancar con secretos débiles.
-Se ejecuta en el CMD del contenedor antes de gunicorn y también al importar
-app.py, para que cualquier forma de arranque quede protegida.
-"""
+"""Validación de configuración al arrancar (solo APP_ENV=production)."""
 
 import os
 import sys

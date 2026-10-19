@@ -1,10 +1,6 @@
 import { getGridFS } from "./db";
 
-/**
- * Subida de archivos a GridFS con límites del plan:
- * máximo 8 MB por imagen (MAX_UPLOAD_MB) y 20 fotos por publicación
- * (MAX_IMAGES_PER_LISTING). Solo tipos de imagen permitidos.
- */
+/** Subida a GridFS: MAX_UPLOAD_MB por imagen, MAX_IMAGES_PER_LISTING por publicación. */
 
 export const TIPOS_PERMITIDOS = new Set([
   "image/jpeg",

@@ -4,12 +4,7 @@ import { geocodificar } from "@/lib/geocode";
 import { consumir, MINUTO } from "@/lib/rate-limit";
 import { ipDe } from "@/lib/guardas";
 
-/**
- * Proxy de Nominatim para centrar el mapa de /buscar.
- * Así el navegador no llama directo a Nominatim (User-Agent y cuota
- * de 1 req/s se gestionan en el servidor). Límite: 15 búsquedas por
- * minuto e IP, antes incluso de validar la consulta.
- */
+/** Proxy de Nominatim para /buscar: 15 búsquedas/minuto por IP. */
 export async function GET(req: NextRequest) {
   const porIp = await consumir(`geocode:${ipDe(req)}`, 15, MINUTO);
   if (!porIp.permitido) {

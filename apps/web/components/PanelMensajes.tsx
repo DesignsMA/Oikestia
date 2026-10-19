@@ -25,11 +25,7 @@ function fecha(iso: string): string {
   });
 }
 
-/**
- * Panel de conversaciones: lista de hilos + hilo abierto.
- * La lista se refresca cada 5 s y el hilo abierto cada 4 s (polling
- * simple, sin WebSockets); los envíos fuerzan la recarga inmediata.
- */
+/** Panel de conversaciones: lista de hilos + hilo abierto (polling 5 s / 4 s). */
 export default function PanelMensajes() {
   const [hilos, setHilos] = useState<HiloUI[] | null>(null);
   const [errorLista, setErrorLista] = useState<string | null>(null);

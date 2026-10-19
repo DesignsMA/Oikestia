@@ -2,13 +2,7 @@ import type { NextConfig } from "next";
 
 const esProd = process.env.NODE_ENV === "production";
 
-/**
- * CSP de la app web: sin scripts ni estilos de origen externo;
- * 'unsafe-inline' es necesario porque Next inyecta scripts inline sin
- * nonces. Los mapas de OpenStreetMap (tiles e iframe) son los únicos
- * recursos externos permitidos. Solo se envía en producción para no
- * interferir con el HMR de desarrollo.
- */
+/** CSP sin orígenes externos salvo OSM; solo en producción (HMR en dev). */
 const CSP = [
   "default-src 'self'",
   "base-uri 'self'",

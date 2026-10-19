@@ -9,11 +9,7 @@ import {
   type AmenityKey,
 } from "./validators";
 
-/**
- * Modelo de publicaciones.
- * Las fotos van a GridFS (bucket "fotos"); las de ejemplo/seed apuntan a /images.
- * Precios siempre en MXN.
- */
+/** Modelo de publicaciones: fotos en GridFS (las de ejemplo, en /images); precios en MXN. */
 
 export type ListingFoto = {
   /** Presente si la foto vive en GridFS. */
@@ -33,7 +29,7 @@ export type ListingDoc = {
   moneda: "MXN";
   descripcion: string;
   direccion: { calle: string; colonia: string; ciudad: string; estado: string; cp: string };
-  /** Opcional hasta geocodificar la direcci\u00f3n. */
+  /** Opcional: se completa al geocodificar la dirección. */
   ubicacion?: { type: "Point"; coords: [number, number] };
   caracteristicas: {
     recamaras?: number;

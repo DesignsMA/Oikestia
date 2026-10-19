@@ -1,14 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { origenOk } from "@/lib/guardas";
 
-/**
- * Endurecimiento global de /api:
- * 1) Host permitido — evita host header injection en los redirects.
- *    Loopback siempre; el resto vía TRUSTED_HOSTS / APP_PUBLIC_URL.
- * 2) Origen de mutaciones — POST/PUT/PATCH/DELETE con Sec-Fetch-Site
- *    u Origin cross-site se rechazan (CSRF básico).
- * 3) Métodos API — solo GET/POST/HEAD; el resto responde 405.
- */
+/** Guardas globales de /api: host permitido, método y origen (CSRF). */
 
 const METODO_API = /^(GET|POST|HEAD)$/;
 

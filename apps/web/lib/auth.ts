@@ -3,10 +3,7 @@ import { ObjectId } from "mongodb";
 import { getCollections } from "./db";
 import { randomToken, sha256, decryptField } from "./crypto";
 
-/**
- * Sesiones con cookie httpOnly de token opaco.
- * En Mongo solo se guarda el hash SHA-256 del token: revocable y con índice TTL.
- */
+/** Sesiones: cookie httpOnly con token opaco; en Mongo solo vive su hash (TTL 30 d). */
 
 export const SESSION_COOKIE = "oikestia_session";
 const SESSION_DAYS = 30;
@@ -46,9 +43,7 @@ export async function createSession(userId: string): Promise<void> {
   const store = await cookies();
   store.set(SESSION_COOKIE, token, {
     httpOnly: true,
-      // En dev (http local) la cookie "Secure" no viajaría; en producción
-      // tras un proxy HTTPS se activa con COOKIE_SECURE=true.
-      secure: process.env.COOKIE_SECURE === "true",
+    secure: process.env.COOKIE_SECURE === "true",
     sameSite: "lax",
     path: "/",
     expires: expira,

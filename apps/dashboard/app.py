@@ -83,8 +83,7 @@ def _guard():
 
 @server.after_request
 def _headers_seguridad(resp):
-    # Endurecimiento: el dashboard no se embebe ni carga
-    # recursos externos; sus assets (Dash/Plotly) son del mismo origen.
+    # El dashboard no se embebe ni carga recursos externos.
     resp.headers.setdefault("X-Frame-Options", "DENY")
     resp.headers.setdefault("X-Content-Type-Options", "nosniff")
     resp.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")

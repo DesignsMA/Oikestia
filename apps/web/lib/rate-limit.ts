@@ -2,11 +2,8 @@ import type { Collection } from "mongodb";
 import { getCollections } from "./db";
 
 /**
- * Límite de peticiones persistente en Mongo.
- * Ventana fija por clave: contador con $inc y limpieza automática por
- * índice TTL sobre "hasta". Sirve en despliegues multi-instancia.
- * Si Mongo no responde se degrada a un contador en memoria (protege
- * solo el proceso actual) para no tumbar la funcionalidad.
+ * Límite de peticiones persistente en Mongo: ventana fija por clave con $inc
+ * e índice TTL sobre "hasta". Si Mongo no responde, degrada a memoria local.
  */
 
 export type Consumo = { permitido: boolean; restantes: number };

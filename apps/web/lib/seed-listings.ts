@@ -4,11 +4,7 @@ import { hashPassword, encryptField, sha256 } from "./crypto";
 import { slugify } from "./listings";
 import type { ListingDoc, ListingFoto } from "./listings";
 
-/**
- * Siembra de publicaciones de demostración (idempotente).
- * Migra las fichas estáticas originales a Mongo para que el catálogo
- * tenga contenido real desde el primer arranque.
- */
+/** Siembra idempotente de publicaciones de demostración. */
 
 type Muestra = {
   titulo: string;
@@ -19,7 +15,7 @@ type Muestra = {
   ciudad: string;
   estado: string;
   cp: string;
-  /** [lng, lat] aproximadas (GeoJSON) para el mapa. Coordenadas aproximadas; el geocodificado las refina. */
+  /** [lng, lat] aproximadas (GeoJSON); el geocodificado las refina. */
   coords?: [number, number];
   recamaras?: number;
   banos?: number;
@@ -307,10 +303,7 @@ const MUESTRAS: Muestra[] = [
   },
 ];
 
-/**
- * Crea el propietario de demostración y las publicaciones si la colección
- * está vacía. Devuelve true si sembró algo.
- */
+/** Crea el propietario demo y las publicaciones si la colección está vacía. */
 export async function seedListings(): Promise<boolean> {
   const { listings, users } = await getCollections();
   if ((await listings.estimatedDocumentCount()) > 0) return false;

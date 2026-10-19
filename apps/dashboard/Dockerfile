@@ -14,6 +14,4 @@ USER dashuser
 
 EXPOSE 8050
 
-# La validación corre en un proceso aparte antes de gunicorn: sys.exit(1)
-# dentro de un worker solo lo reiniciaría el master sin detener el contenedor.
 CMD ["sh", "-c", "python entorno.py && exec gunicorn -b 0.0.0.0:8050 app:server"]

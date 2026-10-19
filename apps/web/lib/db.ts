@@ -1,9 +1,6 @@
 import { MongoClient, GridFSBucket, type Db } from "mongodb";
 
-/**
- * Conexión única a MongoDB. Usa un singleton en el scope global para
- * reutilizar el cliente entre recargas de módulos en desarrollo.
- */
+/** Conexión única a MongoDB (singleton en globalThis para resistir HMR). */
 const uri = process.env.MONGODB_URI ?? "mongodb://localhost:27017";
 const dbName = process.env.MONGODB_DB ?? "oikestia";
 

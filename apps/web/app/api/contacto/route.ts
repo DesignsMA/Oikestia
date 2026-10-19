@@ -8,10 +8,7 @@ import { getSessionUser } from "@/lib/auth";
 import { consumir, HORA } from "@/lib/rate-limit";
 import { cuerpoEnLimites, ipDe } from "@/lib/guardas";
 
-/**
- * Lead desde la ficha de publicación: mensaje o solicitud de visita.
- * Form plain (sin JS): redirige de vuelta con ?enviado=1 o ?error=.
- */
+/** Lead desde la ficha (form plain): redirige con ?enviado=1 o ?error=. */
 export async function POST(req: NextRequest) {
   if (!cuerpoEnLimites(req, 64 * 1024)) {
     return NextResponse.redirect(new URL("/publicaciones?error=1", req.url), 303);

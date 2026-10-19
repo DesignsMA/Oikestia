@@ -3,12 +3,7 @@ import { getCollections, ensureIndexes } from "./db";
 import { getSessionUser } from "./auth";
 import { decryptField } from "./crypto";
 
-/**
- * Mensajes por lead: cada lead de contacto/visita tiene un hilo
- * con dos participantes — el propietario de la publicación y el interesado
- * (solo si inició sesión; los leads anónimos quedan solo para el dueño).
- * El acceso se valida siempre contra el documento, nunca contra el cliente.
- */
+/** Mensajes por lead: un hilo por contacto/visita; acceso validado contra el documento. */
 
 export type HiloUI = {
   id: string;

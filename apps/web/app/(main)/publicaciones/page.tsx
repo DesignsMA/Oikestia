@@ -55,10 +55,7 @@ function urlSin(
   return qs ? `/publicaciones?${qs}` : "/publicaciones";
 }
 
-/**
- * Catálogo público desde MongoDB con filtros por query string
- * (texto, tipo, operación, precio, recámaras, amenidades y orden).
- */
+/** Catálogo público con filtros por query string (texto, tipo, precio, orden...). */
 export default async function PublicacionesPage({
   searchParams,
 }: {

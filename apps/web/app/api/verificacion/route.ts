@@ -8,12 +8,7 @@ import { subirArchivo } from "@/lib/storage";
 import { consumir, HORA } from "@/lib/rate-limit";
 import { cuerpoEnLimites } from "@/lib/guardas";
 
-/**
- * Verificación de identidad del propietario.
- * Sube el documento (INE/pasaporte/cédula) a GridFS (bucket "documentos")
- * y registra la solicitud con estado pendiente. Con DEV_AUTO_VERIFY=true
- * (solo desarrollo) se aprueba inmediatamente.
- */
+/** Verificación de identidad: documento a GridFS (bucket "documentos") con estado pendiente. */
 export async function POST(req: NextRequest) {
   const user = await getSessionUser();
   if (!user) {

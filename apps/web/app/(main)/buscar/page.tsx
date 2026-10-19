@@ -43,11 +43,7 @@ function serializar(l: ListingDoc): ItemBusqueda {
   };
 }
 
-/**
- * Buscador en mapa: el servidor carga las publicaciones
- * geocodificadas y el cliente (Leaflet) filtra por radio/ubicación.
- * Acepta ?lat&lng&radio para enlazar desde otras páginas.
- */
+/** Buscador en mapa; acepta ?lat&lng&radio para enlazar desde otras páginas. */
 export default async function BuscarPage({
   searchParams,
 }: {

@@ -25,10 +25,7 @@ export type IconName =
   | "i-terrace"
   | "i-search";
 
-/**
- * Sprite de iconos reutilizables (Tabler). Se renderiza una sola vez en el
- * layout raíz y se referencia cada símbolo con <Icon name="i-..." />.
- */
+/** Sprite de iconos (Tabler); se referencia con <Icon name="i-..." />. */
 export default function IconSprite() {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" className="icon-sprite" aria-hidden="true" style={{ display: "none" }}>

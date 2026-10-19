@@ -1,9 +1,6 @@
 import { getCollections } from "./db";
 
-/**
- * Catálogo de intereses. Se siembra en Mongo en el primer arranque
- * y alimenta la pantalla post-registro y las recomendaciones.
- */
+/** Catálogo de intereses; se siembra en Mongo en el primer arranque. */
 
 export type InterestItem = {
   grupo: string;

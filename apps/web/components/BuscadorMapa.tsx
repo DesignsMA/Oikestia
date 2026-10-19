@@ -42,12 +42,7 @@ function distKm(a: { lat: number; lng: number }, b: { lat: number; lng: number }
   return 2 * R * Math.asin(Math.sqrt(s));
 }
 
-/**
- * Buscador en mapa: Leaflet con tiles de OSM, radio de búsqueda,
- * geolocalización del navegador y salto por dirección vía /api/geocode.
- * El filtrado por radio ocurre en el cliente sobre las publicaciones
- * geocodificadas que pasa la página de servidor.
- */
+/** Buscador en mapa: Leaflet con tiles de OSM, radio y geolocalización. */
 export default function BuscadorMapa({ items, inicial }: Props) {
   const contRef = useRef<HTMLDivElement>(null);
   const LRef = useRef<typeof import("leaflet") | null>(null);

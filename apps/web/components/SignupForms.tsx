@@ -2,10 +2,7 @@
 
 import { useState } from "react";
 
-/**
- * Formularios de registro (usuario / propietario) con cambio de rol.
- * Corrige los ids duplicados del legacy y usa POST hacia el servidor.
- */
+/** Formularios de registro (usuario / propietario) con cambio de rol. */
 export default function SignupForms() {
   const [role, setRole] = useState<"user" | "owner">("user");
   const isUser = role === "user";

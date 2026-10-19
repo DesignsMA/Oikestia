@@ -1,9 +1,4 @@
-/**
- * Validación de configuración al arrancar el servidor.
- * Solo se exige en producción explícita (APP_ENV=production, inyectado por
- * docker-compose.prod.yml): en desarrollo local los secretos vacíos siguen
- * permitidos para no bloquear el flujo `npm run dev`.
- */
+/** Valida la configuración al arrancar. Solo se exige con APP_ENV=production. */
 export async function register() {
   if (process.env.NEXT_RUNTIME !== "nodejs") return;
   if (process.env.APP_ENV !== "production") return;

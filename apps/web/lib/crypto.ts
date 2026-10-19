@@ -2,11 +2,8 @@ import { createCipheriv, createDecipheriv, createHash, randomBytes, timingSafeEq
 import argon2 from "argon2";
 
 /**
- * Cifrado AES-256-GCM para datos personales y hash de contraseñas.
- * Formato de valor cifrado: v<version>.<iv b64>.<tag b64>.<dato b64>
- * La clave maestra (32 bytes, base64) vive en DATA_ENCRYPTION_KEY.
- * El hash de contraseña se guarda cifrado: una fuga solo de la base de datos
- * no revela contraseñas; quien tenga además la clave puede verificar con Argon2.
+ * Cifrado AES-256-GCM (formato v<version>.<iv>.<tag>.<dato>, clave en
+ * DATA_ENCRYPTION_KEY) y hash Argon2id de contraseñas.
  */
 
 const MASTER_KEY = () => {

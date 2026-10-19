@@ -1,6 +1,6 @@
 import type { CardFeature } from "@/components/ListingCardCompact";
 
-/** Datos de ejemplo (paridad visual con el HTML original). El cat\u00e1logo real vive en MongoDB. */
+/** Datos de ejemplo para el home; el catálogo real vive en MongoDB. */
 
 export type SampleListing = {
   slug: string;
