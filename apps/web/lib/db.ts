@@ -34,6 +34,7 @@ export type Collections = {
   leads: ReturnType<Db["collection"]>;
   messages: ReturnType<Db["collection"]>;
   verificaciones: ReturnType<Db["collection"]>;
+  favoritos: ReturnType<Db["collection"]>;
   rate_limits: ReturnType<Db["collection"]>;
 };
 
@@ -48,6 +49,7 @@ export async function getCollections(): Promise<Collections> {
     leads: db.collection("leads"),
     messages: db.collection("messages"),
     verificaciones: db.collection("verificaciones"),
+    favoritos: db.collection("favoritos"),
     rate_limits: db.collection("rate_limits"),
   };
 }
@@ -91,6 +93,11 @@ export async function ensureIndexes(): Promise<void> {
     { key: { leadId: 1, creado: 1 }, name: "lead_creado" },
   ]);
   await db.collection("verificaciones").createIndexes([
+    { key: { userId: 1, creado: -1 }, name: "user_creado" },
+  ]);
+  // Favoritos: un registro por (usuario, publicación).
+  await db.collection("favoritos").createIndexes([
+    { key: { userId: 1, listingId: 1 }, name: "uniq_user_listing", unique: true },
     { key: { userId: 1, creado: -1 }, name: "user_creado" },
   ]);
   // Rate limiting persistente: TTL borra las ventanas caducadas.

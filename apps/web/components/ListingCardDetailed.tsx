@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Icon, type IconName } from "./IconSprite";
 import type { CardFeature } from "./ListingCardCompact";
+import BotonFavorito from "./BotonFavorito";
 
 type Props = {
   href: string;
@@ -12,6 +13,10 @@ type Props = {
   features: CardFeature[];
   agent: string;
   isFav?: boolean;
+  slug?: string;
+  favorito?: boolean;
+  logueado?: boolean;
+  rutaLogin?: string;
 };
 
 /** Card detallada: imagen grande, precio destacado, favorito, características y agente. */
@@ -25,17 +30,25 @@ export default function ListingCardDetailed({
   features,
   agent,
   isFav,
+  slug,
+  favorito = false,
+  logueado = false,
+  rutaLogin,
 }: Props) {
   return (
-    <article className={`property-card-detailed${isFav ? " is-fav" : ""}`}>
+    <article className={`property-card-detailed${isFav || favorito ? " is-fav" : ""}`}>
       <div className="card-media">
         <Link href={href} className="card-image-link" aria-label={`Ver ${title}`}>
           <img src={image} alt={imageAlt} className="card-image" />
         </Link>
         <p className="card-price">{price}</p>
-        <button type="button" className="card-fav" aria-label="Guardar en favoritos">
-          <Icon name="i-heart" />
-        </button>
+        {slug ? (
+          <BotonFavorito slug={slug} inicial={favorito} logueado={logueado} rutaLogin={rutaLogin} />
+        ) : (
+          <button type="button" className="card-fav" aria-label="Guardar en favoritos">
+            <Icon name="i-heart" />
+          </button>
+        )}
       </div>
 
       <div className="card-body">

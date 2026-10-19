@@ -159,6 +159,23 @@ export const compartirSchema = z.object({
   redes: z.boolean(),
 });
 
+/** URL de red social opcional (vacío permitido). */
+const redOpcional = z
+  .string()
+  .trim()
+  .max(200, "La URL es demasiado larga")
+  .url("Escribe un enlace válido (https://…)")
+  .optional()
+  .or(z.literal(""));
+
+/** Teléfono y redes sociales del perfil (editables). */
+export const perfilContactoSchema = z.object({
+  tel: phoneSchema,
+  instagram: redOpcional,
+  facebook: redOpcional,
+  x: redOpcional,
+});
+
 export type UserRegistration = z.infer<typeof userRegistrationSchema>;
 export type OwnerRegistration = z.infer<typeof ownerRegistrationSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
@@ -167,3 +184,4 @@ export type NuevoMensajeInput = z.infer<typeof nuevoMensajeSchema>;
 export type VisitaInput = z.infer<typeof visitaSchema>;
 export type CuentaInput = z.infer<typeof cuentaSchema>;
 export type CompartirInput = z.infer<typeof compartirSchema>;
+export type PerfilContactoInput = z.infer<typeof perfilContactoSchema>;

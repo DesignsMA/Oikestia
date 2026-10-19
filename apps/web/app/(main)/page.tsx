@@ -4,6 +4,9 @@ import ListingCardCompact, { type CardFeature } from "@/components/ListingCardCo
 import { Icon } from "@/components/IconSprite";
 import { getPublicadas, formatearPrecio, type ListingDoc } from "@/lib/listings";
 import { seedListings } from "@/lib/seed-listings";
+import { recomendaciones } from "@/lib/recomendaciones";
+import { idsFavoritos } from "@/lib/favoritos";
+import { getSessionUser } from "@/lib/auth";
 import "@/app/styles/homepage.css";
 import "@/app/styles/card-detailed.css";
 import "@/app/styles/card-compact.css";
@@ -27,9 +30,14 @@ function location(l: ListingDoc): string {
 
 export default async function HomePage() {
   await seedListings();
+  const usuario = await getSessionUser();
+  const recomendadas = await recomendaciones(2);
+  const destacadas = recomendadas.length ? recomendadas : (await getPublicadas({}, 2));
   const listings = await getPublicadas({}, 30);
-  const destacadas = listings.slice(0, 2);
-  const resto = listings.slice(2);
+  const idsRecomendados = new Set(destacadas.map((l) => l.slug));
+  const resto = listings.filter((l) => !idsRecomendados.has(l.slug));
+  const favIds = new Set((await idsFavoritos()).map(String));
+  const esFav = (l: ListingDoc) => favIds.has(String(l._id));
 
   return (
     <>
@@ -216,7 +224,11 @@ export default async function HomePage() {
         <h2>Ofertas para ti</h2>
 
         <div className="for-you-description">
-          <p>Selección personalizada basada en tus búsquedas recientes.</p>
+          <p>
+            {usuario?.intereses?.length || favIds.size
+              ? "Selección personalizada según tus favoritos e intereses."
+              : "Selección personalizada basada en tus búsquedas recientes."}
+          </p>
           <Link href="/publicaciones" className="view-all-link link">
             Ver todas
             <Icon name="i-arrow-up-right" />
@@ -235,6 +247,10 @@ export default async function HomePage() {
               location={location(l)}
               features={featuresDe(l)}
               agent={AGENTE}
+              slug={l.slug}
+              favorito={esFav(l)}
+              logueado={!!usuario}
+              rutaLogin={`/login?next=${encodeURIComponent(`/publicaciones/${l.slug}`)}`}
             />
           ))}
         </div>
@@ -257,6 +273,9 @@ export default async function HomePage() {
               location={location(l)}
               features={featuresDe(l)}
               tag={l.tipoPropiedad === "terreno" ? "Terreno" : undefined}
+              slug={l.slug}
+              favorito={esFav(l)}
+              logueado={!!usuario}
             />
           ))}
         </div>

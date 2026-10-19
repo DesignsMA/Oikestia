@@ -108,7 +108,9 @@
     color: var(--color-neutral-dark);
 }
 
-.cuenta-form > input[type="text"] {
+.cuenta-form > input[type="text"],
+.cuenta-form > input[type="tel"],
+.cuenta-form > input[type="url"] {
     width: 100%;
     max-width: 380px;
     font-family: var(--font-body);
@@ -118,9 +120,12 @@
     border: 1px solid var(--border-light);
     border-radius: 6px;
     padding: 0.6rem 0.75rem;
+    box-sizing: border-box;
 }
 
-.cuenta-form > input[type="text"]:focus {
+.cuenta-form > input[type="text"]:focus,
+.cuenta-form > input[type="tel"]:focus,
+.cuenta-form > input[type="url"]:focus {
     outline: 2px solid var(--color-primary);
     outline-offset: 1px;
     border-color: var(--color-primary);

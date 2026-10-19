@@ -186,6 +186,47 @@
     transform: translate(2px, -2px);
 }
 
+/* ---- Favorito ---- */
+
+.property-card-compact .card-fav {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.2rem;
+    height: 2.2rem;
+    padding: 0;
+    color: var(--color-neutral-darker);
+    background-color: var(--color-white);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+    transition: color 0.3s ease, background-color 0.3s ease, transform 0.3s ease;
+}
+
+.property-card-compact .card-fav svg {
+    width: 18px;
+    height: 18px;
+}
+
+.property-card-compact .card-fav:hover {
+    color: var(--color-white);
+    background-color: var(--color-primary);
+    transform: scale(1.1);
+}
+
+.card-fav-activo {
+    color: var(--color-white) !important;
+    background-color: var(--color-primary-darker) !important;
+}
+
+.card-fav-activo svg {
+    fill: currentColor;
+}
+
 /* ---- Responsive ---- */
 
 @media (max-width: 480px) {

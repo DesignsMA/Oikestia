@@ -101,8 +101,15 @@ export default function BuscadorMapa({ items, inicial }: Props) {
       capaRef.current = L.layerGroup().addTo(map);
       mapRef.current = map;
 
-      const reloj = window.setTimeout(() => map.invalidateSize(), 300);
-      limpiarRef.current = () => window.clearTimeout(reloj);
+      // El contenedor puede empezar con altura 0 (header fijo, fuentes, etc.):
+      // se recalcula el tamaño en cada cambio real y en el primer frame pintado.
+      const raf = window.requestAnimationFrame(() => map.invalidateSize());
+      const observador = new ResizeObserver(() => map.invalidateSize());
+      observador.observe(contRef.current);
+      limpiarRef.current = () => {
+        window.cancelAnimationFrame(raf);
+        observador.disconnect();
+      };
     });
 
     return () => {

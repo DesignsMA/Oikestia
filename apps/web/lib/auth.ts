@@ -19,6 +19,10 @@ export type SessionUser = {
   nombre: string | null;
   /** Archivo de avatar en GridFS; null si usa el placeholder. */
   avatarFileId: string | null;
+  /** Teléfono de contacto (cifrado en reposo); null si no se ha definido. */
+  tel: string | null;
+  /** Redes sociales declaradas en el perfil. */
+  redes: string[];
 };
 
 type UserDoc = {
@@ -30,6 +34,8 @@ type UserDoc = {
   intereses?: string[];
   nombre_enc?: string;
   avatarFileId?: string;
+  tel_enc?: string;
+  redes?: string[];
 };
 
 /** Crea una sesión nueva y deja la cookie establecida (solo válido en route handlers). */
@@ -81,6 +87,8 @@ export async function getSessionUser(): Promise<SessionUser | null> {
       intereses: user.intereses ?? [],
       nombre: descifraSeguro(user.nombre_enc) || null,
       avatarFileId: typeof user.avatarFileId === "string" ? user.avatarFileId : null,
+      tel: descifraSeguro(user.tel_enc) || null,
+      redes: Array.isArray(user.redes) ? user.redes.filter((r): r is string => typeof r === "string") : [],
     };
   } catch (e) {
     // Sin conexión a la base de datos (p. ej. durante el build) no hay sesión.

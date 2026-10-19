@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState, type FormEvent } from "react";
+import { Icon } from "./IconSprite";
 import type { HiloUI, MensajeUI, DatosCompartidos } from "@/lib/mensajes";
 
 type HiloDetalle = {
@@ -154,7 +155,7 @@ export default function PanelMensajes() {
   return (
     <div className="panel-mensajes">
       <div className="hilos-lista">
-        <p className="hilos-titulo">Conversaciones</p>
+        <p className="hilos-aviso">Elige una conversación para leer y responder.</p>
 
         {errorLista && <p className="hilo-error">{errorLista}</p>}
         {!hilos && !errorLista && <p className="hilo-vacio">Cargando…</p>}
@@ -171,22 +172,31 @@ export default function PanelMensajes() {
             className={abierto === h.id ? "hilo-btn hilo-btn-activo" : "hilo-btn"}
             onClick={() => setAbierto(h.id)}
           >
-            <span className="hilo-btn-titulo">
-              {h.listingTitulo}
-              {h.ultimoMio === false && <span className="hilo-nuevo">Nuevo</span>}
+            <span className="hilo-btn-foto" aria-hidden="true">
+              {h.listingFoto ? (
+                <img src={h.listingFoto} alt="" />
+              ) : (
+                <Icon name="i-message" />
+              )}
             </span>
-            <span className="hilo-btn-meta">
-              {h.contraparte} · {h.tipo === "visita" ? "Visita" : "Mensaje"}
-              {h.estado === "respondido" ? " · respondido" : ""}
+            <span className="hilo-btn-cuerpo">
+              <span className="hilo-btn-titulo">
+                {h.listingTitulo}
+                {h.ultimoMio === false && <span className="hilo-nuevo">Nuevo</span>}
+              </span>
+              <span className="hilo-btn-meta">
+                {h.contraparte} · {h.tipo === "visita" ? "Visita" : "Mensaje"}
+                {h.estado === "respondido" ? " · respondido" : ""}
+              </span>
+              <span className="hilo-btn-ultimo">{h.ultimoTexto ?? "—"}</span>
             </span>
-            <span className="hilo-btn-ultimo">{h.ultimoTexto ?? "—"}</span>
             <span className="hilo-btn-fecha">{fecha(h.ultimoCreado ?? h.creado)}</span>
           </button>
         ))}
       </div>
 
       <div className="hilo-panel">
-        {!abierto && <p className="hilo-vacio">Elige una conversación para leer y responder.</p>}
+        {!abierto && <p className="hilo-vacio hilo-vacio-grande">Elige una conversación para leer y responder.</p>}
         {abierto && !hilo && <p className="hilo-vacio">Cargando conversación…</p>}
 
         {abierto && hilo && (

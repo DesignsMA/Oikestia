@@ -9,6 +9,8 @@ export type HiloUI = {
   id: string;
   listingSlug: string;
   listingTitulo: string;
+  /** Portada de la publicación vinculada (o null). */
+  listingFoto: string | null;
   tipo: string;
   estado: string;
   contraparte: string;
@@ -225,9 +227,9 @@ export async function hilosDeSesion(): Promise<HiloUI[] | null> {
   const porLead = new Map(ultimos.map((u) => [String(u._id), u]));
 
   // Nombres de propietarios sin N+1 (para el panel del interesado).
-  const pubs = await listings
-    .find({ _id: { $in: docs.map((d) => d.listingId) } }, { projection: { owner: 1 } })
-    .toArray();
+  const pubs = (await listings
+    .find({ _id: { $in: docs.map((d) => d.listingId) } }, { projection: { owner: 1, fotos: 1 } })
+    .toArray()) as unknown as { _id: unknown; owner: unknown; fotos?: { url: string }[] }[];
   const duenos = [...new Set(pubs.map((p) => String(p.owner)))];
   const nombres = new Map<string, string>();
   await Promise.all(
@@ -244,6 +246,7 @@ export async function hilosDeSesion(): Promise<HiloUI[] | null> {
       id: String(lead._id),
       listingSlug: lead.listingSlug,
       listingTitulo: lead.listingTitulo,
+      listingFoto: pub?.fotos?.[0]?.url ?? null,
       tipo: lead.tipo,
       estado: lead.estado || "nuevo",
       contraparte:

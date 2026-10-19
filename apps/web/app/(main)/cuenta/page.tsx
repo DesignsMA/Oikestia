@@ -2,6 +2,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import "@/app/styles/cuenta.css";
 import { getSessionUser } from "@/lib/auth";
+import { ultimaVerificacion } from "@/lib/verificaciones";
+import PanelVerificacion from "@/components/PanelVerificacion";
 
 const MENSAJES_ERROR: Record<string, string> = {
   "3": "Revisa el nombre: máximo 60 caracteres.",
@@ -24,6 +26,18 @@ export default async function CuentaPage({
     ? `/api/fotos/${user.avatarFileId}`
     : "/images/user-placeholder.webp";
   const mensajeError = error ? MENSAJES_ERROR[error] ?? MENSAJES_ERROR["5"] : null;
+
+  const autoVerify = process.env.DEV_AUTO_VERIFY === "true";
+  const verificacion = await ultimaVerificacion(user.id, user.verificado);
+  const estadoVerif =
+    verificacion.estado === "verificado"
+      ? "Verificada"
+      : verificacion.estado === "pendiente"
+        ? "En revisión"
+        : verificacion.estado === "rechazado"
+          ? "Rechazada"
+          : "Sin iniciar";
+  const puedeVerificarse = user.rol === "owner" && !user.verificado && !autoVerify;
 
   return (
     <section className="cuenta">
@@ -84,6 +98,36 @@ export default async function CuentaPage({
         <Link className="cuenta-enlace" href="/cuenta/contacto">
           Qué comparto al contactar
         </Link>
+      </div>
+
+      <div className="cuenta-bloque">
+        <h2>Favoritos</h2>
+        <p className="cuenta-ayuda">
+          Tus propiedades guardadas. También se usan para personalizar las recomendaciones.
+        </p>
+        <Link className="cuenta-enlace" href="/cuenta/favoritos">
+          Ver mis favoritos
+        </Link>
+      </div>
+
+      <div className="cuenta-bloque">
+        <h2>Verificación</h2>
+        <p className="cuenta-ayuda">
+          Estado actual: <strong>{estadoVerif}</strong>.
+          {user.rol !== "owner" &&
+            " La verificación de identidad está disponible solo para cuentas de propietario."}
+          {autoVerify && user.rol === "owner" && " (modo desarrollo: verificada automáticamente)."}
+        </p>
+
+        {puedeVerificarse && (
+          <>
+            <p className="cuenta-ayuda">
+              Sube una foto de tu identificación oficial para habilitar la publicación de
+              propiedades. La revisión puede tardar hasta 48 horas hábiles.
+            </p>
+            <PanelVerificacion />
+          </>
+        )}
       </div>
 
       <div className="cuenta-bloque">

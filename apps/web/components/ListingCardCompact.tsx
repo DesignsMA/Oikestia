@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Icon, type IconName } from "./IconSprite";
+import BotonFavorito from "./BotonFavorito";
 
 export type CardFeature = {
   icon: IconName;
@@ -16,6 +17,9 @@ type Props = {
   features: CardFeature[];
   tag?: string;
   linkLabel?: string;
+  slug?: string;
+  favorito?: boolean;
+  logueado?: boolean;
 };
 
 /** Card compacta: imagen con precio encima, título, ubicación y fila mínima de datos. */
@@ -29,6 +33,9 @@ export default function ListingCardCompact({
   features,
   tag,
   linkLabel,
+  slug,
+  favorito = false,
+  logueado = false,
 }: Props) {
   return (
     <article className="property-card-compact">
@@ -38,6 +45,14 @@ export default function ListingCardCompact({
         </Link>
         <p className="card-price">{price}</p>
         {tag ? <span className="card-tag">{tag}</span> : null}
+        {slug ? (
+          <BotonFavorito
+            slug={slug}
+            inicial={favorito}
+            logueado={logueado}
+            rutaLogin={`/login?next=${encodeURIComponent(href)}`}
+          />
+        ) : null}
       </div>
       <div className="card-body">
         <h3 className="card-title">{title}</h3>

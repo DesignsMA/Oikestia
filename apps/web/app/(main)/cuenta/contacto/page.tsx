@@ -25,60 +25,119 @@ export default async function CuentaContactoPage({
   const { users } = await getCollections();
   const doc = (await users.findOne(
     { _id: new ObjectId(user.id) },
-    { projection: { compartir: 1 } }
-  )) as { compartir?: { correo?: boolean; telefono?: boolean; redes?: boolean } } | null;
+    { projection: { compartir: 1, tel_enc: 1, redes: 1 } }
+  )) as
+    | { compartir?: { correo?: boolean; telefono?: boolean; redes?: boolean }; tel_enc?: string; redes?: string[] }
+    | null;
   const compartir = {
     correo: doc?.compartir?.correo ?? true,
     telefono: doc?.compartir?.telefono ?? false,
     redes: doc?.compartir?.redes ?? false,
   };
 
+  const redesGuardadas = doc?.redes ?? [];
+  const buscarRed = (dominio: RegExp) => redesGuardadas.find((r) => dominio.test(r)) ?? "";
+
   return (
     <section className="cuenta">
       <h1>Datos de contacto</h1>
 
       {ok && (
-        <p className="cuenta-aviso cuenta-aviso-ok" role="status">Preferencias guardadas.</p>
+        <p className="cuenta-aviso cuenta-aviso-ok" role="status">Datos guardados.</p>
       )}
       {mensajeError && (
         <p className="cuenta-aviso cuenta-aviso-error" role="alert">{mensajeError}</p>
       )}
 
-      <p className="cuenta-ayuda">
-        Cuando escribes a un propietario, <strong>siempre</strong> ve tu foto y tu
-        nombre. Además, con esta configuración podrá ver:
-      </p>
+      <div className="cuenta-bloque">
+        <h2>Tu contacto</h2>
+        <p className="cuenta-ayuda">
+          Estos datos solo se comparten con un propietario si activas la opción
+          correspondiente más abajo.
+        </p>
+        <form action="/api/cuenta/contacto-datos" method="post" className="cuenta-form">
+          <label htmlFor="tel">Teléfono de contacto</label>
+          <input
+            id="tel"
+            name="tel"
+            type="tel"
+            maxLength={20}
+            defaultValue={user.tel ?? ""}
+            placeholder="+52 222 123 4567"
+          />
 
-      <form action="/api/cuenta/contacto" method="post" className="cuenta-form">
-        <label className="cuenta-opcion">
-          <input type="checkbox" name="correo" defaultChecked={compartir.correo} />
-          <span>
-            <strong>Tu correo</strong>
-            <small>Para que puedan responderte fuera de Oikestia.</small>
-          </span>
-        </label>
+          <label htmlFor="instagram">Instagram</label>
+          <input
+            id="instagram"
+            name="instagram"
+            type="url"
+            maxLength={200}
+            defaultValue={buscarRed(/instagram\./i)}
+            placeholder="https://instagram.com/tu_usuario"
+          />
 
-        <label className="cuenta-opcion">
-          <input type="checkbox" name="telefono" defaultChecked={compartir.telefono} />
-          <span>
-            <strong>Tu teléfono</strong>
-            <small>Solo visible dentro de la conversación.</small>
-          </span>
-        </label>
+          <label htmlFor="facebook">Facebook</label>
+          <input
+            id="facebook"
+            name="facebook"
+            type="url"
+            maxLength={200}
+            defaultValue={buscarRed(/facebook\./i)}
+            placeholder="https://facebook.com/tu_perfil"
+          />
 
-        <label className="cuenta-opcion">
-          <input type="checkbox" name="redes" defaultChecked={compartir.redes} />
-          <span>
-            <strong>Tus redes sociales</strong>
-            <small>Instagram, Facebook o X que tengas en tu perfil.</small>
-          </span>
-        </label>
+          <label htmlFor="x">X (Twitter)</label>
+          <input
+            id="x"
+            name="x"
+            type="url"
+            maxLength={200}
+            defaultValue={buscarRed(/(twitter|x)\./i)}
+            placeholder="https://x.com/tu_usuario"
+          />
 
-        <div className="cuenta-acciones">
-          <button type="submit" className="cuenta-guardar">Guardar preferencias</button>
-          <Link className="cuenta-enlace" href="/cuenta">Volver a mi cuenta</Link>
-        </div>
-      </form>
+          <button type="submit" className="cuenta-guardar">Guardar datos</button>
+        </form>
+      </div>
+
+      <div className="cuenta-bloque">
+        <h2>Qué comparto al contactar</h2>
+        <p className="cuenta-ayuda">
+          Cuando escribes a un propietario, <strong>siempre</strong> ve tu foto y tu
+          nombre. Además, con esta configuración podrá ver:
+        </p>
+
+        <form action="/api/cuenta/contacto" method="post" className="cuenta-form">
+          <label className="cuenta-opcion">
+            <input type="checkbox" name="correo" defaultChecked={compartir.correo} />
+            <span>
+              <strong>Tu correo</strong>
+              <small>Para que puedan responderte fuera de Oikestia.</small>
+            </span>
+          </label>
+
+          <label className="cuenta-opcion">
+            <input type="checkbox" name="telefono" defaultChecked={compartir.telefono} />
+            <span>
+              <strong>Tu teléfono</strong>
+              <small>Solo visible dentro de la conversación.</small>
+            </span>
+          </label>
+
+          <label className="cuenta-opcion">
+            <input type="checkbox" name="redes" defaultChecked={compartir.redes} />
+            <span>
+              <strong>Tus redes sociales</strong>
+              <small>Instagram, Facebook o X que tengas en tu perfil.</small>
+            </span>
+          </label>
+
+          <div className="cuenta-acciones">
+            <button type="submit" className="cuenta-guardar">Guardar preferencias</button>
+            <Link className="cuenta-enlace" href="/cuenta">Volver a mi cuenta</Link>
+          </div>
+        </form>
+      </div>
     </section>
   );
 }

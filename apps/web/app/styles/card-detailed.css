@@ -106,6 +106,16 @@
     fill: currentColor;
 }
 
+/* Estado activo controlado por el componente cliente (sin recargar la card). */
+.property-card-detailed .card-fav.card-fav-activo {
+    color: var(--color-white);
+    background-color: var(--color-primary-darker);
+}
+
+.property-card-detailed .card-fav.card-fav-activo svg {
+    fill: currentColor;
+}
+
 /* ---- Cuerpo ---- */
 
 .property-card-detailed .card-body {

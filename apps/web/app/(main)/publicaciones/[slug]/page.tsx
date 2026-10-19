@@ -14,6 +14,9 @@ import {
 } from "@/lib/listings";
 import { getSessionUser } from "@/lib/auth";
 import { conversacionDePublicacion } from "@/lib/mensajes";
+import { esFavorito } from "@/lib/favoritos";
+import BotonFavorito from "@/components/BotonFavorito";
+import GaleriaFicha from "@/components/GaleriaFicha";
 import Cercanas from "@/components/Cercanas";
 import "@/app/styles/listing.css";
 import "@/app/styles/homepage.css";
@@ -45,12 +48,12 @@ export default async function ListingDetailPage({
 
   const owner = await getOwnerPublico(listing.owner);
   const usuario = await getSessionUser();
-  const fotos = listing.fotos.slice(0, 3);
   const amenidades = amenidadesConIcono(listing.amenidades);
   const parrafosDesc = parrafos(listing.descripcion);
 
   const esMia = !!usuario && usuario.id === String(listing.owner);
   const leadExistente = !esMia && usuario ? await conversacionDePublicacion(slug) : null;
+  const favorito = usuario ? await esFavorito(listing._id) : false;
 
   const rutaLogin = `/login?next=${encodeURIComponent(`/publicaciones/${slug}`)}`;
   const rutaContacto = esMia
@@ -83,21 +86,7 @@ export default async function ListingDetailPage({
 
   return (
     <section className="listing-section">
-      <div className="listing-gallery">
-        {fotos.map((img, i) => (
-          <div className="gallery-item" key={img.url}>
-            {i === 2 && listing.fotos.length > 2 ? (
-              <div className="gallery-item-overlay">
-                <Icon name="i-gallery" />
-                <a href="#galeria" className="overlay-link link">
-                  Ver todas las fotos ({listing.fotos.length}).
-                </a>
-              </div>
-            ) : null}
-            <img src={img.url} alt={img.alt} className="listing-image" />
-          </div>
-        ))}
-      </div>
+      <GaleriaFicha fotos={listing.fotos} titulo={listing.titulo} />
 
       <div className="listing-layout">
         <article className="listing-main">
@@ -190,6 +179,17 @@ export default async function ListingDetailPage({
               <Icon name={esMia ? "i-arrow-up-right" : "i-message"} />
               {etiquetaContacto}
             </Link>
+            {!esMia && (
+              <div className="contact-favorito">
+                <BotonFavorito
+                  slug={slug}
+                  inicial={favorito}
+                  logueado={!!usuario}
+                  rutaLogin={rutaLogin}
+                />
+                <span>{favorito ? "Guardada en favoritos" : "Guardar en favoritos"}</span>
+              </div>
+            )}
           </section>
         </aside>
       </div>

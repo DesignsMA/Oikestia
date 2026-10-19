@@ -9,6 +9,8 @@ import {
   type ListingDoc,
 } from "@/lib/listings";
 import { seedListings } from "@/lib/seed-listings";
+import { idsFavoritos } from "@/lib/favoritos";
+import { getSessionUser } from "@/lib/auth";
 import { AMENIDADES, AMENIDADES_ETIQUETAS, OPERACIONES, TIPOS_PROPIEDAD } from "@/lib/validators";
 import { Icon } from "@/components/IconSprite";
 import "@/app/styles/homepage.css";
@@ -66,6 +68,9 @@ export default async function PublicacionesPage({
   await seedListings();
   const items = await getPublicadas(filtros);
   const activos = hayFiltros(filtros);
+
+  const usuario = await getSessionUser();
+  const favIds = new Set((await idsFavoritos()).map(String));
 
   const chips: { texto: string; href: string }[] = [];
   if (filtros.q) chips.push({ texto: `«${filtros.q}»`, href: urlSin(sp, "q") });
@@ -211,6 +216,9 @@ export default async function PublicacionesPage({
             location={`${l.direccion.colonia}, ${l.direccion.ciudad}, ${l.direccion.estado}.`}
             features={featuresDe(l)}
             tag={l.tipoPropiedad === "terreno" ? "Terreno" : undefined}
+            slug={l.slug}
+            favorito={favIds.has(String(l._id))}
+            logueado={!!usuario}
           />
         ))}
       </div>
