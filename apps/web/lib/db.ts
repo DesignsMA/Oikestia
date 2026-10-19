@@ -37,6 +37,7 @@ export type Collections = {
   leads: ReturnType<Db["collection"]>;
   messages: ReturnType<Db["collection"]>;
   verificaciones: ReturnType<Db["collection"]>;
+  rate_limits: ReturnType<Db["collection"]>;
 };
 
 export async function getCollections(): Promise<Collections> {
@@ -50,6 +51,7 @@ export async function getCollections(): Promise<Collections> {
     leads: db.collection("leads"),
     messages: db.collection("messages"),
     verificaciones: db.collection("verificaciones"),
+    rate_limits: db.collection("rate_limits"),
   };
 }
 
@@ -81,7 +83,7 @@ export async function ensureIndexes(): Promise<void> {
     { key: { slug: 1 }, name: "uniq_slug", unique: true },
     { key: { estado: 1, actualizado: -1 }, name: "estado_actualizado" },
     { key: { owner: 1, actualizado: -1 }, name: "owner_actualizado" },
-    // Geoespacial para la búsqueda en mapa (Fase 4). Usado solo si hay coords.
+    // Geoespacial para la búsqueda en mapa. Usado solo si hay coords.
     { key: { "ubicacion.coords": "2dsphere" }, name: "geo_coords", sparse: true },
   ]);
   await db.collection("leads").createIndexes([
@@ -94,5 +96,10 @@ export async function ensureIndexes(): Promise<void> {
   ]);
   await db.collection("verificaciones").createIndexes([
     { key: { userId: 1, creado: -1 }, name: "user_creado" },
+  ]);
+  // Rate limiting persistente: TTL borra las ventanas caducadas.
+  await db.collection("rate_limits").createIndexes([
+    { key: { hasta: 1 }, name: "ttl_hasta", expireAfterSeconds: 0 },
+    { key: { clave: 1 }, name: "clave" },
   ]);
 }

@@ -10,6 +10,11 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
+# Hosts permitidos en el middleware: deben existir en build.
+ARG APP_PUBLIC_URL=http://localhost:3000
+ARG TRUSTED_HOSTS=
+ENV APP_PUBLIC_URL=${APP_PUBLIC_URL}
+ENV TRUSTED_HOSTS=${TRUSTED_HOSTS}
 RUN npm run build
 
 # Etapa 3: runtime

@@ -6,7 +6,7 @@ import { getSessionUser } from "@/lib/auth";
 export const dynamic = "force-dynamic";
 
 /**
- * Traspaso al dashboard (Fase 7): con sesión de propietario genera un
+ * Traspaso al dashboard: con sesión de propietario genera un
  * token HMAC-SHA256 de 5 minutos y redirige a Dash.
  */
 export async function GET(req: NextRequest) {

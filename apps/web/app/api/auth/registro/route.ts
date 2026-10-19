@@ -4,11 +4,24 @@ import { getCollections, ensureIndexes } from "@/lib/db";
 import { encryptField, hashPassword, sha256 } from "@/lib/crypto";
 import { userRegistrationSchema, ownerRegistrationSchema } from "@/lib/validators";
 import { createSession } from "@/lib/auth";
+import { consumir, HORA } from "@/lib/rate-limit";
+import { cuerpoEnLimites, ipDe } from "@/lib/guardas";
 
 const NORM = (v: string) => v.normalize("NFKC").trim();
 
 /** Registro de usuario o propietario. Formularios: /registro, /propietario. */
 export async function POST(req: NextRequest) {
+  if (!cuerpoEnLimites(req, 64 * 1024)) {
+    return NextResponse.json({ ok: false, error: "Cuerpo demasiado grande" }, { status: 413 });
+  }
+  const porIp = await consumir(`registro:${ipDe(req)}`, 5, HORA);
+  if (!porIp.permitido) {
+    return NextResponse.json(
+      { ok: false, error: "Demasiados intentos de registro. Inténtalo más tarde." },
+      { status: 429 }
+    );
+  }
+
   let form: FormData;
   try {
     form = await req.formData();

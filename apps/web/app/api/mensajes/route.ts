@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { abrirHilo, enviarMensaje } from "@/lib/mensajes";
 import { mensajeSchema } from "@/lib/validators";
+import { consumir, MINUTO } from "@/lib/rate-limit";
+import { cuerpoEnLimites, ipDe } from "@/lib/guardas";
 
 /** Hilo completo de una conversación (solo participantes). */
 export async function GET(req: NextRequest) {
@@ -21,6 +23,15 @@ export async function GET(req: NextRequest) {
 
 /** Envía un mensaje al hilo (solo participantes). */
 export async function POST(req: NextRequest) {
+  if (!cuerpoEnLimites(req, 8 * 1024)) {
+    return NextResponse.json({ ok: false, error: "Mensaje demasiado largo" }, { status: 413 });
+  }
+  // El GET (polling) no se limita; el envío sí: 30/min por IP.
+  const porIp = await consumir(`mensajes:${ipDe(req)}`, 30, MINUTO);
+  if (!porIp.permitido) {
+    return NextResponse.json({ ok: false, error: "Demasiados mensajes. Espera un momento." }, { status: 429 });
+  }
+
   const body = (await req.json().catch(() => null)) as { lead?: unknown; texto?: unknown } | null;
   const parsed = mensajeSchema.safeParse({
     lead: typeof body?.lead === "string" ? body.lead : "",

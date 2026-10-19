@@ -1,4 +1,4 @@
-"""Firma y verificación de tokens de traspaso (Fase 7).
+"""Firma y verificación de tokens de traspaso.
 
 Formato: base64url(payload JSON) + "." + base64url(HMAC-SHA256).
 El mismo esquema lo emite la web en app/api/dashboard/route.ts.

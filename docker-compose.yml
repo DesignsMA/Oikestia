@@ -16,6 +16,9 @@ services:
     build:
       context: ./apps/web
       dockerfile: Dockerfile
+      args:
+        APP_PUBLIC_URL: ${APP_PUBLIC_URL:-http://localhost:3000}
+        TRUSTED_HOSTS: ${TRUSTED_HOSTS:-}
     restart: unless-stopped
     depends_on:
       mongo:

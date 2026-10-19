@@ -10,7 +10,7 @@ import {
 } from "./validators";
 
 /**
- * Modelo de publicaciones (Fase 3).
+ * Modelo de publicaciones.
  * Las fotos van a GridFS (bucket "fotos"); las de ejemplo/seed apuntan a /images.
  * Precios siempre en MXN.
  */
@@ -33,7 +33,7 @@ export type ListingDoc = {
   moneda: "MXN";
   descripcion: string;
   direccion: { calle: string; colonia: string; ciudad: string; estado: string; cp: string };
-  /** Opcional hasta que la Fase 4 geocodifique direcciones. */
+  /** Opcional hasta geocodificar la direcci\u00f3n. */
   ubicacion?: { type: "Point"; coords: [number, number] };
   caracteristicas: {
     recamaras?: number;
@@ -107,7 +107,7 @@ export async function slugUnico(base: string): Promise<string> {
   return slug;
 }
 
-/* ---------------- Filtros de búsqueda (Fase 4) ---------------- */
+/* ---------------- Filtros de búsqueda ---------------- */
 
 export type FiltrosPublicacion = {
   /** Texto libre: título, descripción, calle, colonia o ciudad. */

@@ -5,12 +5,19 @@ import { getCollections, ensureIndexes } from "@/lib/db";
 import { sha256 } from "@/lib/crypto";
 import { contactoSchema } from "@/lib/validators";
 import { getSessionUser } from "@/lib/auth";
+import { consumir, HORA } from "@/lib/rate-limit";
+import { cuerpoEnLimites, ipDe } from "@/lib/guardas";
 
 /**
  * Lead desde la ficha de publicación: mensaje o solicitud de visita.
  * Form plain (sin JS): redirige de vuelta con ?enviado=1 o ?error=.
  */
 export async function POST(req: NextRequest) {
+  if (!cuerpoEnLimites(req, 64 * 1024)) {
+    return NextResponse.redirect(new URL("/publicaciones?error=1", req.url), 303);
+  }
+  const porIp = await consumir(`contacto:${ipDe(req)}`, 10, HORA);
+
   let form: FormData;
   try {
     form = await req.formData();
@@ -25,6 +32,12 @@ export async function POST(req: NextRequest) {
     message: form.get("message")?.toString() ?? "",
     tipo: form.get("tipo")?.toString() ?? "mensaje",
   };
+
+  if (!porIp.permitido) {
+    const destino = raw.listing ? `/publicaciones/${raw.listing}` : "/publicaciones";
+    const aviso = encodeURIComponent("Demasiados mensajes enviados. Inténtalo más tarde.");
+    return NextResponse.redirect(new URL(`${destino}?error=${aviso}`, req.url), 303);
+  }
 
   const parsed = contactoSchema.safeParse(raw);
   if (!parsed.success) {
@@ -63,7 +76,7 @@ export async function POST(req: NextRequest) {
       estado: "nuevo",
     });
 
-    // El mensaje inicial siembra el hilo de la conversación (Fase 6).
+    // El mensaje inicial siembra el hilo de la conversación.
     await messages.insertOne({
       leadId: res.insertedId,
       emisorId: session ? new ObjectId(session.id) : null,

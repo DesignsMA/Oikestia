@@ -2,7 +2,7 @@ import { getCollections } from "./db";
 
 /**
  * Catálogo de intereses. Se siembra en Mongo en el primer arranque
- * y alimenta la pantalla post-registro y las recomendaciones (Fase 4).
+ * y alimenta la pantalla post-registro y las recomendaciones.
  */
 
 export type InterestItem = {

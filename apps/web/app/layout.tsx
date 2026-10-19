@@ -29,7 +29,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html lang="es">
       <head>
         <meta name="theme-color" content="#e96701" />
-        <link rel="stylesheet" href="https://necolas.github.io/normalize.css/8.0.1/normalize.css" />
+        <link rel="stylesheet" href="/normalize.css" />
       </head>
       <body>
         <IconSprite />

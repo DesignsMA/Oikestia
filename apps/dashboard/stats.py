@@ -1,4 +1,4 @@
-"""Consultas de estadísticas del dashboard (Fase 7).
+"""Consultas de estadísticas del dashboard.
 
 Devuelve métricas globales del sitio y métricas del propietario,
 todo desde MongoDB (users, listings, leads, messages).

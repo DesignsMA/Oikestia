@@ -4,9 +4,16 @@ import { getCollections, ensureIndexes } from "@/lib/db";
 import { interesesSchema } from "@/lib/validators";
 import { getSessionUser } from "@/lib/auth";
 import { DEFAULT_INTERESTS } from "@/lib/intereses";
+import { consumir, HORA } from "@/lib/rate-limit";
+import { ipDe } from "@/lib/guardas";
 
 /** Guarda la selección de intereses (mínimo 3) del usuario en sesión. */
 export async function POST(req: NextRequest) {
+  const porIp = await consumir(`intereses:${ipDe(req)}`, 20, HORA);
+  if (!porIp.permitido) {
+    return NextResponse.redirect(new URL("/registro/intereses?error=429", req.url), 303);
+  }
+
   const user = await getSessionUser();
   if (!user) {
     return NextResponse.redirect(new URL("/login?error=sesion", req.url), 303);

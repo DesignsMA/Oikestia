@@ -6,7 +6,20 @@ export const metadata: Metadata = {
   description: "Inicia sesión en Oikestia para acceder a tu cuenta y disfrutar de todas las funcionalidades.",
 };
 
-export default function LoginPage() {
+const ERRORES: Record<string, string> = {
+  "1": "Usuario o contraseña incorrectos.",
+  "429": "Demasiados intentos. Espera unos minutos y vuelve a intentarlo.",
+  "500": "No se pudo iniciar sesión. Intenta más tarde.",
+  sesion: "Tu sesión expiró. Inicia sesión de nuevo.",
+};
+
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>;
+}) {
+  const sp = await searchParams;
+  const error = sp.error ? (ERRORES[sp.error] ?? "No se pudo iniciar sesión. Intenta de nuevo.") : null;
   return (
     <main>
       <section className="login-section">
@@ -32,6 +45,11 @@ export default function LoginPage() {
             <input type="password" id="login-password" name="password" required autoComplete="current-password" />
           </div>
         </fieldset>
+        {error && (
+          <p className="login-error" role="alert">
+            {error}
+          </p>
+        )}
         <input type="submit" value="Iniciar sesión" className="login-submit" />
         <div className="login-signup">
           <label>¿Aún no tienes cuenta?</label>

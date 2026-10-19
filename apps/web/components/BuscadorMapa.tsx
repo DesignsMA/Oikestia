@@ -43,7 +43,7 @@ function distKm(a: { lat: number; lng: number }, b: { lat: number; lng: number }
 }
 
 /**
- * Buscador en mapa (Fase 5): Leaflet con tiles de OSM, radio de búsqueda,
+ * Buscador en mapa: Leaflet con tiles de OSM, radio de búsqueda,
  * geolocalización del navegador y salto por dirección vía /api/geocode.
  * El filtrado por radio ocurre en el cliente sobre las publicaciones
  * geocodificadas que pasa la página de servidor.

@@ -1,4 +1,4 @@
-# Dashboard de estadísticas (Dash) — Fase 7.
+# Dashboard de estadísticas (Dash) .
 # Acceso por token HMAC de traspaso desde la web (cookie de 8 h) y
 # métricas reales de MongoDB: sitio, publicaciones, leads y mensajes.
 
@@ -76,6 +76,23 @@ def _guard():
         return _denegado("Tu sesión del dashboard expiró. "
                          "Vuelve a tu panel de propietario y pulsa «Ver estadísticas».")
     return None
+
+
+@server.after_request
+def _headers_seguridad(resp):
+    # Endurecimiento: el dashboard no se embebe ni carga
+    # recursos externos; sus assets (Dash/Plotly) son del mismo origen.
+    resp.headers.setdefault("X-Frame-Options", "DENY")
+    resp.headers.setdefault("X-Content-Type-Options", "nosniff")
+    resp.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
+    resp.headers.setdefault(
+        "Content-Security-Policy",
+        "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; "
+        "script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; "
+        "img-src 'self' data:; connect-src 'self'",
+    )
+    resp.headers.setdefault("X-XSS-Protection", "0")
+    return resp
 
 
 # ---------- piezas del layout ----------

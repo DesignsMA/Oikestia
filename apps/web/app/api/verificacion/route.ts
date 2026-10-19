@@ -5,6 +5,8 @@ import { getCollections, ensureIndexes } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth";
 import { verificacionSchema } from "@/lib/validators";
 import { subirArchivo } from "@/lib/storage";
+import { consumir, HORA } from "@/lib/rate-limit";
+import { cuerpoEnLimites } from "@/lib/guardas";
 
 /**
  * Verificación de identidad del propietario.
@@ -22,6 +24,16 @@ export async function POST(req: NextRequest) {
   }
   if (user.verificado) {
     return NextResponse.json({ ok: true, estado: "verificado", yaVerificado: true });
+  }
+  if (!cuerpoEnLimites(req, 9 * 1024 * 1024)) {
+    return NextResponse.json({ ok: false, error: "El documento supera el tamaño máximo" }, { status: 413 });
+  }
+  const porUsuario = await consumir(`verificacion:${user.id}`, 5, HORA);
+  if (!porUsuario.permitido) {
+    return NextResponse.json(
+      { ok: false, error: "Demasiados envíos. Inténtalo más tarde." },
+      { status: 429 }
+    );
   }
 
   let form: FormData;

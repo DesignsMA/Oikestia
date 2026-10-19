@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 /**
- * Mensajes (Fase 6): hilos por publicación para propietarios e interesados.
+ * Mensajes: hilos por publicación para propietarios e interesados.
  * El panel hace polling de /api/leads y /api/mensajes.
  */
 export default async function MensajesPage() {

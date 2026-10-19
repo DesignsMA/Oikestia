@@ -1,6 +1,6 @@
 import type { CardFeature } from "@/components/ListingCardCompact";
 
-/** Datos de ejemplo para la Fase 1 (paridad visual). Se reemplazan en la Fase 3-4 por MongoDB. */
+/** Datos de ejemplo (paridad visual con el HTML original). El cat\u00e1logo real vive en MongoDB. */
 
 export type SampleListing = {
   slug: string;

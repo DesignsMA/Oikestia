@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { hilosDeSesion } from "@/lib/mensajes";
 
 /**
- * Hilos de mensajes de la sesión actual (Fase 6).
+ * Hilos de mensajes de la sesión actual.
  * Propietario: leads recibidos en sus publicaciones.
  * Interesado: conversaciones que él inició.
  * Se usa con polling corto desde el panel de mensajes.

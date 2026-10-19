@@ -6,7 +6,9 @@ import { getSessionUser } from "@/lib/auth";
 import { listingSchema } from "@/lib/validators";
 import { slugUnico, slugify, getPublicadas, type ListingDoc } from "@/lib/listings";
 import { geocodificarDireccion } from "@/lib/geocode";
-import { subirArchivo, maxImagenesPorPublicacion } from "@/lib/storage";
+import { subirArchivo, maxImagenesPorPublicacion, maxUploadBytes } from "@/lib/storage";
+import { consumir, HORA } from "@/lib/rate-limit";
+import { cuerpoEnLimites } from "@/lib/guardas";
 
 /** Listado público de publicaciones (JSON). */
 export async function GET() {
@@ -50,6 +52,16 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       { ok: false, error: "Solo las cuentas de propietario pueden publicar" },
       { status: 403 }
+    );
+  }
+  if (!cuerpoEnLimites(req, maxImagenesPorPublicacion() * maxUploadBytes() + 1024 * 1024)) {
+    return NextResponse.json({ ok: false, error: "Las imágenes superan el tamaño total permitido" }, { status: 413 });
+  }
+  const porUsuario = await consumir(`publicacion:${user.id}`, 20, HORA);
+  if (!porUsuario.permitido) {
+    return NextResponse.json(
+      { ok: false, error: "Demasiadas publicaciones. Inténtalo más tarde." },
+      { status: 429 }
     );
   }
 

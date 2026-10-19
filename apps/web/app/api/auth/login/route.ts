@@ -4,33 +4,23 @@ import { getCollections, ensureIndexes } from "@/lib/db";
 import { sha256, verifyPassword } from "@/lib/crypto";
 import { loginSchema } from "@/lib/validators";
 import { createSession } from "@/lib/auth";
+import { consumir, reiniciar, QUINCE_MIN } from "@/lib/rate-limit";
+import { ipDe } from "@/lib/guardas";
 
 /**
- * Límite de intentos: en memoria por IP (5 intentos / 15 min).
- * Es suficiente en dev; en producción multi-instancia se sustituirá
- * por un almacén persistente en la Fase 8 (endurecimiento).
+ * Límite de intentos persistente en Mongo: 5 intentos / 15 min
+ * por IP y 10 / 15 min por identificador de cuenta. En un login
+ * exitoso se vacían ambos contadores.
  */
-const MAX_INTENTOS = 5;
-const VENTANA_MS = 15 * 60 * 1000;
-type Intento = { n: number; ventana: number };
-const intentos = new Map<string, Intento>();
-
-function permite(ip: string): boolean {
-  const ahora = Date.now();
-  const it = intentos.get(ip);
-  if (!it || ahora - it.ventana > VENTANA_MS) {
-    intentos.set(ip, { n: 1, ventana: ahora });
-    return true;
-  }
-  if (it.n >= MAX_INTENTOS) return false;
-  it.n += 1;
-  return true;
-}
+const MAX_POR_IP = 5;
+const MAX_POR_CUENTA = 10;
 
 /** Inicio de sesión con correo o usuario. */
 export async function POST(req: NextRequest) {
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "local";
-  if (!permite(ip)) {
+  const ip = ipDe(req);
+  const claveIp = `login:ip:${ip}`;
+  const porIp = await consumir(claveIp, MAX_POR_IP, QUINCE_MIN);
+  if (!porIp.permitido) {
     return NextResponse.redirect(new URL("/login?error=429", req.url), 303);
   }
 
@@ -53,6 +43,11 @@ export async function POST(req: NextRequest) {
 
   const identificador = parsed.data.email.normalize("NFKC").trim();
   const esCorreo = identificador.includes("@");
+  const claveCuenta = `login:cuenta:${identificador.toLowerCase()}`;
+  const porCuenta = await consumir(claveCuenta, MAX_POR_CUENTA, QUINCE_MIN);
+  if (!porCuenta.permitido) {
+    return NextResponse.redirect(new URL("/login?error=429", req.url), 303);
+  }
 
   try {
     await ensureIndexes();
@@ -74,7 +69,7 @@ export async function POST(req: NextRequest) {
     }
 
     await createSession(String(user._id));
-    intentos.delete(ip);
+    await Promise.all([reiniciar(claveIp), reiniciar(claveCuenta)]);
 
     if (user.rol === "user" && (!user.intereses || user.intereses.length < 3)) {
       return NextResponse.redirect(new URL("/registro/intereses", req.url), 303);

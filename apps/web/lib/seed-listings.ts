@@ -6,7 +6,7 @@ import type { ListingDoc, ListingFoto } from "./listings";
 
 /**
  * Siembra de publicaciones de demostración (idempotente).
- * Migra las fichas estáticas de la Fase 1 a Mongo para que el catálogo
+ * Migra las fichas estáticas originales a Mongo para que el catálogo
  * tenga contenido real desde el primer arranque.
  */
 
@@ -19,7 +19,7 @@ type Muestra = {
   ciudad: string;
   estado: string;
   cp: string;
-  /** [lng, lat] aproximadas (GeoJSON) para el mapa. La Fase 4 geocodifica. */
+  /** [lng, lat] aproximadas (GeoJSON) para el mapa. Coordenadas aproximadas; el geocodificado las refina. */
   coords?: [number, number];
   recamaras?: number;
   banos?: number;

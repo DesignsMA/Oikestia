@@ -133,7 +133,7 @@ export const verificacionSchema = z.object({
   tipoDocumento: z.enum(["ine", "pasaporte", "cedula"], { message: "Elige el tipo de documento" }),
 });
 
-/** Respuesta dentro de un hilo de mensajes (Fase 6). */
+/** Respuesta dentro de un hilo de mensajes. */
 export const mensajeSchema = z.object({
   lead: z.string().min(1, "Conversación inválida").max(64),
   texto: z.string().min(1, "Escribe un mensaje").max(2000, "El mensaje es demasiado largo"),
