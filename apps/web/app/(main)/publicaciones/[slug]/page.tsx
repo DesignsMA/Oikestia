@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Icon } from "@/components/IconSprite";
 import {
@@ -11,6 +12,9 @@ import {
   parrafos,
   embedMapa,
 } from "@/lib/listings";
+import { getSessionUser } from "@/lib/auth";
+import { conversacionDePublicacion } from "@/lib/mensajes";
+import Cercanas from "@/components/Cercanas";
 import "@/app/styles/listing.css";
 import "@/app/styles/homepage.css";
 
@@ -32,21 +36,32 @@ export async function generateMetadata({
 
 export default async function ListingDetailPage({
   params,
-  searchParams,
 }: {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const [{ slug }, sp] = await Promise.all([params, searchParams]);
+  const { slug } = await params;
   const listing = await getPorSlug(slug);
   if (!listing) notFound();
 
   const owner = await getOwnerPublico(listing.owner);
+  const usuario = await getSessionUser();
   const fotos = listing.fotos.slice(0, 3);
   const amenidades = amenidadesConIcono(listing.amenidades);
   const parrafosDesc = parrafos(listing.descripcion);
-  const enviado = typeof sp.enviado === "string" ? decodeURIComponent(sp.enviado) : null;
-  const error = typeof sp.error === "string" ? decodeURIComponent(sp.error) : null;
+
+  const esMia = !!usuario && usuario.id === String(listing.owner);
+  const leadExistente = !esMia && usuario ? await conversacionDePublicacion(slug) : null;
+
+  const rutaLogin = `/login?next=${encodeURIComponent(`/publicaciones/${slug}`)}`;
+  const rutaContacto = esMia
+    ? null
+    : !usuario
+      ? rutaLogin
+      : leadExistente
+        ? `/mensajes?lead=${leadExistente}`
+        : `/mensajes/nuevo?publicacion=${encodeURIComponent(slug)}`;
+  const etiquetaContacto = esMia ? "Editar publicación" : "Enviar Mensaje";
+  const hrefContacto = esMia ? `/propietario/publicar?editar=${slug}` : rutaContacto!;
 
   const opLabel = listing.operacion === "venta" ? "En venta" : "En renta";
   const fecha = tiempoRelativo(listing.publicadoEn ?? listing.creado);
@@ -142,12 +157,14 @@ export default async function ListingDetailPage({
           ) : (
             <p>Ubicación aproximada: {direccion}</p>
           )}
+
+          {listing.ubicacion && <Cercanas slug={listing.slug} />}
         </article>
 
         <aside className="listing-sidebar" aria-label="Contacto de la propiedad">
           <aside className="listing-owner" aria-label="Información del propietario">
             <div className="owner-identity">
-              <img src="/images/user-placeholder.webp" alt={`Foto de ${owner.nombre}`} className="owner-avatar" />
+              <img src={owner.avatarUrl} alt={`Foto de ${owner.nombre}`} className="owner-avatar" />
               <div>
                 <h2 className="owner-name">
                   {owner.nombre}
@@ -160,54 +177,19 @@ export default async function ListingDetailPage({
                 <p className="owner-role">{owner.verificado ? "Propietario verificado" : "Propietario"}</p>
               </div>
             </div>
-
-            {owner.telefono && (
-              <a href={`tel:${owner.telefono.replace(/[^\d+]/g, "")}`} className="owner-phone">
-                <Icon name="i-phone" />
-                {owner.telefono}
-              </a>
-            )}
           </aside>
 
           <section className="listing-contact">
             <h2>¿Te interesa esta propiedad?</h2>
-
-            {enviado && (
-              <p className="contact-aviso contact-ok" role="status">
-                {enviado}
-              </p>
-            )}
-            {error && (
-              <p className="contact-aviso contact-error" role="alert">
-                {error}
-              </p>
-            )}
-
-            <form action="/api/contacto" method="post">
-              <input type="hidden" name="listing" value={listing.slug} />
-              <fieldset className="contact-fieldset">
-                <label htmlFor="fullname">Nombre completo</label>
-                <input type="text" id="fullname" name="fullname" placeholder="Juana Pérez" required />
-
-                <label htmlFor="contact-email">Correo electrónico</label>
-                <input type="email" id="contact-email" name="email" placeholder="nombre@gmail.com" required />
-
-                <label htmlFor="message">Mensaje</label>
-                <textarea
-                  id="message"
-                  name="message"
-                  placeholder={`Me interesa agendar una visita para ${listing.titulo}...`}
-                  required
-                ></textarea>
-              </fieldset>
-
-              <input type="submit" name="tipo" value="mensaje" className="contact-submit" />
-
-              <button type="submit" name="tipo" value="visita" className="tour-button">
-                <Icon name="i-calendar" />
-                Solicitar visita
-              </button>
-            </form>
+            <p className="contact-ayuda">
+              {esMia
+                ? "Esta es tu publicación."
+                : "Envíale un mensaje al propietario. Tus datos solo se comparten según lo que elijas en tu cuenta."}
+            </p>
+            <Link className="contact-submit contact-mensaje" href={hrefContacto}>
+              <Icon name={esMia ? "i-arrow-up-right" : "i-message"} />
+              {etiquetaContacto}
+            </Link>
           </section>
         </aside>
       </div>

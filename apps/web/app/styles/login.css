@@ -55,13 +55,21 @@
     margin: 0 3rem;
     min-height: 100vh;
     padding-block: clamp(1.5rem, 4vh, 4rem);
-    padding: 8rem 0;
 }
 
 .login-section > form > img {
-    width: clamp(100px, 20vw, 400px);
+    width: clamp(90px, 12vw, 150px);
     height: auto;
     align-self: center;
+}
+
+.login-section > form > h1 {
+    align-self: center;
+    font-family: var(--font-family-secondary);
+    font-size: clamp(var(--font-size-2xl), 3vw, 2.25rem);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-neutral-dark);
+    margin: 0.75rem 0 0;
 }
 
 .login-title {

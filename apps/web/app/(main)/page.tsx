@@ -1,13 +1,36 @@
 import Link from "next/link";
 import ListingCardDetailed from "@/components/ListingCardDetailed";
-import ListingCardCompact from "@/components/ListingCardCompact";
+import ListingCardCompact, { type CardFeature } from "@/components/ListingCardCompact";
 import { Icon } from "@/components/IconSprite";
-import { featuredListings, compactListings } from "@/lib/sample-listings";
+import { getPublicadas, formatearPrecio, type ListingDoc } from "@/lib/listings";
+import { seedListings } from "@/lib/seed-listings";
 import "@/app/styles/homepage.css";
 import "@/app/styles/card-detailed.css";
 import "@/app/styles/card-compact.css";
 
-export default function HomePage() {
+export const dynamic = "force-dynamic";
+
+const AGENTE = "Propietario Oikestia";
+
+function featuresDe(l: ListingDoc): CardFeature[] {
+  const features: CardFeature[] = [];
+  if (l.caracteristicas.recamaras) features.push({ icon: "i-bed", label: `${l.caracteristicas.recamaras} Habs` });
+  if (l.caracteristicas.banos) features.push({ icon: "i-bath", label: `${l.caracteristicas.banos} Baños` });
+  const m2 = l.caracteristicas.construccionM2 ?? l.caracteristicas.terrenoM2;
+  if (m2) features.push({ icon: "i-ruler", label: `${m2.toLocaleString("es-MX")} m²` });
+  return features;
+}
+
+function location(l: ListingDoc): string {
+  return `${l.direccion.colonia}, ${l.direccion.ciudad}, ${l.direccion.estado}.`;
+}
+
+export default async function HomePage() {
+  await seedListings();
+  const listings = await getPublicadas({}, 30);
+  const destacadas = listings.slice(0, 2);
+  const resto = listings.slice(2);
+
   return (
     <>
       {/* Presentación y buscador de propiedades */}
@@ -201,17 +224,17 @@ export default function HomePage() {
         </div>
 
         <div className="for-you-listings">
-          {featuredListings.map((l) => (
+          {destacadas.map((l) => (
             <ListingCardDetailed
               key={l.slug}
               href={`/publicaciones/${l.slug}`}
-              image={l.image}
-              imageAlt={l.imageAlt}
-              price={l.price}
-              title={l.title}
-              location={l.location}
-              features={l.features}
-              agent={l.agent}
+              image={l.fotos[0]?.url ?? "/images/property1.webp"}
+              imageAlt={l.fotos[0]?.alt ?? l.titulo}
+              price={formatearPrecio(l.precio, l.operacion)}
+              title={l.titulo}
+              location={location(l)}
+              features={featuresDe(l)}
+              agent={AGENTE}
             />
           ))}
         </div>
@@ -223,17 +246,17 @@ export default function HomePage() {
         <p>Desplázate para seguir descubriendo publicaciones cerca de ti.</p>
 
         <div className="discover-listings">
-          {compactListings.map((l) => (
+          {resto.map((l) => (
             <ListingCardCompact
               key={l.slug}
               href={`/publicaciones/${l.slug}`}
-              image={l.image}
-              imageAlt={l.imageAlt}
-              price={l.price}
-              title={l.title}
-              location={l.location}
-              features={l.features}
-              tag={l.tag}
+              image={l.fotos[0]?.url ?? "/images/property1.webp"}
+              imageAlt={l.fotos[0]?.alt ?? l.titulo}
+              price={formatearPrecio(l.precio, l.operacion)}
+              title={l.titulo}
+              location={location(l)}
+              features={featuresDe(l)}
+              tag={l.tipoPropiedad === "terreno" ? "Terreno" : undefined}
             />
           ))}
         </div>

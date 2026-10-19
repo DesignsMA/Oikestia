@@ -90,7 +90,7 @@ export async function POST(req: NextRequest) {
 
   const raw: Record<string, string> = {};
   for (const [k, v] of form.entries()) {
-    if (typeof v === "string" && k !== "amenidades") raw[k] = v;
+    if (typeof v === "string" && k !== "amenidades" && k !== "lat" && k !== "lng") raw[k] = v;
   }
   // Los campos repetidos (amenidades) se recogen con getAll.
   const parsed = listingSchema.safeParse({
@@ -105,6 +105,16 @@ export async function POST(req: NextRequest) {
     );
   }
   const data = parsed.data;
+
+  const latNum = Number(form.get("lat"));
+  const lngNum = Number(form.get("lng"));
+  const coordsManual =
+    Number.isFinite(latNum) &&
+    Number.isFinite(lngNum) &&
+    Math.abs(latNum) <= 90 &&
+    Math.abs(lngNum) <= 180
+      ? ([lngNum, latNum] as [number, number])
+      : null;
 
   try {
     await ensureIndexes();
@@ -151,18 +161,21 @@ export async function POST(req: NextRequest) {
       creado: ahora,
       actualizado: ahora,
       publicadoEn: ahora,
+      ...(coordsManual ? { ubicacion: { type: "Point" as const, coords: coordsManual } } : {}),
     };
 
     const res = await listings.insertOne(doc as unknown as ListingDoc);
 
     // Geocodificación en segundo plano: no espera el mapa ni falla el alta.
-    void geocodificarDireccion(doc.direccion)
-      .then(async (coords) => {
-        if (coords) {
-          await listings.updateOne({ _id: res.insertedId }, { $set: { ubicacion: { type: "Point", coords } } });
-        }
-      })
-      .catch((e) => console.warn("geocode store", e));
+    if (!coordsManual) {
+      void geocodificarDireccion(doc.direccion)
+        .then(async (coords) => {
+          if (coords) {
+            await listings.updateOne({ _id: res.insertedId }, { $set: { ubicacion: { type: "Point", coords } } });
+          }
+        })
+        .catch((e) => console.warn("geocode store", e));
+    }
 
     return NextResponse.json({ ok: true, slug }, { status: 201 });
   } catch (e) {

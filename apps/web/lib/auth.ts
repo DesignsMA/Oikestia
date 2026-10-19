@@ -15,6 +15,10 @@ export type SessionUser = {
   rol: "user" | "owner";
   verificado: boolean;
   intereses: string[];
+  /** Nombre visible (cifrado en reposo); null si no se ha definido. */
+  nombre: string | null;
+  /** Archivo de avatar en GridFS; null si usa el placeholder. */
+  avatarFileId: string | null;
 };
 
 type UserDoc = {
@@ -24,6 +28,8 @@ type UserDoc = {
   rol: "user" | "owner";
   verificado: boolean;
   intereses?: string[];
+  nombre_enc?: string;
+  avatarFileId?: string;
 };
 
 /** Crea una sesión nueva y deja la cookie establecida (solo válido en route handlers). */
@@ -60,7 +66,8 @@ export async function getSessionUser(): Promise<SessionUser | null> {
     const tokenHash = sha256(token);
     const { sessions, users } = await getCollections();
     const session = await sessions.findOne({ tokenHash });
-    if (!session || (session.expira as Date) < new Date()) return null;
+    if (!session) return null;
+    if (new Date(session.expira) <= new Date()) return null;
 
     const user = (await users.findOne({ _id: session.userId })) as UserDoc | null;
     if (!user) return null;
@@ -72,6 +79,8 @@ export async function getSessionUser(): Promise<SessionUser | null> {
       rol: user.rol,
       verificado: user.verificado,
       intereses: user.intereses ?? [],
+      nombre: descifraSeguro(user.nombre_enc) || null,
+      avatarFileId: typeof user.avatarFileId === "string" ? user.avatarFileId : null,
     };
   } catch (e) {
     // Sin conexión a la base de datos (p. ej. durante el build) no hay sesión.

@@ -16,10 +16,11 @@ const ERRORES: Record<string, string> = {
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; next?: string }>;
 }) {
   const sp = await searchParams;
   const error = sp.error ? (ERRORES[sp.error] ?? "No se pudo iniciar sesión. Intenta de nuevo.") : null;
+  const next = sp.next && sp.next.startsWith("/") && !sp.next.startsWith("//") ? sp.next : "";
   return (
     <main>
       <section className="login-section">
@@ -31,6 +32,7 @@ export default async function LoginPage({
         <img src="/images/logo.svg" alt="Oikestia logo" />
         <h1>Oikestia</h1>
         <p className="login-title">Bienvenido de vuelta. Inicia sesión en tu cuenta.</p>
+        {next && <input type="hidden" name="next" value={next} />}
         <fieldset className="login-fieldset">
           <label htmlFor="login-email">Email o usuario</label>
           <div className="login-email">

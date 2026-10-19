@@ -67,10 +67,13 @@ export async function POST(req: NextRequest) {
     await createSession(String(user._id));
     await Promise.all([reiniciar(claveIp), reiniciar(claveCuenta)]);
 
+    const destinoRaw = form.get("next")?.toString() ?? "";
+    const next = destinoRaw.startsWith("/") && !destinoRaw.startsWith("//") ? destinoRaw : null;
+
     if (user.rol === "user" && (!user.intereses || user.intereses.length < 3)) {
       return NextResponse.redirect(destino(req, "/registro/intereses"), 303);
     }
-    return NextResponse.redirect(destino(req, "/"), 303);
+    return NextResponse.redirect(destino(req, next ?? "/"), 303);
   } catch (e) {
     console.error("login", e);
     return NextResponse.redirect(destino(req, "/login?error=500"), 303);

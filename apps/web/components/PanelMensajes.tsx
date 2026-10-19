@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useState, type FormEvent } from "react";
-import type { HiloUI, MensajeUI } from "@/lib/mensajes";
+import type { HiloUI, MensajeUI, DatosCompartidos } from "@/lib/mensajes";
 
 type HiloDetalle = {
   lead: {
@@ -14,6 +15,7 @@ type HiloDetalle = {
     contraparte: string;
   };
   mensajes: MensajeUI[];
+  contacto: DatosCompartidos | null;
 };
 
 function fecha(iso: string): string {
@@ -27,13 +29,19 @@ function fecha(iso: string): string {
 
 /** Panel de conversaciones: lista de hilos + hilo abierto (polling 5 s / 4 s). */
 export default function PanelMensajes() {
+  const params = useSearchParams();
+  const leadInicial = params.get("lead");
   const [hilos, setHilos] = useState<HiloUI[] | null>(null);
   const [errorLista, setErrorLista] = useState<string | null>(null);
-  const [abierto, setAbierto] = useState<string | null>(null);
+  const [abierto, setAbierto] = useState<string | null>(leadInicial);
   const [hilo, setHilo] = useState<HiloDetalle | null>(null);
   const [texto, setTexto] = useState("");
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [mostrarVisita, setMostrarVisita] = useState(false);
+  const [fechaVisita, setFechaVisita] = useState("");
+  const [enviandoVisita, setEnviandoVisita] = useState(false);
+  const [avisoVisita, setAvisoVisita] = useState<string | null>(null);
 
   /* Lista de hilos (polling 5 s). */
   useEffect(() => {
@@ -113,6 +121,36 @@ export default function PanelMensajes() {
     }
   }
 
+  async function pedirVisita(e: FormEvent) {
+    e.preventDefault();
+    if (!abierto || enviandoVisita || fechaVisita.trim().length < 3) return;
+    setEnviandoVisita(true);
+    setError(null);
+    setAvisoVisita(null);
+    try {
+      const res = await fetch("/api/mensajes/visita", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ lead: abierto, fecha: fechaVisita.trim() }),
+      });
+      const data = (await res.json()) as { ok: boolean; error?: string };
+      if (!res.ok || !data.ok) {
+        setError(data.error ?? "No se pudo solicitar la visita");
+        return;
+      }
+      setFechaVisita("");
+      setMostrarVisita(false);
+      setAvisoVisita("Solicitud de visita enviada.");
+      const recarga = await fetch(`/api/mensajes?lead=${encodeURIComponent(abierto)}`);
+      const detalle = (await recarga.json()) as { ok: boolean; hilo?: HiloDetalle };
+      if (detalle.ok && detalle.hilo) setHilo(detalle.hilo);
+    } catch {
+      setError("Sin conexión con el servidor");
+    } finally {
+      setEnviandoVisita(false);
+    }
+  }
+
   return (
     <div className="panel-mensajes">
       <div className="hilos-lista">
@@ -175,6 +213,57 @@ export default function PanelMensajes() {
                 </div>
               ))}
             </div>
+
+            {hilo.contacto && (
+              <div className="hilo-contacto">
+                <p className="hilo-contacto-titulo">Datos de contacto compartidos</p>
+                <ul>
+                  {hilo.contacto.correo && (
+                    <li>
+                      <a href={`mailto:${hilo.contacto.correo}`}>{hilo.contacto.correo}</a>
+                    </li>
+                  )}
+                  {hilo.contacto.telefono && (
+                    <li>
+                      <a href={`tel:${hilo.contacto.telefono.replace(/[^\d+]/g, "")}`}>
+                        {hilo.contacto.telefono}
+                      </a>
+                    </li>
+                  )}
+                  {hilo.contacto.redes.length > 0 && <li>{hilo.contacto.redes.join(" · ")}</li>}
+                </ul>
+              </div>
+            )}
+
+            {avisoVisita && (
+              <p className="hilo-aviso" role="status">{avisoVisita}</p>
+            )}
+            {mostrarVisita ? (
+              <form className="hilo-visita" onSubmit={pedirVisita}>
+                <label htmlFor="fecha-visita">Fecha y hora propuestas</label>
+                <input
+                  id="fecha-visita"
+                  type="text"
+                  value={fechaVisita}
+                  onChange={(e) => setFechaVisita(e.target.value)}
+                  placeholder="Ej. Sábado 2 de noviembre, 11:00"
+                  maxLength={80}
+                  required
+                />
+                <div className="hilo-visita-acciones">
+                  <button type="submit" disabled={enviandoVisita || fechaVisita.trim().length < 3}>
+                    {enviandoVisita ? "Enviando…" : "Enviar solicitud"}
+                  </button>
+                  <button type="button" className="hilo-visita-cancelar" onClick={() => setMostrarVisita(false)}>
+                    Cancelar
+                  </button>
+                </div>
+              </form>
+            ) : (
+              <button type="button" className="hilo-visita-btn" onClick={() => setMostrarVisita(true)}>
+                Solicitar visita
+              </button>
+            )}
 
             <form className="hilo-responder" onSubmit={enviar}>
               <textarea

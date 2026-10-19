@@ -358,72 +358,24 @@
     color: var(--color-neutral-darkest);
 }
 
-.owner-phone {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    font-size: var(--font-size-sm);
-    font-weight: var(--font-weight-semibold);
-    color: var(--text-link);
-    text-decoration: none;
-    transition: color 0.3s ease;
-}
 
-.owner-phone:hover {
-    color: var(--text-link-hover);
-}
-
-.owner-phone svg {
-    width: 18px;
-    height: 18px;
-}
-
-
-/* ---------- Formulario de contacto ---------- */
-
-.listing-contact h2 {
+/* ---------- Contacto por mensaje ---------- */.listing-contact h2 {
     margin: 0 0 0.5rem;
     font-size: var(--font-size-xl);
     color: var(--color-primary-darker);
 }
 
-/* Reutiliza el fieldset global (styles.css); solo se ajusta el ritmo */
-.listing-contact fieldset {
-    margin: 0.5rem 0 0;
+.contact-ayuda {
+    margin: 0 0 1rem;
     font-size: var(--font-size-sm);
+    color: var(--color-neutral-darkest);
 }
 
-.listing-contact fieldset input {
-    font-family: inherit;
-    font-size: var(--font-size-sm);
-}
-
-.listing-contact textarea {
-    box-sizing: border-box;
-    width: 100%;
-    min-height: 7rem;
-    resize: vertical;
-    font-family: inherit;
-    font-size: var(--font-size-sm);
-    padding: 0.5rem;
-    border: 1px solid var(--border-light);
-    border-radius: 10px;
-    margin-top: 0.5rem;
-    margin-bottom: 1rem;
-    transition: all 0.3s ease;
-}
-
-.listing-contact textarea:hover {
-    border-color: var(--color-primary);
-}
-
-.listing-contact textarea:focus {
-    outline: none;
-    border-color: var(--color-primary);
-    box-shadow: 0 0 22px rgb(from var(--color-primary) r g b / 0.15);
-}
-
-.listing-contact input[type="submit"] {
+.contact-mensaje {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
     width: 100%;
     font-family: inherit;
     font-size: var(--font-size-md);
@@ -433,43 +385,78 @@
     border: none;
     border-radius: 10px;
     padding: 0.9rem;
+    text-decoration: none;
     cursor: pointer;
     transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-.listing-contact input[type="submit"]:hover {
+.contact-mensaje:hover {
     background-color: var(--color-primary-darker);
     box-shadow: 0 0 22px rgb(from var(--color-primary) r g b / 0.4);
 }
 
-.tour-button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    width: 100%;
-    margin-top: 0.8rem;
-    font-family: inherit;
-    font-size: var(--font-size-md);
-    font-weight: var(--font-weight-medium);
-    color: var(--color-neutral-darker);
-    background-color: var(--color-white);
-    border: 1px solid var(--border-light);
-    border-radius: 10px;
-    padding: 0.9rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.tour-button:hover {
-    color: var(--color-primary-darker);
-    border-color: var(--color-primary);
-    box-shadow: 0 0 18px rgb(from var(--color-primary) r g b / 0.15);
-}
-
-.tour-button svg {
+.contact-mensaje svg {
     width: 20px;
     height: 20px;
+}
+
+
+/* ---------- Amenidades cercanas ---------- */
+
+.listing-cercanas {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1rem;
+    margin-top: 0.5rem;
+}
+
+.cercanas-grupo {
+    background: var(--color-white);
+    border: 1px solid var(--border-light);
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+}
+
+.cercanas-titulo {
+    margin: 0 0 0.5rem;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-primary-darker);
+}
+
+.cercanas-lista {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.cercanas-lista li {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+    font-size: var(--font-size-sm);
+    color: var(--color-neutral-dark);
+}
+
+.cercanas-nombre {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.cercanas-distancia {
+    flex: 0 0 auto;
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-neutral-darkest);
+}
+
+.cercanas-nota {
+    margin: 0.75rem 0 0;
+    font-size: var(--font-size-xs);
+    color: var(--color-neutral-darkest);
 }
 
 

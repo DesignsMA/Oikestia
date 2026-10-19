@@ -1,0 +1,112 @@
+.borrador {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    max-width: 640px;
+}
+
+.borrador-tarjeta {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    text-decoration: none;
+    background: var(--color-white);
+    border: 1px solid var(--border-light);
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    padding: 0.75rem;
+    color: inherit;
+    transition: border-color 0.2s ease;
+}
+
+.borrador-tarjeta:hover {
+    border-color: var(--color-primary);
+}
+
+.borrador-tarjeta img {
+    width: 96px;
+    height: 72px;
+    object-fit: cover;
+    border-radius: 8px;
+    flex: 0 0 auto;
+}
+
+.borrador-tarjeta-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    min-width: 0;
+}
+
+.borrador-tarjeta-info strong {
+    color: var(--color-neutral-dark);
+    font-size: var(--font-size-md);
+}
+
+.borrador-tarjeta-info span {
+    color: var(--color-primary-darker);
+    font-weight: var(--font-weight-semibold);
+    font-size: var(--font-size-sm);
+}
+
+.borrador-tarjeta-dir {
+    color: var(--color-neutral-darkest) !important;
+    font-weight: var(--font-weight-regular) !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.borrador-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.borrador-form > label {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-neutral-dark);
+}
+
+.borrador-form textarea {
+    font-family: var(--font-body);
+    font-size: var(--font-size-md);
+    color: var(--color-neutral-dark);
+    background: var(--color-white);
+    border: 1px solid var(--border-light);
+    border-radius: 10px;
+    padding: 0.75rem;
+    resize: vertical;
+    min-height: 120px;
+}
+
+.borrador-form textarea:focus {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 1px;
+    border-color: var(--color-primary);
+}
+
+.borrador-form button {
+    align-self: flex-start;
+    font-family: var(--font-body);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-button-primary);
+    background: var(--bg-button-primary);
+    border: none;
+    border-radius: 0.5rem;
+    padding: 0.65rem 1.4rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.borrador-form button:hover:not(:disabled) {
+    background: var(--color-primary-darker);
+    box-shadow: 0 0 18px rgb(from var(--color-primary) r g b / 0.35);
+}
+
+.borrador-form button:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}

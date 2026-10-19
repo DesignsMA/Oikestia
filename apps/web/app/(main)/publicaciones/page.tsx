@@ -70,6 +70,11 @@ export default async function PublicacionesPage({
   const chips: { texto: string; href: string }[] = [];
   if (filtros.q) chips.push({ texto: `«${filtros.q}»`, href: urlSin(sp, "q") });
   if (filtros.tipo) chips.push({ texto: ETIQUETA_TIPO[filtros.tipo]!, href: urlSin(sp, "tipo") });
+  if (filtros.tipos?.length)
+    chips.push({
+      texto: filtros.tipos.map((t) => ETIQUETA_TIPO[t]).join(", "),
+      href: urlSin(sp, "tipo"),
+    });
   if (filtros.operacion)
     chips.push({
       texto: filtros.operacion === "venta" ? "En venta" : "En renta",

@@ -16,8 +16,7 @@ type Muestra = {
   ciudad: string;
   estado: string;
   cp: string;
-  /** [lng, lat] aproximadas (GeoJSON); el geocodificado las refina. */
-  coords?: [number, number];
+  coords: [number, number];
   recamaras?: number;
   banos?: number;
   cocheras?: number;
@@ -35,8 +34,8 @@ const F = (n: number, alt: string): { url: string; alt: string } => ({
 });
 
 const descCasa =
-  "Casa de arquitectura contemporánea con ventanales de piso a techo, iluminación natural durante todo el el día y acabados de primera. La planta social conecta sala, comedor y cocina en un solo espacio abierto hacia el jardín trasero.\n\n" +
-  "Cuenta con recámaras amplias con vestidor, baños con acabados de mármol, cotechera techada y sistemas de aire acondicionado central. La ubicación permite llegar en minutos a escuelas, parques y centros comerciales.";
+  "Casa de arquitectura contemporánea con ventanales de piso a techo, iluminación natural durante todo el día y acabados de primera. La planta social conecta sala, comedor y cocina en un solo espacio abierto hacia el jardín trasero.\n\n" +
+  "Cuenta con recámaras amplias con vestidor, baños con acabados de mármol, cochera techada y aire acondicionado central. La ubicación permite llegar en minutos a escuelas, parques y centros comerciales.";
 
 const descDepto =
   "Departamento con vista panorámica, balcón orientado al poniente y acabados modernos. La cocina integral incluye isla de desayuno y la sala aprovecha la altura libre para mayor sensación de amplitud.\n\n" +
@@ -47,7 +46,7 @@ const descTerreno =
   "Zona en crecimiento con fácil acceso a la carretera principal, ideal para vivienda unifamiliar o desarrollo de pocos patios. Escrituras libres de gravamen.";
 
 const descLocal =
-  "Local comercial con localización de alto tránsito, fachada con visibility amplia y antepuerta para ventanales de exhibición.\n\n" +
+  "Local comercial con localización de alto tránsito, fachada con visibilidad amplia y antepuerta para ventanales de exhibición.\n\n" +
   "Incluye baño de cortesía, área de bodega, instalaciones eléctricas reforzadas y estacionamiento de visita. Listo para operar.";
 
 const L = (m: Muestra): Omit<ListingDoc, "_id" | "owner" | "estado" | "creado" | "actualizado" | "publicadoEn"> & {
@@ -67,7 +66,7 @@ const L = (m: Muestra): Omit<ListingDoc, "_id" | "owner" | "estado" | "creado" |
     estado: m.estado,
     cp: m.cp,
   },
-  ...(m.coords ? { ubicacion: { type: "Point" as const, coords: m.coords } } : {}),
+  ubicacion: { type: "Point" as const, coords: m.coords },
   caracteristicas: {
     recamaras: m.recamaras,
     banos: m.banos,
@@ -90,13 +89,15 @@ const MUESTRAS: Muestra[] = [
     ciudad: "Puebla",
     estado: "Puebla",
     cp: "72480",
+    coords: [-98.2345, 19.0375],
     recamaras: 4,
-    banos: 5,
+    banos: 4,
     cocheras: 2,
     construccionM2: 450,
     amenidades: ["alberca", "estacionamiento", "aire-acondicionado", "vigilancia"],
     fotos: [
       F(1, "Casa contemporánea iluminada con alberca"),
+      F(2, "Sala principal de la casa"),
       F(5, "Terraza y alberca al atardecer"),
     ],
     descripcion: descCasa,
@@ -111,13 +112,16 @@ const MUESTRAS: Muestra[] = [
     ciudad: "Puebla",
     estado: "Puebla",
     cp: "72490",
+    coords: [-98.2325, 19.0425],
     recamaras: 2,
     banos: 2,
+    cocheras: 1,
     construccionM2: 120,
     amenidades: ["estacionamiento", "gimnasio", "vigilancia", "terraza"],
     fotos: [
       F(2, "Departamento con vista panorámica a la ciudad"),
       F(6, "Fachada del edificio"),
+      F(3, "Cocina integral del departamento"),
     ],
     descripcion: descDepto,
   },
@@ -131,15 +135,42 @@ const MUESTRAS: Muestra[] = [
     ciudad: "Puebla",
     estado: "Puebla",
     cp: "72450",
+    coords: [-98.244, 19.033],
     recamaras: 3,
     banos: 2,
+    cocheras: 2,
     construccionM2: 210,
     amenidades: ["estacionamiento", "chimenea"],
-    fotos: [F(3, "Cocina minimalista de una casa")],
+    fotos: [
+      F(3, "Cocina minimalista de la casa"),
+      F(1, "Fachada principal de la casa minimalista"),
+      F(4, "Jardín lateral de la casa"),
+    ],
     descripcion: descCasa,
   },
   {
-    titulo: "Terreno Baldío en Cholula",
+    titulo: "Local Comercial en Zavaleta",
+    operacion: "renta",
+    tipo: "local-comercial",
+    precio: 32000,
+    calle: "Calzada Zaragoza 240",
+    colonia: "Zavaleta",
+    ciudad: "Puebla",
+    estado: "Puebla",
+    cp: "72410",
+    coords: [-98.188, 19.055],
+    banos: 1,
+    construccionM2: 110,
+    amenidades: ["estacionamiento", "vigilancia", "aire-acondicionado"],
+    fotos: [
+      F(4, "Fachada del local comercial"),
+      F(6, "Interior del local comercial"),
+      F(5, "Vista exterior del local al atardecer"),
+    ],
+    descripcion: descLocal,
+  },
+  {
+    titulo: "Terreno en San Pedro Cholula",
     operacion: "venta",
     tipo: "terreno",
     precio: 180000,
@@ -148,159 +179,15 @@ const MUESTRAS: Muestra[] = [
     ciudad: "San Pedro Cholula",
     estado: "Puebla",
     cp: "72760",
+    coords: [-98.296, 19.057],
     terrenoM2: 600,
     amenidades: [],
-    fotos: [F(4, "Terreno baldío con acceso a camino")],
-    descripcion: descTerreno,
-  },
-  {
-    titulo: "Casa con Vista al Club",
-    operacion: "venta",
-    tipo: "casa",
-    precio: 2100000,
-    calle: "Calle Fairway 9",
-    colonia: "Club de Golf",
-    ciudad: "Puebla",
-    estado: "Puebla",
-    cp: "72499",
-    recamaras: 5,
-    banos: 5,
-    cocheras: 3,
-    construccionM2: 850,
-    amenidades: ["alberca", "cava", "vigilancia", "casa-inteligente"],
     fotos: [
-      F(5, "Casa con terraza y alberca al atardecer"),
-      F(1, "Fachada principal"),
+      F(5, "Terreno con acceso a camino"),
+      F(1, "Vista general del terreno"),
+      F(2, "Linderos del terreno"),
     ],
-    descripcion: descCasa,
-  },
-  {
-    titulo: "Departamento Boutique en el Centro",
-    operacion: "renta",
-    tipo: "departamento",
-    precio: 350000,
-    calle: "3 Sur 105",
-    colonia: "Centro Histórico",
-    ciudad: "Puebla",
-    estado: "Puebla",
-    cp: "72000",
-    recamaras: 1,
-    construccionM2: 85,
-    amenidades: ["vigilancia"],
-    fotos: [F(6, "Fachada de departamento boutique de concreto y madera")],
-    descripcion: descDepto,
-  },
-  {
-    titulo: "Casa Familiar en San Manuel",
-    operacion: "venta",
-    tipo: "casa",
-    precio: 640000,
-    calle: "Calle 5 de Mayo 33",
-    colonia: "San Manuel",
-    ciudad: "Puebla",
-    estado: "Puebla",
-    cp: "72440",
-    recamaras: 4,
-    construccionM2: 320,
-    amenidades: ["estacionamiento"],
-    fotos: [F(1, "Casa de dos pisos con jardín")],
-    descripcion: descCasa,
-  },
-  {
-    titulo: "Departamento en Zavaleta",
-    operacion: "venta",
-    tipo: "departamento",
-    precio: 295000,
-    calle: "Calzada Zaragoza 240",
-    colonia: "Zavaleta",
-    ciudad: "Puebla",
-    estado: "Puebla",
-    cp: "72410",
-    recamaras: 2,
-    construccionM2: 95,
-    amenidades: ["estacionamiento"],
-    fotos: [F(2, "Departamento luminoso con balcón")],
-    descripcion: descDepto,
-  },
-  {
-    titulo: "Casa de Campo en Atlixco",
-    operacion: "venta",
-    tipo: "casa",
-    precio: 510000,
-    calle: "Camino al Observatorio 5",
-    colonia: "Centro",
-    ciudad: "Atlixco",
-    estado: "Puebla",
-    cp: "74160",
-    recamaras: 3,
-    construccionM2: 260,
-    terrenoM2: 1200,
-    amenidades: ["alberca", "chimenea"],
-    fotos: [F(3, "Interior de casa de campo")],
-    descripcion: descCasa,
-  },
-  {
-    titulo: "Terreno Baldío en Cuautlancingo",
-    operacion: "venta",
-    tipo: "terreno",
-    precio: 97000,
-    calle: "Camino a San Andrés 410",
-    colonia: "San Martín Texmelucan",
-    ciudad: "Cuautlancingo",
-    estado: "Puebla",
-    cp: "72470",
-    terrenoM2: 400,
-    amenidades: [],
-    fotos: [F(4, "Terreno baldío plano con acceso a camino")],
     descripcion: descTerreno,
-  },
-  {
-    titulo: "Departamento Penthouse en Angelópolis",
-    operacion: "venta",
-    tipo: "departamento",
-    precio: 1780000,
-    calle: "Av. San Román 1120",
-    colonia: "Angelópolis",
-    ciudad: "Puebla",
-    estado: "Puebla",
-    cp: "72490",
-    recamaras: 3,
-    construccionM2: 280,
-    amenidades: ["terraza", "alberca", "gimnasio", "aire-acondicionado"],
-    fotos: [F(5, "Penthouse con terraza")],
-    descripcion: descDepto,
-  },
-  {
-    titulo: "Casa de Esquina en Mayorazgo",
-    operacion: "venta",
-    tipo: "casa",
-    precio: 389000,
-    calle: "Calle Esperanza 7",
-    colonia: "Mayorazgo 1ra Sección",
-    ciudad: "Puebla",
-    estado: "Puebla",
-    cp: "72430",
-    recamaras: 3,
-    construccionM2: 180,
-    amenidades: ["estacionamiento"],
-    fotos: [F(6, "Casa en esquina con fachada blanca")],
-    descripcion: descCasa,
-  },
-  {
-    titulo: "Departamento Estudio en Cholula",
-    operacion: "renta",
-    tipo: "departamento",
-    precio: 165000,
-    calle: "14 Sur 304",
-    colonia: "San Andrés Cholula",
-    ciudad: "San Andrés Cholula",
-    estado: "Puebla",
-    cp: "72820",
-    recamaras: 1,
-    construccionM2: 48,
-    amenidades: ["vigilancia"],
-    fotos: [F(2, "Estudio pequeño amueblado")],
-    descripcion: descDepto,
   },
 ];
 
@@ -325,7 +212,9 @@ export async function seedListings(): Promise<boolean> {
       rol: "owner",
       verificado: true,
       intereses: [],
+      nombre_enc: encryptField("Propietario Demo"),
       fullname_enc: encryptField("Propietario Demo"),
+      compartir: { correo: true, telefono: false, redes: false },
       creado: ahora,
       actualizado: ahora,
     });
@@ -336,8 +225,6 @@ export async function seedListings(): Promise<boolean> {
   const ahora = Date.now();
   const docs = MUESTRAS.map((m, i) => {
     const base = L(m);
-    const coords = COORDS[m.titulo];
-    if (coords) base.ubicacion = { type: "Point", coords };
     const creado = new Date(ahora - (i + 1) * 86_400_000 * 3);
     return {
       ...base,
@@ -355,20 +242,3 @@ export async function seedListings(): Promise<boolean> {
 
 /** Slug de la ficha de detalle (Casa Lumina) para el seed de detalle completo. */
 export const SLUG_CASA_LUMINA = "casa-lumina";
-
-/** Coordenadas aproximadas [lng, lat] por título para el mapa del seed. */
-const COORDS: Record<string, [number, number]> = {
-  "Casa Contemporánea en Lomas de Angelópolis": [-98.2345, 19.0375],
-  "Departamento Panorámico en Angelópolis": [-98.2325, 19.0425],
-  "Casa Minimalista en La Vista": [-98.244, 19.033],
-  "Terreno Baldío en Cholula": [-98.296, 19.057],
-  "Casa con Vista al Club": [-98.25, 19.045],
-  "Departamento Boutique en el Centro": [-98.2018, 19.0414],
-  "Casa Familiar en San Manuel": [-98.2215, 19.03],
-  "Departamento en Zavaleta": [-98.188, 19.055],
-  "Casa de Campo en Atlixco": [-98.434, 18.909],
-  "Terreno Baldío en Cuautlancingo": [-98.27, 19.056],
-  "Departamento Penthouse en Angelópolis": [-98.233, 19.044],
-  "Casa de Esquina en Mayorazgo": [-98.256, 19.018],
-  "Departamento Estudio en Cholula": [-98.283, 19.048],
-};

@@ -119,13 +119,16 @@ export const listingSchema = z.object({
     .default([]),
 });
 
-/** Mensaje de contacto desde la ficha de publicación (lead). */
-export const contactoSchema = z.object({
+/** Primer mensaje al propietario desde la ficha de publicación. */
+export const nuevoMensajeSchema = z.object({
   listing: z.string().min(1).max(140),
-  fullname: z.string().min(3, "Escribe tu nombre completo").max(120),
-  email: z.string().email("Correo inválido").max(254),
   message: z.string().min(10, "Escribe un mensaje de al menos 10 caracteres").max(2000),
-  tipo: z.enum(["mensaje", "visita"]).default("mensaje"),
+});
+
+/** Solicitud de visita dentro de una conversación. */
+export const visitaSchema = z.object({
+  lead: z.string().min(1, "Conversación inválida").max(64),
+  fecha: z.string().min(4, "Indica una fecha").max(80),
 });
 
 /** Documento de verificación de identidad (solo metadatos; el archivo va a GridFS). */
@@ -139,8 +142,28 @@ export const mensajeSchema = z.object({
   texto: z.string().min(1, "Escribe un mensaje").max(2000, "El mensaje es demasiado largo"),
 });
 
+/** Nombre visible de la cuenta; vacío significa usar el usuario. */
+export const cuentaSchema = z.object({
+  nombre: z
+    .string()
+    .normalize("NFKC")
+    .trim()
+    .max(60, "Máximo 60 caracteres")
+    .refine((v) => !/[\u0000-\u001f\u007f]/.test(v), "El nombre contiene caracteres inválidos"),
+});
+
+/** Preferencias de datos que el usuario comparte al contactar. */
+export const compartirSchema = z.object({
+  correo: z.boolean(),
+  telefono: z.boolean(),
+  redes: z.boolean(),
+});
+
 export type UserRegistration = z.infer<typeof userRegistrationSchema>;
 export type OwnerRegistration = z.infer<typeof ownerRegistrationSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
 export type ListingInput = z.infer<typeof listingSchema>;
-export type ContactoInput = z.infer<typeof contactoSchema>;
+export type NuevoMensajeInput = z.infer<typeof nuevoMensajeSchema>;
+export type VisitaInput = z.infer<typeof visitaSchema>;
+export type CuentaInput = z.infer<typeof cuentaSchema>;
+export type CompartirInput = z.infer<typeof compartirSchema>;

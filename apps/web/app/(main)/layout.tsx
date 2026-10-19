@@ -7,7 +7,7 @@ export default function MainLayout({ children }: { children: ReactNode }) {
   return (
     <>
       <Header />
-      <main>{children}</main>
+      <main id="contenido" className="site-main">{children}</main>
       <Footer />
     </>
   );

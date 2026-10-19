@@ -381,6 +381,43 @@
     margin: 1rem 0;
 }
 
+.asistente-mapa {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    margin-top: 1.25rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-light);
+}
+
+.asistente-mapa-cabeza {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.asistente-mapa-aviso {
+    margin: 0;
+    font-size: var(--font-size-sm);
+    color: var(--color-primary-darker);
+}
+
+.asistente-mapa-pie {
+    margin: 0;
+    font-size: var(--font-size-sm);
+    color: var(--color-neutral-darkest);
+}
+
+.mapa-pin-lienzo {
+    width: 100%;
+    border: 1px solid var(--border-light);
+    border-radius: 10px;
+    overflow: hidden;
+    z-index: 0;
+}
+
 .asistente-opciones .intereses-opciones {
     margin-top: 0.5rem;
 }
@@ -685,6 +722,137 @@
     margin: 0;
     font-size: var(--font-size-sm);
     color: var(--color-primary-darker);
+}
+
+.hilo-contacto {
+    margin-top: 0.75rem;
+    padding: 0.75rem 0.9rem;
+    background: rgb(from var(--color-primary) r g b / 0.07);
+    border: 1px solid var(--border-light);
+    border-radius: 10px;
+}
+
+.hilo-contacto-titulo {
+    margin: 0 0 0.35rem;
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-neutral-dark);
+}
+
+.hilo-contacto ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+    font-size: var(--font-size-sm);
+}
+
+.hilo-contacto a {
+    color: var(--text-link);
+    font-weight: var(--font-weight-semibold);
+    text-decoration: none;
+}
+
+.hilo-contacto a:hover {
+    text-decoration: underline;
+}
+
+.hilo-aviso {
+    margin: 0.75rem 0 0;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-primary-darker);
+}
+
+.hilo-visita-btn {
+    align-self: flex-start;
+    margin-top: 0.75rem;
+    font-family: var(--font-body);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-neutral-darker);
+    background: var(--color-white);
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.hilo-visita-btn:hover {
+    color: var(--color-primary-darker);
+    border-color: var(--color-primary);
+}
+
+.hilo-visita {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+    padding: 0.75rem;
+    background: var(--color-neutral-light);
+    border: 1px solid var(--border-light);
+    border-radius: 10px;
+}
+
+.hilo-visita > label {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-neutral-dark);
+}
+
+.hilo-visita input {
+    font-family: var(--font-body);
+    font-size: var(--font-size-sm);
+    color: var(--color-neutral-dark);
+    background: var(--color-white);
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    padding: 0.55rem 0.7rem;
+}
+
+.hilo-visita input:focus {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 1px;
+    border-color: var(--color-primary);
+}
+
+.hilo-visita-acciones {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.hilo-visita-acciones button {
+    font-family: var(--font-body);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-button-primary);
+    background: var(--bg-button-primary);
+    border: none;
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.hilo-visita-acciones button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.hilo-visita-cancelar {
+    background: transparent !important;
+    color: var(--color-neutral-darker) !important;
+    border: 1px solid var(--border-light) !important;
+}
+
+.hilo-visita-cancelar:hover {
+    color: var(--color-primary-darker) !important;
+    border-color: var(--color-primary) !important;
 }
 
 

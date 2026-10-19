@@ -59,6 +59,9 @@ export default async function PropietarioPage() {
       <div className="panel-head">
         <h2>Panel de propietarios</h2>
         <div className="panel-head-acciones">
+          <Link href="/propietario/interesados" className="panel-btn">
+            Ver interesados
+          </Link>
           <a href="/api/dashboard" className="panel-btn">
             Ver estadísticas
           </a>

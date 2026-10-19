@@ -80,6 +80,7 @@ export async function POST(req: NextRequest) {
       rol,
       verificado: rol === "owner" && process.env.DEV_AUTO_VERIFY === "true",
       intereses: [] as string[],
+      compartir: { correo: true, telefono: false, redes: false },
       creado: now,
       actualizado: now,
       ...(rol === "owner" ? { fullname_enc: encryptField(NORM(data.fullname)) } : {}),

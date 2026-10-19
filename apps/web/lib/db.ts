@@ -85,7 +85,6 @@ export async function ensureIndexes(): Promise<void> {
   ]);
   await db.collection("leads").createIndexes([
     { key: { listingId: 1, creado: -1 }, name: "listing_creado" },
-    { key: { emailHash: 1, creado: -1 }, name: "emailHash_creado", sparse: true },
     { key: { userId: 1, creado: -1 }, name: "user_creado", sparse: true },
   ]);
   await db.collection("messages").createIndexes([

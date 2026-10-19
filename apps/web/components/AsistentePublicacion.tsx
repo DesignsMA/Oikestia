@@ -3,6 +3,7 @@
 import { useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AMENIDADES, AMENIDADES_ETIQUETAS, OPERACIONES, TIPOS_PROPIEDAD } from "@/lib/validators";
+import MapaPin from "./MapaPin";
 
 const PASOS = ["Datos", "Ubicación", "Detalle", "Fotos", "Revisar"] as const;
 
@@ -72,7 +73,6 @@ function validaPaso(paso: number, c: Campos, amenidades: string[], fotos: File[]
       if (fotos.length === 0) return "Sube al menos una foto.";
       if (fotos.length > MAX_FOTOS) return `Máximo ${MAX_FOTOS} fotos.`;
       if (fotos.some((f) => f.size > MAX_MB * 1024 * 1024)) return `Cada foto debe pesar menos de ${MAX_MB} MB.`;
-      if (amenidades.length === 0) return "Elige al menos una amenidad.";
       return null;
     default:
       return null;
@@ -88,6 +88,9 @@ export default function AsistentePublicacion() {
   const [fotos, setFotos] = useState<File[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
+  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const [geocodificando, setGeocodificando] = useState(false);
+  const [avisoMapa, setAvisoMapa] = useState<string | null>(null);
   const fotosRef = useRef<HTMLInputElement>(null);
 
   const previews = useMemo(() => fotos.map((f) => ({ f, url: URL.createObjectURL(f) })), [fotos]);
@@ -108,6 +111,33 @@ export default function AsistentePublicacion() {
 
   function quitarFoto(idx: number) {
     setFotos((prev) => prev.filter((_, i) => i !== idx));
+  }
+
+  async function ubicarEnMapa() {
+    if (geocodificando) return;
+    const partes = [campos.calle, campos.colonia, campos.ciudad, campos.estado].filter((p) => p.trim());
+    if (partes.length < 2) {
+      setAvisoMapa("Completa la dirección para ubicarla en el mapa.");
+      return;
+    }
+    setGeocodificando(true);
+    setAvisoMapa("Buscando la ubicación…");
+    try {
+      const q = `${partes.join(", ")}, México`;
+      const res = await fetch(`/api/geocode?q=${encodeURIComponent(q)}`);
+      const data = (await res.json()) as { ok: boolean; coords?: [number, number]; error?: string };
+      if (!data.ok || !data.coords) {
+        setAvisoMapa(data.error ?? "No encontramos esa dirección. Mueve el pin manualmente.");
+        if (!coords) setCoords({ lat: 19.0414, lng: -98.2063 });
+        return;
+      }
+      setCoords({ lat: data.coords[1], lng: data.coords[0] });
+      setAvisoMapa(null);
+    } catch {
+      setAvisoMapa("Sin conexión con el servidor.");
+    } finally {
+      setGeocodificando(false);
+    }
   }
 
   function siguiente() {
@@ -142,6 +172,10 @@ export default function AsistentePublicacion() {
         if (v !== "") fd.set(k, v);
       }
       for (const a of amenidades) fd.append("amenidades", a);
+      if (coords) {
+        fd.set("lat", String(coords.lat));
+        fd.set("lng", String(coords.lng));
+      }
       for (const f of fotos) fd.append("fotos", f);
 
       const r = await fetch("/api/publicaciones", { method: "POST", body: fd });
@@ -250,7 +284,7 @@ export default function AsistentePublicacion() {
             </div>
             <div>
               <label className="verif-label" htmlFor="p-cp">Código postal</label>
-              <input id="p-cp" className="verif-input" inputMode="numeric" value={campos.cp} onChange={(e) => set("cp", e.target.value)} placeholder="72480" maxLength={5} />
+              <input id="p-cp" className="verif-input" inputMode="numeric" value={campos.cp} onChange={(e) => set("cp", e.target.value.replace(/\D/g, "").slice(0, 5))} placeholder="72480" maxLength={5} />
             </div>
           </div>
 
@@ -263,6 +297,24 @@ export default function AsistentePublicacion() {
               <label className="verif-label" htmlFor="p-estado">Estado</label>
               <input id="p-estado" className="verif-input" value={campos.estado} onChange={(e) => set("estado", e.target.value)} placeholder="Puebla" maxLength={60} />
             </div>
+          </div>
+
+          <div className="asistente-mapa">
+            <div className="asistente-mapa-cabeza">
+              <span className="verif-label" style={{ margin: 0 }}>Ubicación en el mapa</span>
+              <button type="button" className="panel-btn" onClick={ubicarEnMapa} disabled={geocodificando}>
+                {geocodificando ? "Buscando…" : coords ? "Volver a ubicar" : "Ubicar en el mapa"}
+              </button>
+            </div>
+            {avisoMapa && <p className="asistente-mapa-aviso">{avisoMapa}</p>}
+            {coords && (
+              <>
+                <MapaPin lat={coords.lat} lng={coords.lng} onMover={(lat, lng) => setCoords({ lat, lng })} />
+                <p className="asistente-mapa-pie">
+                  Arrastra el pin o toca el mapa para ajustar la ubicación exacta.
+                </p>
+              </>
+            )}
           </div>
         </div>
       )}
@@ -308,7 +360,7 @@ export default function AsistentePublicacion() {
       {paso === 3 && (
         <div className="asistente-cuerpo">
           <fieldset className="asistente-opciones">
-            <legend className="verif-label">Amenidades ({amenidades.length} elegidas)</legend>
+            <legend className="verif-label">Amenidades ({amenidades.length} elegidas, opcional)</legend>
             <div className="intereses-opciones">
               {(Object.keys(AMENIDADES) as (keyof typeof AMENIDADES)[]).map((clave) => (
                 <label

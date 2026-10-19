@@ -106,9 +106,11 @@ export async function slugUnico(base: string): Promise<string> {
 /* ---------------- Filtros de búsqueda ---------------- */
 
 export type FiltrosPublicacion = {
-  /** Texto libre: título, descripción, calle, colonia o ciudad. */
+  /** Texto libre: título, descripción, calle, colonia, ciudad o CP. */
   q?: string;
   tipo?: (typeof TIPOS_PROPIEDAD)[number];
+  /** Varios tipos a la vez (checkboxes de la home). */
+  tipos?: (typeof TIPOS_PROPIEDAD)[number][];
   operacion?: (typeof OPERACIONES)[number];
   precioMin?: number;
   precioMax?: number;
@@ -157,6 +159,14 @@ function soloNumero(v: string | string[] | undefined): number | undefined {
   return Number.isFinite(n) && n >= 0 ? n : undefined;
 }
 
+/** Rangos de precio de la home (?precio=1m-3m) → [min, max]. */
+const RANGOS_PRECIO: Record<string, [number | undefined, number | undefined]> = {
+  "0-1m": [undefined, 1_000_000],
+  "1m-3m": [1_000_000, 3_000_000],
+  "3m-6m": [3_000_000, 6_000_000],
+  "6m+": [6_000_000, undefined],
+};
+
 /** Lee y sanea los query params del catálogo (?tipo=casa&operacion=renta...). */
 export function parsearFiltros(
   sp: Record<string, string | string[] | undefined>
@@ -166,10 +176,12 @@ export function parsearFiltros(
   const q = soloString(sp.q)?.slice(0, 80);
   if (q) f.q = q;
 
-  const tipo = soloString(sp.tipo);
-  if (tipo && (TIPOS_PROPIEDAD as readonly string[]).includes(tipo)) {
-    f.tipo = tipo as FiltrosPublicacion["tipo"];
-  }
+  const tipos = (Array.isArray(sp.tipo) ? sp.tipo : sp.tipo ? [sp.tipo] : [])
+    .map((t) => soloString(t))
+    .filter((t): t is string => !!t && (TIPOS_PROPIEDAD as readonly string[]).includes(t))
+    .slice(0, 4);
+  if (tipos.length === 1) f.tipo = tipos[0] as FiltrosPublicacion["tipo"];
+  else if (tipos.length > 1) f.tipos = tipos as FiltrosPublicacion["tipos"];
 
   const operacion = soloString(sp.operacion);
   if (operacion && (OPERACIONES as readonly string[]).includes(operacion)) {
@@ -180,6 +192,13 @@ export function parsearFiltros(
   if (precioMin !== undefined) f.precioMin = precioMin;
   const precioMax = soloNumero(sp.precioMax);
   if (precioMax !== undefined) f.precioMax = precioMax;
+  if (f.precioMin === undefined && f.precioMax === undefined) {
+    const rango = RANGOS_PRECIO[soloString(sp.precio) ?? ""];
+    if (rango) {
+      if (rango[0] !== undefined) f.precioMin = rango[0];
+      if (rango[1] !== undefined) f.precioMax = rango[1];
+    }
+  }
 
   const recamaras = soloNumero(sp.recamaras);
   if (recamaras !== undefined) f.recamaras = Math.min(Math.floor(recamaras), 50);
@@ -215,9 +234,11 @@ export function queryPublicadas(f: FiltrosPublicacion = {}): Filter<Record<strin
       { "direccion.calle": re },
       { "direccion.colonia": re },
       { "direccion.ciudad": re },
+      { "direccion.cp": re },
     ];
   }
-  if (f.tipo) cond.tipoPropiedad = f.tipo;
+  if (f.tipos?.length) cond.tipoPropiedad = { $in: f.tipos };
+  else if (f.tipo) cond.tipoPropiedad = f.tipo;
   if (f.operacion) cond.operacion = f.operacion;
 
   if (f.precioMin !== undefined || f.precioMax !== undefined) {
@@ -276,42 +297,42 @@ export async function getPorOwner(ownerId: string): Promise<ListingDoc[]> {
 
 export type OwnerPublico = {
   nombre: string;
+  avatarUrl: string;
   verificado: boolean;
-  telefono: string | null;
 };
 
-/** Datos del propietario para la ficha pública (teléfono descifrado). */
+/** Datos públicos del propietario para la ficha (nombre y foto; sin teléfono). */
 export async function getOwnerPublico(ownerId: ObjectId): Promise<OwnerPublico> {
   try {
     const { users } = await getCollections();
     const user = (await users.findOne({ _id: ownerId })) as
       | {
           fullname_enc?: string;
+          nombre_enc?: string;
           username: string;
           verificado: boolean;
-          tel_enc?: string;
+          avatarFileId?: string;
         }
       | null;
-    if (!user) return { nombre: "Propietario", verificado: false, telefono: null };
+    if (!user) return { nombre: "Propietario", avatarUrl: "/images/user-placeholder.webp", verificado: false };
     let nombre = user.username;
-    if (user.fullname_enc) {
-      try {
-        nombre = decryptField(user.fullname_enc);
-      } catch {
-        /* clave rotada: se muestra el usuario */
+    for (const enc of [user.nombre_enc, user.fullname_enc]) {
+      if (enc) {
+        try {
+          nombre = decryptField(enc);
+          break;
+        } catch {
+          /* clave rotada: se prueba el siguiente o el usuario */
+        }
       }
     }
-    let telefono: string | null = null;
-    if (user.tel_enc) {
-      try {
-        telefono = decryptField(user.tel_enc);
-      } catch {
-        /* sin teléfono descifrable */
-      }
-    }
-    return { nombre, verificado: user.verificado, telefono };
+    return {
+      nombre,
+      avatarUrl: user.avatarFileId ? `/api/fotos/${user.avatarFileId}` : "/images/user-placeholder.webp",
+      verificado: user.verificado,
+    };
   } catch {
-    return { nombre: "Propietario", verificado: false, telefono: null };
+    return { nombre: "Propietario", avatarUrl: "/images/user-placeholder.webp", verificado: false };
   }
 }
 

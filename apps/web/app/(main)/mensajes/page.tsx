@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/auth";
 import PanelMensajes from "@/components/PanelMensajes";
@@ -27,7 +28,9 @@ export default async function MensajesPage() {
           ? "Conversaciones con interesados en tus publicaciones."
           : "Tus conversaciones con los propietarios que contactaste."}
       </p>
-      <PanelMensajes />
+      <Suspense fallback={<p className="hilo-vacio">Cargando conversaciones…</p>}>
+        <PanelMensajes />
+      </Suspense>
     </section>
   );
 }

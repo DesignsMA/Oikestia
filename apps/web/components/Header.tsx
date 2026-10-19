@@ -1,41 +1,70 @@
 import Link from "next/link";
+import "@/app/styles/header.css";
 import { getSessionUser } from "@/lib/auth";
+import { noLeidos } from "@/lib/mensajes";
+import { Icon } from "@/components/IconSprite";
+import HeaderShell from "@/components/HeaderShell";
+import NavLinks from "@/components/NavLinks";
+import MenuCuenta from "@/components/MenuCuenta";
 
-/** Encabezado fijo con blur; según la sesión muestra acceso o cierre de sesión. */
 export default async function Header() {
   const user = await getSessionUser();
+  const pendientes = user ? await noLeidos() : 0;
+
+  const avatarUrl = user?.avatarFileId
+    ? `/api/fotos/${user.avatarFileId}`
+    : "/images/user-placeholder.webp";
+  const nombre = user ? user.nombre || user.username : "";
+  const destinoPublicar = !user
+    ? "/registro"
+    : user.rol !== "owner"
+      ? "/propietario"
+      : "/propietario/publicar";
 
   return (
-    <header className="homepage-header">
+    <HeaderShell>
+      <a className="header-skip" href="#contenido">Saltar al contenido</a>
       <div className="header-content">
-        <div className="header-logo">
-          <img src="/images/logo.svg" alt="Oikestia Logo" width={200} className="logo" />
-          <h1>Oikestia</h1>
-        </div>
+        <Link className="header-logo" href="/">
+          <img src="/images/logo.svg" alt="" width={34} height={34} />
+          <span>Oikestia</span>
+        </Link>
 
-        <nav className="nav-links">
-          <Link className="nav-link" href="/">Inicio</Link>
-          <Link className="nav-link" href="/publicaciones">Publicaciones</Link>
-          <Link className="nav-link" href="/buscar">Buscar en mapa</Link>
-        </nav>
+        <NavLinks />
 
-        <div className="header-account">
+        <div className="header-actions">
           {user ? (
             <>
-              <Link href="/mensajes" className="nav-link">Mensajes</Link>
-              <span className="header-username">{user.username}</span>
-              <form action="/api/auth/logout" method="post" className="header-logout">
-                <button type="submit" className="publish-btn">Cerrar sesión</button>
-              </form>
+              <Link className="header-btn header-btn-publicar header-publicar" href={destinoPublicar}>
+                <Icon name="i-plus" />
+                <span className="header-publicar-texto">Publicar propiedad</span>
+              </Link>
+              <Link
+                href="/mensajes"
+                className="header-icon-btn"
+                aria-label={pendientes > 0 ? `Mensajes, ${pendientes} sin leer` : "Mensajes"}
+              >
+                <Icon name="i-message" />
+                {pendientes > 0 && (
+                  <span className="header-badge" aria-hidden="true">
+                    {pendientes > 99 ? "99+" : pendientes}
+                  </span>
+                )}
+              </Link>
+              <MenuCuenta nombre={nombre} rol={user.rol} avatarUrl={avatarUrl} />
             </>
           ) : (
             <>
-              <Link href="/login" className="nav-link">Iniciar sesión</Link>
-              <Link href="/registro" className="publish-btn">Crear cuenta</Link>
+              <Link className="header-btn header-btn-secundario" href="/login">
+                Iniciar sesión
+              </Link>
+              <Link className="header-btn header-btn-publicar" href="/registro">
+                Crear cuenta
+              </Link>
             </>
           )}
         </div>
       </div>
-    </header>
+    </HeaderShell>
   );
 }

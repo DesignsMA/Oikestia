@@ -1,7 +1,14 @@
 import type { Metadata } from "next";
-import { getPublicadas, formatearPrecio, type ListingDoc } from "@/lib/listings";
+import {
+  getPublicadas,
+  formatearPrecio,
+  parsearFiltros,
+  hayFiltros,
+  type ListingDoc,
+} from "@/lib/listings";
 import { seedListings } from "@/lib/seed-listings";
 import BuscadorMapa, { type ItemBusqueda } from "@/components/BuscadorMapa";
+import FiltrosBuscar from "@/components/FiltrosBuscar";
 import "@/app/styles/homepage.css";
 import "@/app/styles/card-compact.css";
 import "@/app/styles/buscador.css";
@@ -9,7 +16,7 @@ import "@/app/styles/buscador.css";
 export const metadata: Metadata = {
   title: "Buscar en mapa",
   description:
-    "Buscador interactivo de propiedades en el mapa: radio de búsqueda, tu ubicación actual y salto por colonia o dirección.",
+    "Buscador interactivo de propiedades en el mapa: radio de búsqueda, tu ubicación actual, filtros por tipo, precio y amenidades, y salto por colonia o dirección.",
 };
 
 export const dynamic = "force-dynamic";
@@ -43,7 +50,7 @@ function serializar(l: ListingDoc): ItemBusqueda {
   };
 }
 
-/** Buscador en mapa; acepta ?lat&lng&radio para enlazar desde otras páginas. */
+/** Buscador en mapa; acepta ?lat&lng&radio para enlazar desde otras páginas y filtros del catálogo. */
 export default async function BuscarPage({
   searchParams,
 }: {
@@ -51,7 +58,8 @@ export default async function BuscarPage({
 }) {
   const sp = await searchParams;
   await seedListings();
-  const items = (await getPublicadas()).map(serializar);
+  const filtros = parsearFiltros(sp);
+  const items = (await getPublicadas(filtros, 200)).map(serializar);
 
   const lat = numero(sp.lat);
   const lng = numero(sp.lng);
@@ -61,6 +69,7 @@ export default async function BuscarPage({
   return (
     <section className="discover-section buscador-seccion">
       <h2>Buscar en mapa</h2>
+      <FiltrosBuscar filtros={filtros} hayFiltros={hayFiltros(filtros)} />
       <BuscadorMapa items={items} inicial={{ lat, lng, radio }} />
     </section>
   );
