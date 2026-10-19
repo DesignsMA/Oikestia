@@ -14,7 +14,10 @@ from dash import dcc, html
 import plotly.graph_objects as go
 
 from auth import cookie_larga, verificar_token
+from entorno import validar
 from stats import calcular
+
+validar()
 
 MONGODB_URI = os.environ.get("MONGODB_URI", "mongodb://mongo:27017")
 MONGODB_DB = os.environ.get("MONGODB_DB", "oikestia")

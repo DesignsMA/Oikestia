@@ -1,0 +1,52 @@
+# Perfil de producción. Uso:
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+# Variables obligatorias en .env: APP_PUBLIC_URL (https://...), TRUSTED_HOSTS,
+# SESSION_SECRET, DATA_ENCRYPTION_KEY, DASH_HANDOFF_SECRET (ver .env.example).
+services:
+  mongo:
+    # Sin puertos publicados: solo alcanzable desde la red interna de compose.
+    # !reset anula los puertos declarados en docker-compose.yml.
+    ports: !reset []
+    restart: always
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile
+      args:
+        APP_PUBLIC_URL: ${APP_PUBLIC_URL:?APP_PUBLIC_URL debe definirse con https:// en producción}
+        TRUSTED_HOSTS: ${TRUSTED_HOSTS:-}
+    restart: always
+    environment:
+      APP_ENV: production
+      APP_PUBLIC_URL: ${APP_PUBLIC_URL:?APP_PUBLIC_URL debe definirse con https:// en producción}
+      DASH_PUBLIC_URL: ${DASH_PUBLIC_URL:?DASH_PUBLIC_URL debe definirse con https:// en producción}
+      COOKIE_SECURE: ${COOKIE_SECURE:-true}
+      DEV_AUTO_VERIFY: ${DEV_AUTO_VERIFY:-false}
+      NOMINATIM_CONTACT_EMAIL: ${NOMINATIM_CONTACT_EMAIL:-}
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+  dashboard:
+    restart: always
+    environment:
+      APP_ENV: production
+      APP_PUBLIC_URL: ${APP_PUBLIC_URL:?APP_PUBLIC_URL debe definirse con https:// en producción}
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"

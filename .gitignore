@@ -35,3 +35,6 @@ Thumbs.db
 
 # Docker local
 mongo-data/
+
+# Copias de seguridad de MongoDB
+backups/
