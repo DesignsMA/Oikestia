@@ -6,12 +6,12 @@ import { sha256 } from "@/lib/crypto";
 import { contactoSchema } from "@/lib/validators";
 import { getSessionUser } from "@/lib/auth";
 import { consumir, HORA } from "@/lib/rate-limit";
-import { cuerpoEnLimites, ipDe } from "@/lib/guardas";
+import { cuerpoEnLimites, destino, ipDe } from "@/lib/guardas";
 
 /** Lead desde la ficha (form plain): redirige con ?enviado=1 o ?error=. */
 export async function POST(req: NextRequest) {
   if (!cuerpoEnLimites(req, 64 * 1024)) {
-    return NextResponse.redirect(new URL("/publicaciones?error=1", req.url), 303);
+    return NextResponse.redirect(destino(req, "/publicaciones?error=1"), 303);
   }
   const porIp = await consumir(`contacto:${ipDe(req)}`, 10, HORA);
 
@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
   try {
     form = await req.formData();
   } catch {
-    return NextResponse.redirect(new URL("/publicaciones?error=1", req.url), 303);
+    return NextResponse.redirect(destino(req, "/publicaciones?error=1"), 303);
   }
 
   const raw = {
@@ -31,15 +31,15 @@ export async function POST(req: NextRequest) {
   };
 
   if (!porIp.permitido) {
-    const destino = raw.listing ? `/publicaciones/${raw.listing}` : "/publicaciones";
+    const ruta = raw.listing ? `/publicaciones/${raw.listing}` : "/publicaciones";
     const aviso = encodeURIComponent("Demasiados mensajes enviados. Inténtalo más tarde.");
-    return NextResponse.redirect(new URL(`${destino}?error=${aviso}`, req.url), 303);
+    return NextResponse.redirect(destino(req, `${ruta}?error=${aviso}`), 303);
   }
 
   const parsed = contactoSchema.safeParse(raw);
   if (!parsed.success) {
     const msg = encodeURIComponent(parsed.error.issues[0].message);
-    return NextResponse.redirect(new URL(`/publicaciones/${raw.listing}?error=${msg}`, req.url), 303);
+    return NextResponse.redirect(destino(req, `/publicaciones/${raw.listing}?error=${msg}`), 303);
   }
 
   try {
@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
       { projection: { _id: 1, titulo: 1 } }
     );
     if (!listing) {
-      return NextResponse.redirect(new URL("/publicaciones?error=1", req.url), 303);
+      return NextResponse.redirect(destino(req, "/publicaciones?error=1"), 303);
     }
 
     const session = await getSessionUser();
@@ -84,11 +84,11 @@ export async function POST(req: NextRequest) {
 
     const ok = encodeURIComponent("Mensaje enviado. El propietario te contactará pronto.");
     return NextResponse.redirect(
-      new URL(`/publicaciones/${parsed.data.listing}?enviado=${ok}`, req.url),
+      destino(req, `/publicaciones/${parsed.data.listing}?enviado=${ok}`),
       303
     );
   } catch (e) {
     console.error("contacto", e);
-    return NextResponse.redirect(new URL(`/publicaciones/${raw.listing}?error=1`, req.url), 303);
+    return NextResponse.redirect(destino(req, `/publicaciones/${raw.listing}?error=1`), 303);
   }
 }

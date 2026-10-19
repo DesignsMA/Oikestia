@@ -5,7 +5,7 @@ import { encryptField, hashPassword, sha256 } from "@/lib/crypto";
 import { userRegistrationSchema, ownerRegistrationSchema } from "@/lib/validators";
 import { createSession } from "@/lib/auth";
 import { consumir, HORA } from "@/lib/rate-limit";
-import { cuerpoEnLimites, ipDe } from "@/lib/guardas";
+import { cuerpoEnLimites, destino, ipDe } from "@/lib/guardas";
 
 const NORM = (v: string) => v.normalize("NFKC").trim();
 
@@ -88,8 +88,8 @@ export async function POST(req: NextRequest) {
     const result = await users.insertOne(doc);
     await createSession(String(result.insertedId));
 
-    const destino = rol === "owner" ? "/propietario" : "/registro/intereses";
-    return NextResponse.redirect(new URL(destino, req.url), 303);
+    const ruta = rol === "owner" ? "/propietario" : "/registro/intereses";
+    return NextResponse.redirect(destino(req, ruta), 303);
   } catch (e) {
     console.error("registro", e);
     return NextResponse.json(

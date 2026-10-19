@@ -11,7 +11,7 @@ function hostPermitido(host: string): boolean {
     .replace(/:\d+$/, "")
     .replace(/^\[|\]$/g, "");
   if (!nombre) return true;
-  if (["localhost", "127.0.0.1", "0.0.0.0", "::1"].includes(nombre)) return true;
+  if (["localhost", "127.0.0.1", "0.0.0.0", "::1", "healthcheck.railway.app"].includes(nombre)) return true;
   const extra = new Set<string>();
   for (const fuente of [process.env.TRUSTED_HOSTS ?? "", process.env.APP_PUBLIC_URL ?? ""]) {
     for (const parte of fuente.split(",")) {

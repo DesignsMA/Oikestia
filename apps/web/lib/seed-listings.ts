@@ -1,4 +1,5 @@
 import { ObjectId } from "mongodb";
+import { randomBytes } from "crypto";
 import { getCollections } from "./db";
 import { hashPassword, encryptField, sha256 } from "./crypto";
 import { slugify } from "./listings";
@@ -305,12 +306,14 @@ const MUESTRAS: Muestra[] = [
 
 /** Crea el propietario demo y las publicaciones si la colección está vacía. */
 export async function seedListings(): Promise<boolean> {
+  if (process.env.SEED_DEMO !== "true") return false;
   const { listings, users } = await getCollections();
   if ((await listings.estimatedDocumentCount()) > 0) return false;
 
   // Propietario de demo (solo existe en bases de datos vacías).
   let owner = (await users.findOne({ usernameNorm: "propietario.demo" })) as { _id: ObjectId } | null;
   if (!owner) {
+    const claveDemo = randomBytes(18).toString("base64url");
     const ahora = new Date();
     const res = await users.insertOne({
       username: "PropietarioDemo",
@@ -318,7 +321,7 @@ export async function seedListings(): Promise<boolean> {
       emailHash: sha256("demo@oikestia.mx"),
       email_enc: encryptField("demo@oikestia.mx"),
       tel_enc: encryptField("2221234567"),
-      password_enc: await hashPassword("SeedDemo!2026"),
+      password_enc: await hashPassword(claveDemo),
       rol: "owner",
       verificado: true,
       intereses: [],
@@ -327,6 +330,7 @@ export async function seedListings(): Promise<boolean> {
       actualizado: ahora,
     });
     owner = { _id: res.insertedId };
+    console.warn(`[oikestia] Cuenta demo creada: propietario.demo / ${claveDemo}`);
   }
 
   const ahora = Date.now();

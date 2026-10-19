@@ -21,6 +21,11 @@ export function origenOk(req: NextRequest): boolean {
   }
 }
 
+/** URL absoluta para redirecciones: usa APP_PUBLIC_URL (detrás de proxy) o req.url. */
+export function destino(req: NextRequest, ruta: string): URL {
+  return new URL(ruta, process.env.APP_PUBLIC_URL || req.url);
+}
+
 /** Rechaza cuerpos por encima de maxBytes si el cliente declara Content-Length. */
 export function cuerpoEnLimites(req: NextRequest, maxBytes: number): boolean {
   const cl = req.headers.get("content-length");

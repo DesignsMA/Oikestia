@@ -5,25 +5,25 @@ import { interesesSchema } from "@/lib/validators";
 import { getSessionUser } from "@/lib/auth";
 import { DEFAULT_INTERESTS } from "@/lib/intereses";
 import { consumir, HORA } from "@/lib/rate-limit";
-import { ipDe } from "@/lib/guardas";
+import { destino, ipDe } from "@/lib/guardas";
 
 /** Guarda la selección de intereses (mínimo 3) del usuario en sesión. */
 export async function POST(req: NextRequest) {
   const porIp = await consumir(`intereses:${ipDe(req)}`, 20, HORA);
   if (!porIp.permitido) {
-    return NextResponse.redirect(new URL("/registro/intereses?error=429", req.url), 303);
+    return NextResponse.redirect(destino(req, "/registro/intereses?error=429"), 303);
   }
 
   const user = await getSessionUser();
   if (!user) {
-    return NextResponse.redirect(new URL("/login?error=sesion", req.url), 303);
+    return NextResponse.redirect(destino(req, "/login?error=sesion"), 303);
   }
 
   let form: FormData;
   try {
     form = await req.formData();
   } catch {
-    return NextResponse.redirect(new URL("/registro/intereses?error=1", req.url), 303);
+    return NextResponse.redirect(destino(req, "/registro/intereses?error=1"), 303);
   }
 
   const seleccion = form
@@ -33,14 +33,14 @@ export async function POST(req: NextRequest) {
 
   const parsed = interesesSchema.safeParse({ intereses: seleccion });
   if (!parsed.success) {
-    return NextResponse.redirect(new URL("/registro/intereses?error=3", req.url), 303);
+    return NextResponse.redirect(destino(req, "/registro/intereses?error=3"), 303);
   }
 
   // Solo claves que existen en el catálogo.
   const validas = new Set(DEFAULT_INTERESTS.map((i) => i.clave));
   const limpias = parsed.data.intereses.filter((k) => validas.has(k));
   if (limpias.length < 3) {
-    return NextResponse.redirect(new URL("/registro/intereses?error=3", req.url), 303);
+    return NextResponse.redirect(destino(req, "/registro/intereses?error=3"), 303);
   }
 
   try {
@@ -50,9 +50,9 @@ export async function POST(req: NextRequest) {
       { usernameNorm: user.username.toLowerCase() },
       { $set: { intereses: limpias, actualizado: new Date() } }
     );
-    return NextResponse.redirect(new URL("/", req.url), 303);
+    return NextResponse.redirect(destino(req, "/"), 303);
   } catch (e) {
     console.error("intereses", e);
-    return NextResponse.redirect(new URL("/registro/intereses?error=500", req.url), 303);
+    return NextResponse.redirect(destino(req, "/registro/intereses?error=500"), 303);
   }
 }

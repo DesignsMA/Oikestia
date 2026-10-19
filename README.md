@@ -47,9 +47,9 @@ npm run typecheck
 npm run build
 ```
 
-On first visit to `/publicaciones` against an empty database, the seed creates 13 demo listings and owner `propietario.demo` / `SeedDemo!2026`.
+With `SEED_DEMO=true` (local Docker Compose default), a first visit to `/publicaciones` against an empty database seeds 13 demo listings and owner `propietario.demo` with a random password printed to the web container logs. Leave it unset elsewhere.
 
-Key environment variables (full list in `.env.example`): `SESSION_SECRET`, `DATA_ENCRYPTION_KEY`, `DASH_HANDOFF_SECRET` (32+ bytes each), `APP_PUBLIC_URL`, `TRUSTED_HOSTS`, `DEV_AUTO_VERIFY` (dev only), `COOKIE_SECURE`.
+Key environment variables (full list in `.env.example`): `SESSION_SECRET`, `DATA_ENCRYPTION_KEY`, `DASH_HANDOFF_SECRET` (32+ bytes each), `APP_PUBLIC_URL`, `TRUSTED_HOSTS`, `DEV_AUTO_VERIFY` (dev only), `SEED_DEMO` (dev only), `COOKIE_SECURE`.
 
 ## Production
 

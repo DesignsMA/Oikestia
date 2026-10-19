@@ -2,14 +2,15 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { createHmac } from "crypto";
 import { getSessionUser } from "@/lib/auth";
+import { destino } from "@/lib/guardas";
 
 export const dynamic = "force-dynamic";
 
 /** Traspaso al dashboard: token HMAC-SHA256 de 5 min y redirige a Dash. */
 export async function GET(req: NextRequest) {
   const user = await getSessionUser();
-  if (!user) return NextResponse.redirect(new URL("/login?error=sesion", req.url), 303);
-  if (user.rol !== "owner") return NextResponse.redirect(new URL("/propietario", req.url), 303);
+  if (!user) return NextResponse.redirect(destino(req, "/login?error=sesion"), 303);
+  if (user.rol !== "owner") return NextResponse.redirect(destino(req, "/propietario"), 303);
 
   const secret = process.env.DASH_HANDOFF_SECRET ?? "";
   if (!secret) {

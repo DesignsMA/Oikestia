@@ -33,6 +33,7 @@ services:
       DASH_PUBLIC_URL: ${DASH_PUBLIC_URL:?DASH_PUBLIC_URL debe definirse con https:// en producción}
       COOKIE_SECURE: ${COOKIE_SECURE:-true}
       DEV_AUTO_VERIFY: ${DEV_AUTO_VERIFY:-false}
+      SEED_DEMO: ${SEED_DEMO:-false}
       NOMINATIM_CONTACT_EMAIL: ${NOMINATIM_CONTACT_EMAIL:-}
     logging:
       driver: json-file
