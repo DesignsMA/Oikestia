@@ -14,4 +14,4 @@ USER dashuser
 
 EXPOSE 8050
 
-CMD ["sh", "-c", "python entorno.py && exec gunicorn -b 0.0.0.0:8050 app:server"]
+CMD ["sh", "-c", "python entorno.py && exec gunicorn -b 0.0.0.0:${PORT:-8050} app:server"]
