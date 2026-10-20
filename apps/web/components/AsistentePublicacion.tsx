@@ -1,11 +1,20 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { AMENIDADES, AMENIDADES_ETIQUETAS, OPERACIONES, TIPOS_PROPIEDAD } from "@/lib/validators";
+import {
+  AMENIDADES,
+  AMENIDADES_ETIQUETAS,
+  OPERACIONES,
+  TIPOS_PROPIEDAD,
+  CARACTERISTICAS_POR_TIPO,
+  CAMPOS_CARACTERISTICA_ETIQUETAS,
+  PERFILES_OCUPANTES,
+  PERFILES_OCUPANTES_ETIQUETAS,
+} from "@/lib/validators";
 import MapaPin from "./MapaPin";
 
-const PASOS = ["Datos", "Ubicación", "Detalle", "Fotos", "Revisar"] as const;
+const PASOS = ["Datos", "Ubicación", "Detalle", "Reglas", "Fotos", "Revisar"] as const;
 
 const ETIQUETA_TIPO: Record<string, string> = {
   casa: "Casa",
@@ -16,6 +25,18 @@ const ETIQUETA_TIPO: Record<string, string> = {
 
 const MAX_FOTOS = Number(process.env.NEXT_PUBLIC_MAX_FOTOS ?? 20);
 const MAX_MB = Number(process.env.NEXT_PUBLIC_MAX_MB ?? 8);
+
+/** Campos numéricos del inmueble. */
+type CampoNum =
+  | "terrenoM2"
+  | "construccionM2"
+  | "interioresM2"
+  | "metrosM2"
+  | "recamaras"
+  | "banos"
+  | "cajones"
+  | "pisos"
+  | "piso";
 
 type Campos = {
   titulo: string;
@@ -28,12 +49,9 @@ type Campos = {
   estado: string;
   cp: string;
   descripcion: string;
-  recamaras: string;
-  banos: string;
-  cocheras: string;
-  construccionM2: string;
-  terrenoM2: string;
-};
+  depositoMeses: string;
+  reglasNotas: string;
+} & Record<CampoNum, string>;
 
 const VACIO: Campos = {
   titulo: "",
@@ -46,14 +64,26 @@ const VACIO: Campos = {
   estado: "",
   cp: "",
   descripcion: "",
+  depositoMeses: "",
+  reglasNotas: "",
+  terrenoM2: "",
+  construccionM2: "",
+  interioresM2: "",
+  metrosM2: "",
   recamaras: "",
   banos: "",
-  cocheras: "",
-  construccionM2: "",
-  terrenoM2: "",
+  cajones: "",
+  pisos: "",
+  piso: "",
 };
 
-function validaPaso(paso: number, c: Campos, amenidades: string[], fotos: File[]): string | null {
+/** Campos numéricos que se muestran según el tipo de propiedad. */
+function camposNumDe(tipo: string): CampoNum[] {
+  const aplican = (CARACTERISTICAS_POR_TIPO as Record<string, readonly string[]>)[tipo] ?? [];
+  return aplican.filter((c): c is CampoNum => c in CAMPOS_CARACTERISTICA_ETIQUETAS && c !== "espaciosAdicionales");
+}
+
+function validaPaso(paso: number, c: Campos, fotos: File[]): string | null {
   switch (paso) {
     case 0:
       if (c.titulo.trim().length < 8) return "Escribe un título de al menos 8 caracteres.";
@@ -69,7 +99,7 @@ function validaPaso(paso: number, c: Campos, amenidades: string[], fotos: File[]
     case 2:
       if (c.descripcion.trim().length < 50) return "Describe la propiedad con al menos 50 caracteres.";
       return null;
-    case 3:
+    case 4:
       if (fotos.length === 0) return "Sube al menos una foto.";
       if (fotos.length > MAX_FOTOS) return `Máximo ${MAX_FOTOS} fotos.`;
       if (fotos.some((f) => f.size > MAX_MB * 1024 * 1024)) return `Cada foto debe pesar menos de ${MAX_MB} MB.`;
@@ -79,12 +109,23 @@ function validaPaso(paso: number, c: Campos, amenidades: string[], fotos: File[]
   }
 }
 
-/** Asistente de publicación en 5 pasos con previsualización de fotos. */
+/** Asistente de publicación con campos por tipo, reglas y previsualización de fotos. */
 export default function AsistentePublicacion() {
   const router = useRouter();
   const [paso, setPaso] = useState(0);
   const [campos, setCampos] = useState<Campos>(VACIO);
   const [amenidades, setAmenidades] = useState<string[]>([]);
+  const [amenidadesLibres, setAmenidadesLibres] = useState<string[]>([]);
+  const [nuevaAmenidad, setNuevaAmenidad] = useState("");
+  const [espacios, setEspacios] = useState<string[]>([]);
+  const [nuevoEspacio, setNuevoEspacio] = useState("");
+  const [reglas, setReglas] = useState({
+    amueblado: false,
+    aceptaMascotas: false,
+    fumaPermitido: false,
+    incluyeServicios: [] as string[],
+    requisitosOcupantes: [] as string[],
+  });
   const [fotos, setFotos] = useState<File[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
@@ -94,6 +135,11 @@ export default function AsistentePublicacion() {
   const fotosRef = useRef<HTMLInputElement>(null);
 
   const previews = useMemo(() => fotos.map((f) => ({ f, url: URL.createObjectURL(f) })), [fotos]);
+  useEffect(() => {
+    return () => previews.forEach((p) => URL.revokeObjectURL(p.url));
+  }, [previews]);
+
+  const camposNum = camposNumDe(campos.tipoPropiedad);
 
   function set(campo: keyof Campos, valor: string) {
     setCampos((prev) => ({ ...prev, [campo]: valor }));
@@ -101,6 +147,39 @@ export default function AsistentePublicacion() {
 
   function toggleAmenidad(clave: string) {
     setAmenidades((prev) => (prev.includes(clave) ? prev.filter((a) => a !== clave) : [...prev, clave]));
+  }
+
+  function agregarLibre(
+    valor: string,
+    lista: string[],
+    setLista: (v: string[]) => void,
+    limpiar: () => void
+  ) {
+    const v = valor.trim();
+    if (v.length < 2 || lista.some((x) => x.toLowerCase() === v.toLowerCase())) {
+      limpiar();
+      return;
+    }
+    setLista([...lista, v]);
+    limpiar();
+  }
+
+  function toggleServicio(s: string) {
+    setReglas((prev) => ({
+      ...prev,
+      incluyeServicios: prev.incluyeServicios.includes(s)
+        ? prev.incluyeServicios.filter((x) => x !== s)
+        : [...prev.incluyeServicios, s],
+    }));
+  }
+
+  function toggleRequisito(r: string) {
+    setReglas((prev) => ({
+      ...prev,
+      requisitosOcupantes: prev.requisitosOcupantes.includes(r)
+        ? prev.requisitosOcupantes.filter((x) => x !== r)
+        : [...prev.requisitosOcupantes, r],
+    }));
   }
 
   function agregarFotos(files: FileList | null) {
@@ -116,8 +195,8 @@ export default function AsistentePublicacion() {
   async function ubicarEnMapa() {
     if (geocodificando) return;
     const partes = [campos.calle, campos.colonia, campos.ciudad, campos.estado].filter((p) => p.trim());
-    if (partes.length < 2) {
-      setAvisoMapa("Completa la dirección para ubicarla en el mapa.");
+    if (partes.length < 1) {
+      setAvisoMapa("Escribe al menos la calle o la colonia para ubicarla en el mapa.");
       return;
     }
     setGeocodificando(true);
@@ -141,7 +220,7 @@ export default function AsistentePublicacion() {
   }
 
   function siguiente() {
-    const err = validaPaso(paso, campos, amenidades, fotos);
+    const err = validaPaso(paso, campos, fotos);
     if (err) {
       setError(err);
       return;
@@ -157,7 +236,7 @@ export default function AsistentePublicacion() {
 
   async function publicar() {
     for (let i = 0; i < PASOS.length - 1; i++) {
-      const err = validaPaso(i, campos, amenidades, fotos);
+      const err = validaPaso(i, campos, fotos);
       if (err) {
         setPaso(i);
         setError(err);
@@ -172,6 +251,13 @@ export default function AsistentePublicacion() {
         if (v !== "") fd.set(k, v);
       }
       for (const a of amenidades) fd.append("amenidades", a);
+      for (const a of amenidadesLibres) fd.append("amenidadesLibres", a);
+      for (const e of espacios) fd.append("espaciosAdicionales", e);
+      fd.set("amueblado", String(reglas.amueblado));
+      fd.set("aceptaMascotas", String(reglas.aceptaMascotas));
+      fd.set("fumaPermitido", String(reglas.fumaPermitido));
+      for (const s of reglas.incluyeServicios) fd.append("incluyeServicios", s);
+      for (const r of reglas.requisitosOcupantes) fd.append("requisitosOcupantes", r);
       if (coords) {
         fd.set("lat", String(coords.lat));
         fd.set("lng", String(coords.lng));
@@ -191,6 +277,8 @@ export default function AsistentePublicacion() {
       setEnviando(false);
     }
   }
+
+  const etiquetaOperacion = campos.operacion === "venta" ? "Venta" : "Renta";
 
   return (
     <div className="asistente">
@@ -332,51 +420,201 @@ export default function AsistentePublicacion() {
             maxLength={4000}
           />
 
-          <div className="asistente-cantidades">
-            <div>
-              <label className="verif-label" htmlFor="p-rec">Recámaras</label>
-              <input id="p-rec" className="verif-input" type="number" min={0} max={50} value={campos.recamaras} onChange={(e) => set("recamaras", e.target.value)} />
+          <fieldset className="asistente-opciones">
+            <legend className="verif-label">
+              Características para {ETIQUETA_TIPO[campos.tipoPropiedad]?.toLowerCase() ?? "la propiedad"}
+            </legend>
+            <div className="asistente-cantidades">
+              {camposNum.map((campo) => (
+                <div key={campo}>
+                  <label className="verif-label" htmlFor={`p-${campo}`}>
+                    {CAMPOS_CARACTERISTICA_ETIQUETAS[campo]}
+                  </label>
+                  <input
+                    id={`p-${campo}`}
+                    className="verif-input"
+                    type="number"
+                    min={0}
+                    value={campos[campo]}
+                    onChange={(e) => set(campo as keyof Campos, e.target.value)}
+                  />
+                </div>
+              ))}
             </div>
-            <div>
-              <label className="verif-label" htmlFor="p-ban">Baños</label>
-              <input id="p-ban" className="verif-input" type="number" min={0} max={50} value={campos.banos} onChange={(e) => set("banos", e.target.value)} />
-            </div>
-            <div>
-              <label className="verif-label" htmlFor="p-coch">Cocheras</label>
-              <input id="p-coch" className="verif-input" type="number" min={0} max={50} value={campos.cocheras} onChange={(e) => set("cocheras", e.target.value)} />
-            </div>
-            <div>
-              <label className="verif-label" htmlFor="p-cons">m² construcción</label>
-              <input id="p-cons" className="verif-input" type="number" min={1} value={campos.construccionM2} onChange={(e) => set("construccionM2", e.target.value)} />
-            </div>
-            <div>
-              <label className="verif-label" htmlFor="p-ter">m² terreno</label>
-              <input id="p-ter" className="verif-input" type="number" min={1} value={campos.terrenoM2} onChange={(e) => set("terrenoM2", e.target.value)} />
-            </div>
-          </div>
+
+            {(campos.tipoPropiedad === "casa" || campos.tipoPropiedad === "departamento") && (
+              <div className="asistente-lista-libre">
+                <label className="verif-label" htmlFor="p-espacio">Espacios adicionales (balcón, patio, bodega…)</label>
+                <div className="asistente-lista-libre-fila">
+                  <input
+                    id="p-espacio"
+                    className="verif-input"
+                    value={nuevoEspacio}
+                    onChange={(e) => setNuevoEspacio(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        agregarLibre(nuevoEspacio, espacios, setEspacios, () => setNuevoEspacio(""));
+                      }
+                    }}
+                    placeholder="Bodega"
+                    maxLength={60}
+                  />
+                  <button
+                    type="button"
+                    className="panel-btn"
+                    onClick={() => agregarLibre(nuevoEspacio, espacios, setEspacios, () => setNuevoEspacio(""))}
+                  >
+                    Agregar
+                  </button>
+                </div>
+                {espacios.length > 0 && (
+                  <ul className="asistente-tags">
+                    {espacios.map((e) => (
+                      <li key={e}>
+                        {e}
+                        <button type="button" onClick={() => setEspacios((prev) => prev.filter((x) => x !== e))} aria-label={`Quitar ${e}`}>
+                          ×
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            )}
+          </fieldset>
         </div>
       )}
 
       {paso === 3 && (
         <div className="asistente-cuerpo">
+          <p className="panel-texto">
+            Reglas y condiciones de la propiedad. Son habituales en renta y ayudan a encontrar
+            inquilinos adecuados.
+          </p>
+
           <fieldset className="asistente-opciones">
-            <legend className="verif-label">Amenidades ({amenidades.length} elegidas, opcional)</legend>
+            <legend className="verif-label">Condiciones</legend>
+            <label className={reglas.amueblado ? "intereses-chip intereses-chip-activo" : "intereses-chip"}>
+              <input type="checkbox" checked={reglas.amueblado} onChange={() => setReglas((p) => ({ ...p, amueblado: !p.amueblado }))} />
+              <span>Amueblado</span>
+            </label>
+            <label className={reglas.aceptaMascotas ? "intereses-chip intereses-chip-activo" : "intereses-chip"}>
+              <input type="checkbox" checked={reglas.aceptaMascotas} onChange={() => setReglas((p) => ({ ...p, aceptaMascotas: !p.aceptaMascotas }))} />
+              <span>Acepta mascotas</span>
+            </label>
+            <label className={reglas.fumaPermitido ? "intereses-chip intereses-chip-activo" : "intereses-chip"}>
+              <input type="checkbox" checked={reglas.fumaPermitido} onChange={() => setReglas((p) => ({ ...p, fumaPermitido: !p.fumaPermitido }))} />
+              <span>Se permite fumar</span>
+            </label>
+          </fieldset>
+
+          {campos.operacion === "renta" && (
+            <>
+              <label className="verif-label" htmlFor="p-deposito">Depósito (meses)</label>
+              <input
+                id="p-deposito"
+                className="verif-input"
+                type="number"
+                min={0}
+                max={12}
+                value={campos.depositoMeses}
+                onChange={(e) => set("depositoMeses", e.target.value)}
+                placeholder="2"
+              />
+
+              <fieldset className="asistente-opciones">
+                <legend className="verif-label">Servicios incluidos</legend>
+                {["agua", "luz", "gas", "internet", "mantenimiento"].map((s) => (
+                  <label key={s} className={reglas.incluyeServicios.includes(s) ? "intereses-chip intereses-chip-activo" : "intereses-chip"}>
+                    <input type="checkbox" checked={reglas.incluyeServicios.includes(s)} onChange={() => toggleServicio(s)} />
+                    <span>{s.charAt(0).toUpperCase() + s.slice(1)}</span>
+                  </label>
+                ))}
+              </fieldset>
+
+              <fieldset className="asistente-opciones">
+                <legend className="verif-label">Perfil de ocupantes (requisitos)</legend>
+                {PERFILES_OCUPANTES.map((r) => (
+                  <label key={r} className={reglas.requisitosOcupantes.includes(r) ? "intereses-chip intereses-chip-activo" : "intereses-chip"}>
+                    <input type="checkbox" checked={reglas.requisitosOcupantes.includes(r)} onChange={() => toggleRequisito(r)} />
+                    <span>{PERFILES_OCUPANTES_ETIQUETAS[r]}</span>
+                  </label>
+                ))}
+              </fieldset>
+            </>
+          )}
+
+          <label className="verif-label" htmlFor="p-reglas-notas">Notas sobre las condiciones (opcional)</label>
+          <textarea
+            id="p-reglas-notas"
+            className="verif-input verif-textarea"
+            value={campos.reglasNotas}
+            onChange={(e) => set("reglasNotas", e.target.value)}
+            placeholder="Contrato mínimo de 12 meses, se solicita comprobante de ingresos…"
+            rows={3}
+            maxLength={600}
+          />
+        </div>
+      )}
+
+      {paso === 4 && (
+        <div className="asistente-cuerpo">
+          <fieldset className="asistente-opciones">
+            <legend className="verif-label">Amenidades generales ({amenidades.length} elegidas, opcional)</legend>
             <div className="intereses-opciones">
               {(Object.keys(AMENIDADES) as (keyof typeof AMENIDADES)[]).map((clave) => (
                 <label
                   key={clave}
                   className={amenidades.includes(clave) ? "intereses-chip intereses-chip-activo" : "intereses-chip"}
                 >
-                  <input
-                    type="checkbox"
-                    checked={amenidades.includes(clave)}
-                    onChange={() => toggleAmenidad(clave)}
-                  />
+                  <input type="checkbox" checked={amenidades.includes(clave)} onChange={() => toggleAmenidad(clave)} />
                   <span>{AMENIDADES_ETIQUETAS[clave]}</span>
                 </label>
               ))}
             </div>
           </fieldset>
+
+          <div className="asistente-lista-libre">
+            <label className="verif-label" htmlFor="p-amenidad-libre">
+              Otras amenidades (cualquier texto: aparece al buscar)
+            </label>
+            <div className="asistente-lista-libre-fila">
+              <input
+                id="p-amenidad-libre"
+                className="verif-input"
+                value={nuevaAmenidad}
+                onChange={(e) => setNuevaAmenidad(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    agregarLibre(nuevaAmenidad, amenidadesLibres, setAmenidadesLibres, () => setNuevaAmenidad(""));
+                  }
+                }}
+                placeholder="Paneles solares, cisterna, elevador…"
+                maxLength={60}
+              />
+              <button
+                type="button"
+                className="panel-btn"
+                onClick={() => agregarLibre(nuevaAmenidad, amenidadesLibres, setAmenidadesLibres, () => setNuevaAmenidad(""))}
+              >
+                Agregar
+              </button>
+            </div>
+            {amenidadesLibres.length > 0 && (
+              <ul className="asistente-tags">
+                {amenidadesLibres.map((a) => (
+                  <li key={a}>
+                    {a}
+                    <button type="button" onClick={() => setAmenidadesLibres((prev) => prev.filter((x) => x !== a))} aria-label={`Quitar ${a}`}>
+                      ×
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
 
           <label className="verif-label" htmlFor="p-fotos">
             Fotos ({fotos.length}/{MAX_FOTOS}, máximo {MAX_MB} MB c/u)
@@ -405,20 +643,46 @@ export default function AsistentePublicacion() {
         </div>
       )}
 
-      {paso === 4 && (
+      {paso === 5 && (
         <div className="asistente-cuerpo">
           <h3 className="panel-subtitulo">Revisa tu publicación</h3>
           <dl className="asistente-resumen">
             <div><dt>Título</dt><dd>{campos.titulo}</dd></div>
-            <div><dt>Operación</dt><dd>{campos.operacion === "venta" ? "Venta" : "Renta"} · {ETIQUETA_TIPO[campos.tipoPropiedad]}</dd></div>
+            <div><dt>Operación</dt><dd>{etiquetaOperacion} · {ETIQUETA_TIPO[campos.tipoPropiedad]}</dd></div>
             <div><dt>Precio</dt><dd>${Number(campos.precio).toLocaleString("es-MX")} MXN</dd></div>
             <div><dt>Dirección</dt><dd>{campos.calle}, {campos.colonia}, {campos.ciudad}, {campos.estado}, C.P. {campos.cp}</dd></div>
-            {campos.recamaras && <div><dt>Recámaras</dt><dd>{campos.recamaras}</dd></div>}
-            {campos.banos && <div><dt>Baños</dt><dd>{campos.banos}</dd></div>}
-            {campos.cocheras && <div><dt>Cocheras</dt><dd>{campos.cocheras}</dd></div>}
-            {campos.construccionM2 && <div><dt>Construcción</dt><dd>{campos.construccionM2} m²</dd></div>}
-            {campos.terrenoM2 && <div><dt>Terreno</dt><dd>{campos.terrenoM2} m²</dd></div>}
+            {camposNum.map((campo) =>
+              campos[campo] ? (
+                <div key={campo}>
+                  <dt>{CAMPOS_CARACTERISTICA_ETIQUETAS[campo]}</dt>
+                  <dd>{campos[campo]}</dd>
+                </div>
+              ) : null
+            )}
+            {espacios.length > 0 && <div><dt>Espacios adicionales</dt><dd>{espacios.join(", ")}</dd></div>}
             <div><dt>Amenidades</dt><dd>{amenidades.map((a) => AMENIDADES_ETIQUETAS[a as keyof typeof AMENIDADES]).join(", ") || "—"}</dd></div>
+            {amenidadesLibres.length > 0 && <div><dt>Otras amenidades</dt><dd>{amenidadesLibres.join(", ")}</dd></div>}
+            {campos.operacion === "renta" && (
+              <div>
+                <dt>Condiciones</dt>
+                <dd>
+                  {[
+                    reglas.amueblado ? "Amueblado" : null,
+                    reglas.aceptaMascotas ? "Acepta mascotas" : "Sin mascotas",
+                    reglas.fumaPermitido ? "Se permite fumar" : "No fumar",
+                    campos.depositoMeses ? `Depósito ${campos.depositoMeses} mes(es)` : null,
+                    reglas.incluyeServicios.length ? `Incluye: ${reglas.incluyeServicios.join(", ")}` : null,
+                    reglas.requisitosOcupantes.length
+                      ? `Dirigido a: ${reglas.requisitosOcupantes
+                          .map((r) => PERFILES_OCUPANTES_ETIQUETAS[r as keyof typeof PERFILES_OCUPANTES_ETIQUETAS] ?? r)
+                          .join(", ")}`
+                      : null,
+                  ]
+                    .filter(Boolean)
+                    .join(" · ") || "—"}
+                </dd>
+              </div>
+            )}
             <div><dt>Fotos</dt><dd>{fotos.length}</dd></div>
             <div><dt>Descripción</dt><dd className="asistente-resumen-desc">{campos.descripcion}</dd></div>
           </dl>

@@ -191,7 +191,7 @@
 .property-card-compact .card-fav {
     position: absolute;
     top: 0.75rem;
-    right: 0.75rem;
+    left: 0.75rem;
     display: flex;
     align-items: center;
     justify-content: center;

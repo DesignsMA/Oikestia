@@ -291,6 +291,39 @@
     color: var(--color-primary);
 }
 
+/* Amenidad libre (texto del propietario, sin ícono del catálogo). */
+.listing-amenities li.amenity-libre svg {
+    color: var(--color-neutral-darker);
+}
+
+/* Reglas y condiciones */
+.listing-reglas {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.listing-reglas li {
+    position: relative;
+    padding-left: 1.4rem;
+    font-size: var(--font-size-md);
+    color: var(--color-neutral-darker);
+}
+
+.listing-reglas li::before {
+    content: "";
+    position: absolute;
+    top: 0.55em;
+    left: 0.3rem;
+    width: 0.4rem;
+    height: 0.4rem;
+    background-color: var(--color-primary);
+    border-radius: 50%;
+}
+
 
 /* ---------- Ubicación (el iframe se inserta aquí) ---------- */
 

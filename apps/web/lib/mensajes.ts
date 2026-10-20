@@ -493,6 +493,9 @@ export async function iniciarConversacion(
     creado: ahora,
   } as Document);
 
+  // Estadística: nuevo contacto iniciado sobre la publicación.
+  await listings.updateOne({ _id: listing._id }, { $inc: { "estadisticas.contactos": 1 } });
+
   return { ok: true, leadId: String(res.insertedId) };
 }
 

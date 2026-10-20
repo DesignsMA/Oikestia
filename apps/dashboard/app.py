@@ -282,6 +282,77 @@ def construir_layout():
                    "fontFamily": "system-ui, sans-serif"},
         )
 
+    # ---- Interacción agregada (anónima) ----
+    intx = d.get("interaccion", {})
+    seccion_interaccion = html.Section(
+        [
+            html.H2("Interacción de tus publicaciones", style={"fontSize": ".82rem",
+                                                               "textTransform": "uppercase",
+                                                               "letterSpacing": ".06em", "color": GRIS,
+                                                               "margin": "1.3rem 0 .6rem"}),
+            _fila(
+                _tarjeta(intx.get("visitas", 0), "visitas", AZUL),
+                _tarjeta(intx.get("usuariosUnicos", 0), "usuarios únicos", AZUL),
+                _tarjeta(intx.get("favoritos", 0), "favoritos", VERDE),
+                _tarjeta(intx.get("contactos", 0), "contactos", VERDE),
+            ),
+            _fila(
+                _tarjeta(intx.get("mostradoContacto", 0), "veces mostrado el contacto"),
+                _tarjeta(intx.get("compartidos", 0), "compartidos"),
+                _tarjeta(intx.get("desdeBusqueda", 0), "desde búsqueda"),
+                _tarjeta(intx.get("desdeRecomendaciones", 0), "desde recomendaciones"),
+            ),
+        ]
+    )
+
+    tabla_stats = _tabla(
+        ["Publicación", "Estado", "Visitas", "Únicos", "Favoritos", "Contactos"],
+        [
+            [
+                x["titulo"],
+                str(x["estado"]).capitalize(),
+                str(x["visitas"]),
+                str(x["unicos"]),
+                str(x["favoritos"]),
+                str(x["contactos"]),
+            ]
+            for x in d.get("pubs_stats", [])
+        ],
+    )
+
+    demografia = d.get("demografia", {})
+    paneles_demo = []
+    etiquetas_demo = {
+        "edad": "Por edad",
+        "genero": "Por género",
+        "ubicacionGeneral": "Por ubicación general",
+        "dispositivo": "Por dispositivo",
+    }
+    for clave, titulo in etiquetas_demo.items():
+        datos = demografia.get(clave) or {}
+        if not datos:
+            paneles_demo.append(
+                _panel(titulo, html.Div("Sin datos todavía.", style={"color": GRIS, "fontSize": ".9rem"}))
+            )
+            continue
+        fig = _fig_pie(list(datos.keys()), list(datos.values()), [AZUL, VERDE, AMBAR, GRIS, "#8b5cf6"])
+        paneles_demo.append(_panel(titulo, dcc.Graph(figure=fig, config={"displayModeBar": False})))
+
+    gridd_demo = html.Div(
+        paneles_demo,
+        style={"display": "flex", "flexWrap": "wrap", "gap": "1rem", "marginTop": "1rem"},
+    )
+
+    seccion_stats = html.Section(
+        [
+            html.H2("Rendimiento por publicación", style={"fontSize": ".82rem", "textTransform": "uppercase",
+                                                          "letterSpacing": ".06em", "color": GRIS,
+                                                          "margin": "1.3rem 0 .6rem"}),
+            _panel("Tus publicaciones por interacción", tabla_stats),
+            gridd_demo,
+        ]
+    )
+
     estado_lbl = {"publicada": "Publicadas", "pausada": "Pausadas", "borrador": "Borradores",
                   "vendida": "Vendidas", "rentada": "Rentadas"}
     pub_estado = d["por_estado"]
@@ -346,7 +417,7 @@ def construir_layout():
     )
 
     return html.Div(
-        [header, seccion_sitio, seccion_dueno, gridd, tablas],
+        [header, seccion_sitio, seccion_dueno, seccion_interaccion, gridd, seccion_stats, tablas],
         style={"maxWidth": "72rem", "margin": "0 auto", "padding": "1.25rem",
                "fontFamily": "system-ui, sans-serif", "color": "#1f2937"},
     )

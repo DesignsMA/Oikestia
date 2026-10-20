@@ -3,7 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/auth";
 import { listarFavoritos } from "@/lib/favoritos";
-import { formatearPrecio, type ListingDoc } from "@/lib/listings";
+import { formatearPrecio, caracteristicasDe, type ListingDoc } from "@/lib/listings";
 import ListingCardCompact from "@/components/ListingCardCompact";
 import "@/app/styles/homepage.css";
 import "@/app/styles/card-compact.css";
@@ -16,12 +16,7 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 function featuresDe(l: ListingDoc) {
-  const f: { icon: "i-bed" | "i-bath" | "i-ruler"; label: string }[] = [];
-  if (l.caracteristicas.recamaras) f.push({ icon: "i-bed", label: `${l.caracteristicas.recamaras}` });
-  if (l.caracteristicas.banos) f.push({ icon: "i-bath", label: `${l.caracteristicas.banos}` });
-  const m2 = l.caracteristicas.construccionM2 ?? l.caracteristicas.terrenoM2;
-  if (m2) f.push({ icon: "i-ruler", label: `${m2.toLocaleString("es-MX")} m²` });
-  return f;
+  return caracteristicasDe(l).map((c) => ({ icon: c.icon, label: c.label ? `${c.value} ${c.label}` : c.value }));
 }
 
 /** Favoritos del usuario: propiedades guardadas, más recientes primero. */

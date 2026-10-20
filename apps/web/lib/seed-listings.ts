@@ -17,12 +17,10 @@ type Muestra = {
   estado: string;
   cp: string;
   coords: [number, number];
-  recamaras?: number;
-  banos?: number;
-  cocheras?: number;
-  construccionM2?: number;
-  terrenoM2?: number;
+  caracteristicas: ListingDoc["caracteristicas"];
   amenidades: string[];
+  amenidadesLibres?: string[];
+  reglas?: ListingDoc["reglas"];
   fotos: { url: string; alt: string }[];
   descripcion: string;
   calle: string;
@@ -67,14 +65,11 @@ const L = (m: Muestra): Omit<ListingDoc, "_id" | "owner" | "estado" | "creado" |
     cp: m.cp,
   },
   ubicacion: { type: "Point" as const, coords: m.coords },
-  caracteristicas: {
-    recamaras: m.recamaras,
-    banos: m.banos,
-    cocheras: m.cocheras,
-    construccionM2: m.construccionM2,
-    terrenoM2: m.terrenoM2,
-  },
+  caracteristicas: m.caracteristicas,
   amenidades: m.amenidades,
+  amenidadesLibres: m.amenidadesLibres ?? [],
+  reglas: m.reglas,
+  estadisticas: { visitas: 0, usuariosUnicos: 0, favoritos: 0, contactos: 0 },
   fotos: m.fotos.map((f): ListingFoto => ({ ...f })),
 });
 
@@ -90,11 +85,9 @@ const MUESTRAS: Muestra[] = [
     estado: "Puebla",
     cp: "72480",
     coords: [-98.2345, 19.0375],
-    recamaras: 4,
-    banos: 4,
-    cocheras: 2,
-    construccionM2: 450,
+    caracteristicas: { terrenoM2: 520, construccionM2: 450, recamaras: 4, banos: 4, cajones: 2, pisos: 2, espaciosAdicionales: ["Jardín", "Cochera techada"] },
     amenidades: ["alberca", "estacionamiento", "aire-acondicionado", "vigilancia"],
+    amenidadesLibres: ["Paneles solares", "Cisterna", "Cuarto de servicio"],
     fotos: [
       F(1, "Casa contemporánea iluminada con alberca"),
       F(2, "Sala principal de la casa"),
@@ -113,11 +106,9 @@ const MUESTRAS: Muestra[] = [
     estado: "Puebla",
     cp: "72490",
     coords: [-98.2325, 19.0425],
-    recamaras: 2,
-    banos: 2,
-    cocheras: 1,
-    construccionM2: 120,
+    caracteristicas: { interioresM2: 120, recamaras: 2, banos: 2, cajones: 1, piso: 8, espaciosAdicionales: ["Balcón"] },
     amenidades: ["estacionamiento", "gimnasio", "vigilancia", "terraza"],
+    amenidadesLibres: ["Elevador", "Área de coworking"],
     fotos: [
       F(2, "Departamento con vista panorámica a la ciudad"),
       F(6, "Fachada del edificio"),
@@ -136,10 +127,7 @@ const MUESTRAS: Muestra[] = [
     estado: "Puebla",
     cp: "72450",
     coords: [-98.244, 19.033],
-    recamaras: 3,
-    banos: 2,
-    cocheras: 2,
-    construccionM2: 210,
+    caracteristicas: { terrenoM2: 250, construccionM2: 210, recamaras: 3, banos: 2, cajones: 2, pisos: 2 },
     amenidades: ["estacionamiento", "chimenea"],
     fotos: [
       F(3, "Cocina minimalista de la casa"),
@@ -159,9 +147,18 @@ const MUESTRAS: Muestra[] = [
     estado: "Puebla",
     cp: "72410",
     coords: [-98.188, 19.055],
-    banos: 1,
-    construccionM2: 110,
+    caracteristicas: { metrosM2: 110, banos: 1, cajones: 2, pisos: 1, extras: ["Bodega", "Antepuerta"] },
     amenidades: ["estacionamiento", "vigilancia", "aire-acondicionado"],
+    amenidadesLibres: ["Instalación eléctrica trifásica", "Vitrina de exhibición"],
+    reglas: {
+      amueblado: false,
+      aceptaMascotas: false,
+      fumaPermitido: false,
+      depositoMeses: 2,
+      incluyeServicios: ["agua", "mantenimiento"],
+      requisitosOcupantes: ["situacion-laboral"],
+      notas: "Contrato mínimo de 12 meses. Se solicita comprobante de situación laboral.",
+    },
     fotos: [
       F(4, "Fachada del local comercial"),
       F(6, "Interior del local comercial"),
@@ -180,7 +177,7 @@ const MUESTRAS: Muestra[] = [
     estado: "Puebla",
     cp: "72760",
     coords: [-98.296, 19.057],
-    terrenoM2: 600,
+    caracteristicas: { terrenoM2: 600 },
     amenidades: [],
     fotos: [
       F(5, "Terreno con acceso a camino"),

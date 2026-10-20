@@ -8,6 +8,7 @@ import {
   TIPOS_PROPIEDAD,
   type AmenityKey,
 } from "./validators";
+import type { IconName } from "@/components/IconSprite";
 
 /** Modelo de publicaciones: fotos en GridFS (las de ejemplo, en /images); precios en MXN. */
 
@@ -19,26 +20,83 @@ export type ListingFoto = {
   alt: string;
 };
 
+export type TipoPropiedad = "casa" | "departamento" | "terreno" | "local-comercial";
+
+/**
+ * Características del inmueble. Los campos aplicables dependen del tipo:
+ * ver CARACTERISTICAS_POR_TIPO en validators. Todos opcionales para tolerar
+ * documentos antiguos.
+ */
+export type Caracteristicas = {
+  terrenoM2?: number;
+  construccionM2?: number;
+  interioresM2?: number;
+  metrosM2?: number;
+  recamaras?: number;
+  banos?: number;
+  cajones?: number;
+  /** Número de pisos del inmueble (casa, local). */
+  pisos?: number;
+  /** Nivel o piso donde está (departamento). */
+  piso?: number;
+  /** Balcón, patio, bodega... (departamento, casa). */
+  espaciosAdicionales?: string[];
+  /** Extras del local comercial. */
+  extras?: string[];
+};
+
+/** Reglas y condiciones (sobre todo de renta). */
+export type Reglas = {
+  amueblado?: boolean;
+  aceptaMascotas?: boolean;
+  fumaPermitido?: boolean;
+  depositoMeses?: number;
+  incluyeServicios?: string[];
+  /** Perfil de ocupantes permitido: solo-mujeres, estudiantes, etc. */
+  requisitosOcupantes?: string[];
+  notas?: string;
+};
+
+/** Estadísticas de interacción de una publicación (agregadas y anónimas). */
+export type EstadisticasPublicacion = {
+  visitas?: number;
+  usuariosUnicos?: number;
+  favoritos?: number;
+  contactos?: number;
+  vecesMostradoContacto?: number;
+  compartidos?: number;
+  desdeBusqueda?: number;
+  desdeRecomendaciones?: number;
+  /** Demográficas agregadas (nunca por usuario): edad/género/ubicación/dispositivo. */
+  demograficas?: {
+    edad?: Record<string, number>;
+    genero?: Record<string, number>;
+    ubicacionGeneral?: Record<string, number>;
+    dispositivo?: Record<string, number>;
+  };
+};
+
 export type ListingDoc = {
   _id: ObjectId;
   slug: string;
   titulo: string;
   operacion: "venta" | "renta";
-  tipoPropiedad: "casa" | "departamento" | "terreno" | "local-comercial";
+  tipoPropiedad: TipoPropiedad;
   precio: number;
   moneda: "MXN";
   descripcion: string;
   direccion: { calle: string; colonia: string; ciudad: string; estado: string; cp: string };
   /** Opcional: se completa al geocodificar la dirección. */
   ubicacion?: { type: "Point"; coords: [number, number] };
-  caracteristicas: {
-    recamaras?: number;
-    banos?: number;
-    cocheras?: number;
-    construccionM2?: number;
-    terrenoM2?: number;
-  };
+  caracteristicas: Caracteristicas;
+  /** Amenidades generales filtrables (claves del catálogo cerrado). */
   amenidades: string[];
+  /** Amenidades libres escritas por el propietario (encontrables por búsqueda). */
+  amenidadesLibres?: string[];
+  /** Reglas y condiciones (opcional; habitual en renta). */
+  reglas?: Reglas;
+  /** Estadísticas de interacción (opcional). */
+  estadisticas?: EstadisticasPublicacion;
   fotos: ListingFoto[];
   owner: ObjectId;
   estado: "borrador" | "publicada" | "pausada" | "vendida" | "rentada";
@@ -235,6 +293,8 @@ export function queryPublicadas(f: FiltrosPublicacion = {}): Filter<Record<strin
       { "direccion.colonia": re },
       { "direccion.ciudad": re },
       { "direccion.cp": re },
+      // Amenidades libres: se encuentran por búsqueda (no son filtro directo).
+      { amenidadesLibres: re },
     ];
   }
   if (f.tipos?.length) cond.tipoPropiedad = { $in: f.tipos };
@@ -344,6 +404,41 @@ export function amenidadesConIcono(claves: string[]): { icon: (typeof AMENIDADES
     if (icon) res.push({ icon, label: AMENIDADES_ETIQUETAS[clave as AmenityKey] ?? clave });
   }
   return res;
+}
+
+export type CaracteristicaFicha = { icon: IconName; value: string; label: string };
+
+/** Características visibles en ficha/lista, en orden, según el tipo de propiedad. */
+export function caracteristicasDe(l: ListingDoc): CaracteristicaFicha[] {
+  const c = l.caracteristicas ?? {};
+  const f: CaracteristicaFicha[] = [];
+  const num = (v?: number) => (v ? v.toLocaleString("es-MX") : null);
+
+  if (l.tipoPropiedad === "terreno") {
+    if (c.terrenoM2) f.push({ icon: "i-ruler", value: `${num(c.terrenoM2)} m²`, label: "de terreno" });
+    return f;
+  }
+
+  if (l.tipoPropiedad === "local-comercial") {
+    if (c.metrosM2) f.push({ icon: "i-ruler", value: `${num(c.metrosM2)} m²`, label: "de local" });
+    if (c.banos) f.push({ icon: "i-bath", value: String(c.banos), label: c.banos === 1 ? "Baño" : "Baños" });
+    if (c.cajones) f.push({ icon: "i-garage", value: String(c.cajones), label: c.cajones === 1 ? "Cajón" : "Cajones" });
+    if (c.pisos) f.push({ icon: "i-terrace", value: String(c.pisos), label: c.pisos === 1 ? "Piso" : "Pisos" });
+    return f;
+  }
+
+  // Casa y departamento comparten recámaras/baños/cajones.
+  if (c.recamaras) f.push({ icon: "i-bed", value: String(c.recamaras), label: c.recamaras === 1 ? "Recámara" : "Recámaras" });
+  if (c.banos) f.push({ icon: "i-bath", value: String(c.banos), label: c.banos === 1 ? "Baño" : "Baños" });
+  if (c.cajones) f.push({ icon: "i-garage", value: String(c.cajones), label: c.cajones === 1 ? "Cajón" : "Cajones" });
+  const m2 = c.construccionM2 ?? c.interioresM2 ?? c.terrenoM2;
+  if (m2) {
+    const etiqueta = c.construccionM2 ? "de construcción" : c.interioresM2 ? "interiores" : "de terreno";
+    f.push({ icon: "i-ruler", value: `${num(m2)} m²`, label: etiqueta });
+  }
+  if (c.piso) f.push({ icon: "i-terrace", value: `Nivel ${c.piso}`, label: "" });
+  if (c.pisos) f.push({ icon: "i-terrace", value: String(c.pisos), label: c.pisos === 1 ? "Piso" : "Pisos" });
+  return f;
 }
 
 /** Párrafos de la descripción (separados por línea en blanco). */

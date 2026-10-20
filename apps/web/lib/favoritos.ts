@@ -21,9 +21,11 @@ export async function toggleFavorito(slug: string): Promise<{ ok: boolean; favor
 
   if (existente) {
     await favoritos.deleteOne({ _id: existente._id });
+    await listings.updateOne({ _id: listingId }, { $inc: { "estadisticas.favoritos": -1 } });
     return { ok: true, favorito: false };
   }
   await favoritos.insertOne({ userId, listingId, creado: new Date() });
+  await listings.updateOne({ _id: listingId }, { $inc: { "estadisticas.favoritos": 1 } });
   return { ok: true, favorito: true };
 }
 

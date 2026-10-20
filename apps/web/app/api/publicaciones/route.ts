@@ -3,7 +3,7 @@ import type { NextRequest } from "next/server";
 import { ObjectId } from "mongodb";
 import { getCollections, ensureIndexes } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth";
-import { listingSchema } from "@/lib/validators";
+import { listingSchema, reglasSchema } from "@/lib/validators";
 import { slugUnico, slugify, getPublicadas, type ListingDoc } from "@/lib/listings";
 import { geocodificarDireccion } from "@/lib/geocode";
 import { subirArchivo, maxImagenesPorPublicacion, maxUploadBytes } from "@/lib/storage";
@@ -32,6 +32,8 @@ function simplificar(l: ListingDoc) {
     direccion: l.direccion,
     caracteristicas: l.caracteristicas,
     amenidades: l.amenidades,
+    amenidadesLibres: l.amenidadesLibres ?? [],
+    reglas: l.reglas ?? null,
     fotos: l.fotos,
     estado: l.estado,
     actualizado: l.actualizado,
@@ -89,13 +91,24 @@ export async function POST(req: NextRequest) {
   }
 
   const raw: Record<string, string> = {};
+  const multi = ["amenidades", "amenidadesLibres", "espaciosAdicionales", "extras", "incluyeServicios", "requisitosOcupantes"];
+  const bools = new Set(["amueblado", "aceptaMascotas", "fumaPermitido"]);
   for (const [k, v] of form.entries()) {
-    if (typeof v === "string" && k !== "amenidades" && k !== "lat" && k !== "lng") raw[k] = v;
+    if (typeof v !== "string" || multi.includes(k) || k === "lat" || k === "lng") continue;
+    if (bools.has(k)) {
+      raw[k] = v === "true" || v === "on" || v === "1" ? "true" : "false";
+      continue;
+    }
+    raw[k] = v;
   }
-  // Los campos repetidos (amenidades) se recogen con getAll.
+  const lista = (k: string) =>
+    form.getAll(k).filter((v): v is string => typeof v === "string").map((s) => s.trim()).filter(Boolean);
   const parsed = listingSchema.safeParse({
     ...raw,
-    amenidades: form.getAll("amenidades").filter((v): v is string => typeof v === "string"),
+    amenidades: lista("amenidades"),
+    amenidadesLibres: lista("amenidadesLibres"),
+    espaciosAdicionales: lista("espaciosAdicionales"),
+    extras: lista("extras"),
   });
   if (!parsed.success) {
     const issue = parsed.error.issues[0];
@@ -105,6 +118,24 @@ export async function POST(req: NextRequest) {
     );
   }
   const data = parsed.data;
+
+  const reglasParsed = reglasSchema.safeParse({
+    amueblado: raw.amueblado === "true",
+    aceptaMascotas: raw.aceptaMascotas === "true",
+    fumaPermitido: raw.fumaPermitido === "true",
+    depositoMeses: raw.depositoMeses,
+    incluyeServicios: lista("incluyeServicios"),
+    requisitosOcupantes: lista("requisitosOcupantes"),
+    notas: raw.reglasNotas,
+  });
+  if (!reglasParsed.success) {
+    const issue = reglasParsed.error.issues[0];
+    return NextResponse.json(
+      { ok: false, error: issue.message, campo: `reglas.${issue.path.join(".")}` },
+      { status: 400 }
+    );
+  }
+  const reglas = reglasParsed.data;
 
   const latNum = Number(form.get("lat"));
   const lngNum = Number(form.get("lng"));
@@ -132,6 +163,30 @@ export async function POST(req: NextRequest) {
     }
 
     const ahora = new Date();
+    const caracteristicas: Record<string, unknown> = {};
+    const asignaNum = (k: string, v: number | undefined) => {
+      if (v !== undefined) caracteristicas[k] = v;
+    };
+    if (data.tipoPropiedad === "terreno") {
+      asignaNum("terrenoM2", data.terrenoM2);
+    } else if (data.tipoPropiedad === "local-comercial") {
+      asignaNum("metrosM2", data.metrosM2);
+      asignaNum("banos", data.banos);
+      asignaNum("cajones", data.cajones);
+      asignaNum("pisos", data.pisos);
+      if (data.extras.length) caracteristicas.extras = data.extras;
+    } else {
+      asignaNum("terrenoM2", data.terrenoM2);
+      asignaNum("construccionM2", data.construccionM2);
+      asignaNum("interioresM2", data.interioresM2);
+      asignaNum("recamaras", data.recamaras);
+      asignaNum("banos", data.banos);
+      asignaNum("cajones", data.cajones);
+      asignaNum("pisos", data.pisos);
+      if (data.tipoPropiedad === "departamento") asignaNum("piso", data.piso);
+      if (data.espaciosAdicionales.length) caracteristicas.espaciosAdicionales = data.espaciosAdicionales;
+    }
+
     const doc = {
       slug,
       titulo: data.titulo,
@@ -147,14 +202,11 @@ export async function POST(req: NextRequest) {
         estado: data.estado,
         cp: data.cp,
       },
-      caracteristicas: {
-        recamaras: data.recamaras,
-        banos: data.banos,
-        cocheras: data.cocheras,
-        construccionM2: data.construccionM2,
-        terrenoM2: data.terrenoM2,
-      },
+      caracteristicas,
       amenidades: data.amenidades,
+      amenidadesLibres: data.amenidadesLibres,
+      reglas,
+      estadisticas: { visitas: 0, usuariosUnicos: 0, favoritos: 0, contactos: 0 },
       fotos: subidas,
       owner: ObjectId.createFromHexString(user.id),
       estado: "publicada" as const,

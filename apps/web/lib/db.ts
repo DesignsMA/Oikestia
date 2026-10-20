@@ -35,6 +35,7 @@ export type Collections = {
   messages: ReturnType<Db["collection"]>;
   verificaciones: ReturnType<Db["collection"]>;
   favoritos: ReturnType<Db["collection"]>;
+  vistas: ReturnType<Db["collection"]>;
   rate_limits: ReturnType<Db["collection"]>;
 };
 
@@ -50,6 +51,7 @@ export async function getCollections(): Promise<Collections> {
     messages: db.collection("messages"),
     verificaciones: db.collection("verificaciones"),
     favoritos: db.collection("favoritos"),
+    vistas: db.collection("vistas"),
     rate_limits: db.collection("rate_limits"),
   };
 }
@@ -99,6 +101,11 @@ export async function ensureIndexes(): Promise<void> {
   await db.collection("favoritos").createIndexes([
     { key: { userId: 1, listingId: 1 }, name: "uniq_user_listing", unique: true },
     { key: { userId: 1, creado: -1 }, name: "user_creado" },
+  ]);
+  // Vistas: deduplicación de usuarios únicos por publicación (TTL 30 días).
+  await db.collection("vistas").createIndexes([
+    { key: { listingId: 1, visitante: 1 }, name: "uniq_listing_visitante", unique: true },
+    { key: { expira: 1 }, name: "ttl_expira", expireAfterSeconds: 0 },
   ]);
   // Rate limiting persistente: TTL borra las ventanas caducadas.
   await db.collection("rate_limits").createIndexes([

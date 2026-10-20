@@ -6,7 +6,7 @@ import {
   formatearPrecio,
   parsearFiltros,
   hayFiltros,
-  type ListingDoc,
+  caracteristicasDe,
 } from "@/lib/listings";
 import { seedListings } from "@/lib/seed-listings";
 import { idsFavoritos } from "@/lib/favoritos";
@@ -33,13 +33,8 @@ const ETIQUETA_TIPO: Record<string, string> = {
 };
 
 /** Características de la tarjeta compacta derivadas del documento. */
-function featuresDe(l: ListingDoc) {
-  const f: { icon: "i-bed" | "i-bath" | "i-ruler"; label: string }[] = [];
-  if (l.caracteristicas.recamaras) f.push({ icon: "i-bed", label: `${l.caracteristicas.recamaras}` });
-  if (l.caracteristicas.banos) f.push({ icon: "i-bath", label: `${l.caracteristicas.banos}` });
-  const m2 = l.caracteristicas.construccionM2 ?? l.caracteristicas.terrenoM2;
-  if (m2) f.push({ icon: "i-ruler", label: `${m2.toLocaleString("es-MX")} m²` });
-  return f;
+function featuresDe(l: Parameters<typeof caracteristicasDe>[0]) {
+  return caracteristicasDe(l).map((c) => ({ icon: c.icon, label: c.label ? `${c.value} ${c.label}` : c.value }));
 }
 
 /** URL del catálogo sin el parámetro indicado (para los chips activos). */
@@ -208,7 +203,7 @@ export default async function PublicacionesPage({
         {items.map((l) => (
           <ListingCardCompact
             key={l.slug}
-            href={`/publicaciones/${l.slug}`}
+            href={`/publicaciones/${l.slug}?ref=busq`}
             image={l.fotos[0]?.url ?? "/images/property1.webp"}
             imageAlt={l.fotos[0]?.alt ?? l.titulo}
             price={formatearPrecio(l.precio, l.operacion)}

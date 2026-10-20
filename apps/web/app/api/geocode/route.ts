@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { geocodificar } from "@/lib/geocode";
+import { geocodificarConsulta } from "@/lib/geocode";
 import { consumir, MINUTO } from "@/lib/rate-limit";
 import { ipDe } from "@/lib/guardas";
 
@@ -15,10 +15,10 @@ export async function GET(req: NextRequest) {
   }
 
   const q = new URL(req.url).searchParams.get("q")?.trim().slice(0, 160) ?? "";
-  if (q.length < 4) {
+  if (q.length < 3) {
     return NextResponse.json({ ok: false, error: "Escribe una ubicación" }, { status: 400 });
   }
-  const coords = await geocodificar(q);
+  const coords = await geocodificarConsulta(q);
   if (!coords) {
     return NextResponse.json({ ok: false, error: "No encontramos esa ubicación" }, { status: 404 });
   }

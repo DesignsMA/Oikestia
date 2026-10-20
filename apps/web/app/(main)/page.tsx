@@ -2,7 +2,7 @@ import Link from "next/link";
 import ListingCardDetailed from "@/components/ListingCardDetailed";
 import ListingCardCompact, { type CardFeature } from "@/components/ListingCardCompact";
 import { Icon } from "@/components/IconSprite";
-import { getPublicadas, formatearPrecio, type ListingDoc } from "@/lib/listings";
+import { getPublicadas, formatearPrecio, caracteristicasDe, type ListingDoc } from "@/lib/listings";
 import { seedListings } from "@/lib/seed-listings";
 import { recomendaciones } from "@/lib/recomendaciones";
 import { idsFavoritos } from "@/lib/favoritos";
@@ -16,12 +16,7 @@ export const dynamic = "force-dynamic";
 const AGENTE = "Propietario Oikestia";
 
 function featuresDe(l: ListingDoc): CardFeature[] {
-  const features: CardFeature[] = [];
-  if (l.caracteristicas.recamaras) features.push({ icon: "i-bed", label: `${l.caracteristicas.recamaras} Habs` });
-  if (l.caracteristicas.banos) features.push({ icon: "i-bath", label: `${l.caracteristicas.banos} Baños` });
-  const m2 = l.caracteristicas.construccionM2 ?? l.caracteristicas.terrenoM2;
-  if (m2) features.push({ icon: "i-ruler", label: `${m2.toLocaleString("es-MX")} m²` });
-  return features;
+  return caracteristicasDe(l).map((c) => ({ icon: c.icon, label: c.label ? `${c.value} ${c.label}` : c.value }));
 }
 
 function location(l: ListingDoc): string {
@@ -239,7 +234,7 @@ export default async function HomePage() {
           {destacadas.map((l) => (
             <ListingCardDetailed
               key={l.slug}
-              href={`/publicaciones/${l.slug}`}
+              href={`/publicaciones/${l.slug}?ref=rec`}
               image={l.fotos[0]?.url ?? "/images/property1.webp"}
               imageAlt={l.fotos[0]?.alt ?? l.titulo}
               price={formatearPrecio(l.precio, l.operacion)}
@@ -265,7 +260,7 @@ export default async function HomePage() {
           {resto.map((l) => (
             <ListingCardCompact
               key={l.slug}
-              href={`/publicaciones/${l.slug}`}
+              href={`/publicaciones/${l.slug}?ref=rec`}
               image={l.fotos[0]?.url ?? "/images/property1.webp"}
               imageAlt={l.fotos[0]?.alt ?? l.titulo}
               price={formatearPrecio(l.precio, l.operacion)}

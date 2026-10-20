@@ -89,6 +89,77 @@ def calcular(db, owner_id: ObjectId) -> dict:
         for d in listings.find(mios).sort("creado", -1).limit(8)
     ]
 
+    # ---- Estadísticas de interacción (agregadas y anónimas) ----
+    # Se suman a nivel de propietario; el detalle por publicación va en la tabla.
+    agg = list(
+        listings.aggregate(
+            [
+                {"$match": mios},
+                {
+                    "$group": {
+                        "_id": None,
+                        "visitas": {"$sum": {"$ifNull": ["$estadisticas.visitas", 0]}},
+                        "usuariosUnicos": {"$sum": {"$ifNull": ["$estadisticas.usuariosUnicos", 0]}},
+                        "favoritos": {"$sum": {"$ifNull": ["$estadisticas.favoritos", 0]}},
+                        "contactos": {"$sum": {"$ifNull": ["$estadisticas.contactos", 0]}},
+                        "mostradoContacto": {"$sum": {"$ifNull": ["$estadisticas.vecesMostradoContacto", 0]}},
+                        "compartidos": {"$sum": {"$ifNull": ["$estadisticas.compartidos", 0]}},
+                        "desdeBusqueda": {"$sum": {"$ifNull": ["$estadisticas.desdeBusqueda", 0]}},
+                        "desdeRecomendaciones": {"$sum": {"$ifNull": ["$estadisticas.desdeRecomendaciones", 0]}},
+                    }
+                },
+            ]
+        )
+    )
+    interaccion = agg[0] if agg else {}
+    interaccion.pop("_id", None)
+    for clave in (
+        "visitas",
+        "usuariosUnicos",
+        "favoritos",
+        "contactos",
+        "mostradoContacto",
+        "compartidos",
+        "desdeBusqueda",
+        "desdeRecomendaciones",
+    ):
+        interaccion.setdefault(clave, 0)
+
+    # Demográficas agregadas: se suman los buckets por edad/género/ubicación/dispositivo.
+    def _sumar_demografia(campo):
+        out = {}
+        for d in listings.aggregate(
+            [
+                {"$match": mios},
+                {"$project": {f: {"$objectToArray": {f"$ifNull": [f"$estadisticas.demograficas.{campo}", {}]}}}},
+                {"$unwind": "$f"},
+                {"$group": {"_id": "$f.k", "n": {"$sum": "$f.v"}}},
+            ]
+        ):
+            out[str(d["_id"])] = d["n"]
+        return out
+
+    demografia = {
+        "edad": _sumar_demografia("edad"),
+        "genero": _sumar_demografia("genero"),
+        "ubicacionGeneral": _sumar_demografia("ubicacionGeneral"),
+        "dispositivo": _sumar_demografia("dispositivo"),
+    }
+
+    pubs_stats = [
+        {
+            "titulo": d.get("titulo", "—"),
+            "estado": d.get("estado", "—"),
+            "visitas": (d.get("estadisticas") or {}).get("visitas", 0),
+            "unicos": (d.get("estadisticas") or {}).get("usuariosUnicos", 0),
+            "favoritos": (d.get("estadisticas") or {}).get("favoritos", 0),
+            "contactos": (d.get("estadisticas") or {}).get("contactos", 0),
+        }
+        for d in listings.find(mios, {"titulo": 1, "estado": 1, "estadisticas": 1})
+        .sort([("estadisticas.visitas", -1), ("creado", -1)])
+        .limit(12)
+    ]
+
     return {
         "sitio": sitio,
         "dueno": {
@@ -105,5 +176,8 @@ def calcular(db, owner_id: ObjectId) -> dict:
             "serie": serie,
             "ultimos_leads": ultimos_leads,
             "pubs_tabla": pubs_tabla,
+            "interaccion": interaccion,
+            "demografia": demografia,
+            "pubs_stats": pubs_stats,
         },
     }

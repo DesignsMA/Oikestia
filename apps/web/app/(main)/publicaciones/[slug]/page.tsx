@@ -9,12 +9,16 @@ import {
   tiempoRelativo,
   direccionCompleta,
   amenidadesConIcono,
+  caracteristicasDe,
   parrafos,
   embedMapa,
 } from "@/lib/listings";
+import { PERFILES_OCUPANTES_ETIQUETAS } from "@/lib/validators";
 import { getSessionUser } from "@/lib/auth";
 import { conversacionDePublicacion } from "@/lib/mensajes";
 import { esFavorito } from "@/lib/favoritos";
+import { registrarVisita, incrementar } from "@/lib/estadisticas";
+import { headers } from "next/headers";
 import BotonFavorito from "@/components/BotonFavorito";
 import GaleriaFicha from "@/components/GaleriaFicha";
 import Cercanas from "@/components/Cercanas";
@@ -39,10 +43,13 @@ export async function generateMetadata({
 
 export default async function ListingDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { slug } = await params;
+  const sp = await searchParams;
   const listing = await getPorSlug(slug);
   if (!listing) notFound();
 
@@ -54,6 +61,25 @@ export default async function ListingDetailPage({
   const esMia = !!usuario && usuario.id === String(listing.owner);
   const leadExistente = !esMia && usuario ? await conversacionDePublicacion(slug) : null;
   const favorito = usuario ? await esFavorito(listing._id) : false;
+
+  // Estadística de visita (agregada y anónima): no bloquea el render.
+  if (!esMia) {
+    const h = await headers();
+    const ip = (h.get("x-forwarded-for")?.split(",")[0] ?? h.get("x-real-ip") ?? "local").trim();
+    void registrarVisita(listing._id, ip, h.get("user-agent") ?? "");
+    void incrementar(listing._id, "vecesMostradoContacto");
+    const ref = typeof sp.ref === "string" ? sp.ref : "";
+    if (ref === "busq") void incrementar(listing._id, "desdeBusqueda");
+    else if (ref === "rec") void incrementar(listing._id, "desdeRecomendaciones");
+  }
+
+  // Estadística de visita (agregada y anónima): no bloquea el render.
+  if (!esMia) {
+    const h = await headers();
+    const ip = (h.get("x-forwarded-for")?.split(",")[0] ?? h.get("x-real-ip") ?? "local").trim();
+    void registrarVisita(listing._id, ip, h.get("user-agent") ?? "");
+    void incrementar(listing._id, "vecesMostradoContacto");
+  }
 
   const rutaLogin = `/login?next=${encodeURIComponent(`/publicaciones/${slug}`)}`;
   const rutaContacto = esMia
@@ -70,17 +96,9 @@ export default async function ListingDetailPage({
   const fecha = tiempoRelativo(listing.publicadoEn ?? listing.creado);
   const direccion = direccionCompleta(listing.direccion);
 
-  const features: { icon: "i-bed" | "i-bath" | "i-garage" | "i-ruler"; value: string; label: string }[] = [];
-  if (listing.caracteristicas.recamaras)
-    features.push({ icon: "i-bed", value: String(listing.caracteristicas.recamaras), label: "Habitaciones" });
-  if (listing.caracteristicas.banos)
-    features.push({ icon: "i-bath", value: String(listing.caracteristicas.banos), label: "Baños" });
-  if (listing.caracteristicas.cocheras)
-    features.push({ icon: "i-garage", value: String(listing.caracteristicas.cocheras), label: "Cochera" });
-  if (listing.caracteristicas.construccionM2)
-    features.push({ icon: "i-ruler", value: String(listing.caracteristicas.construccionM2), label: "m² de construcción" });
-  else if (listing.caracteristicas.terrenoM2)
-    features.push({ icon: "i-ruler", value: String(listing.caracteristicas.terrenoM2), label: "m² de terreno" });
+  const features = caracteristicasDe(listing);
+  const amenidadesLibres = listing.amenidadesLibres ?? [];
+  const reglas = listing.reglas;
 
   const mapa = listing.ubicacion ? embedMapa(listing.ubicacion.coords) : null;
 
@@ -109,11 +127,11 @@ export default async function ListingDetailPage({
 
           {features.length > 0 && (
             <ul className="listing-features">
-              {features.map((f) => (
-                <li className="feature-item" key={f.label}>
+              {features.map((f, i) => (
+                <li className="feature-item" key={`${f.label}-${i}`}>
                   <Icon name={f.icon} />
                   <span className="feature-value">{f.value}</span>
-                  <span className="feature-label">{f.label}</span>
+                  {f.label ? <span className="feature-label">{f.label}</span> : null}
                 </li>
               ))}
             </ul>
@@ -124,7 +142,7 @@ export default async function ListingDetailPage({
             <p key={i}>{p}</p>
           ))}
 
-          {amenidades.length > 0 && (
+          {(amenidades.length > 0 || amenidadesLibres.length > 0) && (
             <>
               <h2>Características y amenidades</h2>
               <ul className="listing-amenities">
@@ -134,6 +152,40 @@ export default async function ListingDetailPage({
                     {a.label}
                   </li>
                 ))}
+                {amenidadesLibres.map((a) => (
+                  <li key={`libre-${a}`} className="amenity-libre">
+                    <Icon name="i-plus" />
+                    {a}
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+
+          {reglas && (
+            <>
+              <h2>Reglas y condiciones</h2>
+              <ul className="listing-reglas">
+                {reglas.amueblado ? <li>Se renta amueblado</li> : null}
+                <li>{reglas.aceptaMascotas ? "Se aceptan mascotas" : "No se aceptan mascotas"}</li>
+                {reglas.fumaPermitido ? <li>Se permite fumar</li> : <li>No se permite fumar</li>}
+                {reglas.depositoMeses ? (
+                  <li>
+                    Depósito de {reglas.depositoMeses} {reglas.depositoMeses === 1 ? "mes" : "meses"}
+                  </li>
+                ) : null}
+                {reglas.incluyeServicios && reglas.incluyeServicios.length > 0 ? (
+                  <li>Incluye: {reglas.incluyeServicios.join(", ")}</li>
+                ) : null}
+                {reglas.requisitosOcupantes && reglas.requisitosOcupantes.length > 0 ? (
+                  <li>
+                    Dirigido a:{" "}
+                    {reglas.requisitosOcupantes
+                      .map((r) => PERFILES_OCUPANTES_ETIQUETAS[r as keyof typeof PERFILES_OCUPANTES_ETIQUETAS] ?? r)
+                      .join(", ")}
+                  </li>
+                ) : null}
+                {reglas.notas ? <li>{reglas.notas}</li> : null}
               </ul>
             </>
           )}

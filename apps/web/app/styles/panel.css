@@ -486,6 +486,70 @@
     white-space: pre-wrap;
 }
 
+/* Listas libres (espacios adicionales, amenidades libres) */
+.asistente-lista-libre {
+    margin-top: 1rem;
+}
+
+.asistente-lista-libre-fila {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.4rem;
+}
+
+.asistente-lista-libre-fila .verif-input {
+    flex: 1;
+    min-width: 0;
+}
+
+.asistente-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin: 0.6rem 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.asistente-tags li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.2rem 0.3rem 0.2rem 0.6rem;
+    font-size: var(--font-size-sm);
+    color: var(--color-neutral-darkest);
+    background-color: var(--color-neutral-light);
+    border: 1px solid var(--border-light);
+    border-radius: 999px;
+}
+
+.asistente-tags li button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.1rem;
+    height: 1.1rem;
+    padding: 0;
+    font-size: 0.9rem;
+    line-height: 1;
+    color: var(--color-neutral-darker);
+    background: transparent;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.asistente-tags li button:hover {
+    color: var(--color-white);
+    background-color: var(--color-primary);
+}
+
+.panel-texto {
+    margin: 0 0 1rem;
+    font-size: var(--font-size-sm);
+    color: var(--color-neutral-darker);
+}
+
 .asistente-acciones {
     display: flex;
     justify-content: space-between;

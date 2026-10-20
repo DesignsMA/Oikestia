@@ -90,34 +90,139 @@ export const AMENIDADES_ETIQUETAS: Record<AmenityKey, string> = {
 export const OPERACIONES = ["venta", "renta"] as const;
 export const TIPOS_PROPIEDAD = ["casa", "departamento", "terreno", "local-comercial"] as const;
 
-/** Publicación de propiedad. Precios siempre en MXN. */
-export const listingSchema = z.object({
-  titulo: z.string().min(8, "Escribe un título de al menos 8 caracteres").max(120),
-  operacion: z.enum(OPERACIONES, { message: "Elige operación: venta o renta" }),
-  tipoPropiedad: z.enum(TIPOS_PROPIEDAD, { message: "Elige el tipo de propiedad" }),
-  precio: z.coerce
-    .number({ message: "Escribe un precio válido" })
-    .positive("El precio debe ser mayor a 0")
-    .max(999_999_999, "El precio es demasiado alto"),
-  descripcion: z
-    .string()
-    .min(50, "Describe la propiedad con al menos 50 caracteres")
-    .max(4000, "La descripción es demasiado larga"),
-  calle: z.string().min(3, "Escribe la calle y número").max(120),
-  colonia: z.string().min(2, "Escribe la colonia").max(80),
-  ciudad: z.string().min(2, "Escribe la ciudad").max(80),
-  estado: z.string().min(2, "Escribe el estado").max(60),
-  cp: z.string().regex(/^\d{5}$/, "El código postal son 5 dígitos"),
-  recamaras: z.coerce.number().int().min(0).max(50).optional(),
-  banos: z.coerce.number().int().min(0).max(50).optional(),
-  cocheras: z.coerce.number().int().min(0).max(50).optional(),
-  construccionM2: z.coerce.number().positive().max(1_000_000).optional(),
-  terrenoM2: z.coerce.number().positive().max(1_000_000).optional(),
-  amenidades: z
-    .array(z.enum(Object.keys(AMENIDADES) as [AmenityKey, ...AmenityKey[]]))
-    .max(20, "Demasiadas amenidades")
+/**
+ * Características que aplican a cada tipo de propiedad. El asistente y la
+ * ficha usan este mapa para mostrar solo los campos pertinentes.
+ * - terreno: únicamente metros de terreno.
+ * - departamento: metros interiores, recámaras, baños, cajones, nivel y
+ *   espacios adicionales (balcón, patio, bodega...).
+ * - casa: terreno, construcción e interiores, recámaras, baños, cajones,
+ *   espacios adicionales y número de pisos.
+ * - local-comercial: metros, baños, cajones, pisos y extras (bodega...).
+ */
+export const CARACTERISTICAS_POR_TIPO = {
+  terreno: ["terrenoM2"],
+  departamento: ["interioresM2", "recamaras", "banos", "cajones", "piso", "espaciosAdicionales"],
+  casa: ["terrenoM2", "construccionM2", "interioresM2", "recamaras", "banos", "cajones", "espaciosAdicionales", "pisos"],
+  "local-comercial": ["metrosM2", "banos", "cajones", "pisos", "extras"],
+} as const satisfies Record<(typeof TIPOS_PROPIEDAD)[number], readonly string[]>;
+
+/** Etiquetas de los campos numéricos y de lista de características. */
+export const CAMPOS_CARACTERISTICA_ETIQUETAS = {
+  terrenoM2: "m² de terreno",
+  construccionM2: "m² de construcción",
+  interioresM2: "m² interiores",
+  metrosM2: "m² del local",
+  recamaras: "Recámaras",
+  banos: "Baños",
+  cajones: "Cajones de estacionamiento",
+  pisos: "Número de pisos",
+  piso: "Nivel / piso",
+} as const;
+
+export type CampoCaracteristica = keyof typeof CAMPOS_CARACTERISTICA_ETIQUETAS;
+
+/** Condiciones de renta / reglas de la propiedad. */
+export const PERFILES_OCUPANTES = ["solo-mujeres", "solo-hombres", "estudiantes", "situacion-laboral"] as const;
+export type PerfilOcupante = (typeof PERFILES_OCUPANTES)[number];
+
+export const PERFILES_OCUPANTES_ETIQUETAS: Record<PerfilOcupante, string> = {
+  "solo-mujeres": "Solo mujeres",
+  "solo-hombres": "Solo hombres",
+  estudiantes: "Estudiantes",
+  "situacion-laboral": "Comprobante de situación laboral",
+};
+
+/** Características numéricas comunes a varios tipos. */
+const numCaracteristica = z.coerce.number().min(0).max(1_000_000).optional();
+const listaCaracteristica = z
+  .array(z.string().trim().min(1).max(60))
+  .max(15, "Demasiados elementos")
+  .default([]);
+
+/** Reglas y condiciones (sobre todo para renta). */
+export const reglasSchema = z.object({
+  amueblado: z.boolean().default(false),
+  aceptaMascotas: z.boolean().default(false),
+  fumaPermitido: z.boolean().default(false),
+  depositoMeses: z.coerce.number().int().min(0).max(12).optional(),
+  incluyeServicios: z
+    .array(z.enum(["agua", "luz", "gas", "internet", "mantenimiento"]))
+    .max(6)
     .default([]),
+  requisitosOcupantes: z
+    .array(z.enum(PERFILES_OCUPANTES))
+    .max(4, "Demasiados requisitos")
+    .default([]),
+  notas: z.string().trim().max(600, "Las condiciones son demasiado largas").optional(),
 });
+
+/** Publicación de propiedad. Precios siempre en MXN. */
+export const listingSchema = z
+  .object({
+    titulo: z.string().min(8, "Escribe un título de al menos 8 caracteres").max(120),
+    operacion: z.enum(OPERACIONES, { message: "Elige operación: venta o renta" }),
+    tipoPropiedad: z.enum(TIPOS_PROPIEDAD, { message: "Elige el tipo de propiedad" }),
+    precio: z.coerce
+      .number({ message: "Escribe un precio válido" })
+      .positive("El precio debe ser mayor a 0")
+      .max(999_999_999, "El precio es demasiado alto"),
+    descripcion: z
+      .string()
+      .min(50, "Describe la propiedad con al menos 50 caracteres")
+      .max(4000, "La descripción es demasiado larga"),
+    calle: z.string().min(3, "Escribe la calle y número").max(120),
+    colonia: z.string().min(2, "Escribe la colonia").max(80),
+    ciudad: z.string().min(2, "Escribe la ciudad").max(80),
+    estado: z.string().min(2, "Escribe el estado").max(60),
+    cp: z.string().regex(/^\d{5}$/, "El código postal son 5 dígitos"),
+    // Características por tipo (todas opcionales; se validan según el tipo).
+    terrenoM2: numCaracteristica,
+    construccionM2: numCaracteristica,
+    interioresM2: numCaracteristica,
+    metrosM2: numCaracteristica,
+    recamaras: z.coerce.number().int().min(0).max(50).optional(),
+    banos: z.coerce.number().int().min(0).max(50).optional(),
+    cajones: z.coerce.number().int().min(0).max(50).optional(),
+    pisos: z.coerce.number().int().min(0).max(100).optional(),
+    piso: z.coerce.number().int().min(0).max(200).optional(),
+    espaciosAdicionales: listaCaracteristica,
+    extras: listaCaracteristica,
+    // Amenidades generales filtrables + amenidades libres (texto del propietario).
+    amenidades: z
+      .array(z.enum(Object.keys(AMENIDADES) as [AmenityKey, ...AmenityKey[]]))
+      .max(20, "Demasiadas amenidades")
+      .default([]),
+    amenidadesLibres: z
+      .array(z.string().trim().min(2, "Amenidad demasiado corta").max(60, "Amenidad demasiado larga"))
+      .max(30, "Demasiadas amenidades")
+      .default([]),
+  })
+  .superRefine((d, ctx) => {
+    const permitidas = new Set<string>(CARACTERISTICAS_POR_TIPO[d.tipoPropiedad]);
+    const valores: Record<string, number | undefined> = {
+      terrenoM2: d.terrenoM2,
+      construccionM2: d.construccionM2,
+      interioresM2: d.interioresM2,
+      metrosM2: d.metrosM2,
+      recamaras: d.recamaras,
+      banos: d.banos,
+      cajones: d.cajones,
+      pisos: d.pisos,
+      piso: d.piso,
+    };
+    for (const [campo, valor] of Object.entries(valores)) {
+      if (valor !== undefined && !permitidas.has(campo)) {
+        ctx.addIssue({
+          code: "custom",
+          path: [campo],
+          message: `La característica «${campo}» no aplica para ${d.tipoPropiedad}.`,
+        });
+      }
+    }
+  });
+
+export type ReglasInput = z.infer<typeof reglasSchema>;
 
 /** Primer mensaje al propietario desde la ficha de publicación. */
 export const nuevoMensajeSchema = z.object({
@@ -186,6 +291,10 @@ export type UserRegistration = z.infer<typeof userRegistrationSchema>;
 export type OwnerRegistration = z.infer<typeof ownerRegistrationSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
 export type ListingInput = z.infer<typeof listingSchema>;
+export type CaracteristicasInput = Pick<
+  ListingInput,
+  "terrenoM2" | "construccionM2" | "interioresM2" | "metrosM2" | "recamaras" | "banos" | "cajones" | "pisos" | "piso" | "espaciosAdicionales" | "extras"
+>;
 export type NuevoMensajeInput = z.infer<typeof nuevoMensajeSchema>;
 export type VisitaInput = z.infer<typeof visitaSchema>;
 export type CuentaInput = z.infer<typeof cuentaSchema>;

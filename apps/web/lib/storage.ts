@@ -10,6 +10,23 @@ export const TIPOS_PERMITIDOS = new Set([
   "image/gif",
 ]);
 
+/** Algunos navegadores/pickers envían file.type vacío; resolvemos por extensión. */
+const EXTENSION_A_TIPO: Record<string, string> = {
+  jpg: "image/jpeg",
+  jpeg: "image/jpeg",
+  png: "image/png",
+  webp: "image/webp",
+  avif: "image/avif",
+  gif: "image/gif",
+};
+
+export function resolverTipoImagen(file: File): string {
+  const declarado = (file.type || "").toLowerCase();
+  if (TIPOS_PERMITIDOS.has(declarado)) return declarado;
+  const ext = (file.name || "").toLowerCase().split(".").pop() ?? "";
+  return EXTENSION_A_TIPO[ext] ?? declarado;
+}
+
 export function maxUploadBytes(): number {
   const mb = Number(process.env.MAX_UPLOAD_MB ?? 8);
   return (Number.isFinite(mb) && mb > 0 ? mb : 8) * 1024 * 1024;
@@ -35,7 +52,7 @@ export async function subirArchivo(
   if (file.size > maxUploadBytes()) {
     throw new Error(`La imagen supera el máximo de ${maxUploadBytes() / 1024 / 1024} MB`);
   }
-  const type = (file.type || "").toLowerCase();
+  const type = resolverTipoImagen(file);
   if (!TIPOS_PERMITIDOS.has(type)) {
     throw new Error("Formato no permitido: usa JPG, PNG, WEBP, AVIF o GIF");
   }
