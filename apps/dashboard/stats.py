@@ -131,7 +131,7 @@ def calcular(db, owner_id: ObjectId) -> dict:
         for d in listings.aggregate(
             [
                 {"$match": mios},
-                {"$project": {f: {"$objectToArray": {f"$ifNull": [f"$estadisticas.demograficas.{campo}", {}]}}}},
+                {"$project": {"f": {"$objectToArray": {"$ifNull": [f"$estadisticas.demograficas.{campo}", {}]}}}},
                 {"$unwind": "$f"},
                 {"$group": {"_id": "$f.k", "n": {"$sum": "$f.v"}}},
             ]
