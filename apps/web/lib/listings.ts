@@ -362,6 +362,22 @@ export async function getPorOwner(ownerId: string): Promise<ListingDoc[]> {
   return (await listings.find({ owner }).sort({ actualizado: -1 }).toArray()) as unknown as ListingDoc[];
 }
 
+/** Publicación del propietario por id (para edición), cualquier estado. */
+export async function getPorIdDelOwner(id: string, ownerId: string): Promise<ListingDoc | null> {
+  if (!ObjectId.isValid(id) || !ObjectId.isValid(ownerId)) return null;
+  const { listings } = await getCollections();
+  const doc = await listings.findOne({ _id: new ObjectId(id), owner: new ObjectId(ownerId) });
+  return (doc as unknown as ListingDoc) ?? null;
+}
+
+/** Publicación del propietario por slug (para edición), cualquier estado. */
+export async function getPorSlugDelOwner(slug: string, ownerId: string): Promise<ListingDoc | null> {
+  if (!ObjectId.isValid(ownerId)) return null;
+  const { listings } = await getCollections();
+  const doc = await listings.findOne({ slug, owner: new ObjectId(ownerId) });
+  return (doc as unknown as ListingDoc) ?? null;
+}
+
 export type OwnerPublico = {
   nombre: string;
   avatarUrl: string;

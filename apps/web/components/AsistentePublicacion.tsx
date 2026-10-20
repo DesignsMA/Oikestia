@@ -53,6 +53,36 @@ type Campos = {
   reglasNotas: string;
 } & Record<CampoNum, string>;
 
+/** Foto ya guardada (GridFS o imagen de ejemplo). */
+export type FotoExistente = { fileId: string | null; url: string; alt: string };
+
+/** Datos de una publicación existente para el modo edición. */
+export type PublicacionInicial = {
+  id: string;
+  slug: string;
+  titulo: string;
+  operacion: string;
+  tipoPropiedad: string;
+  precio: number;
+  descripcion: string;
+  direccion: { calle: string; colonia: string; ciudad: string; estado: string; cp: string };
+  ubicacion: { type: "Point"; coords: [number, number] } | null;
+  caracteristicas: Record<string, unknown>;
+  amenidades: string[];
+  amenidadesLibres: string[];
+  reglas: {
+    amueblado?: boolean;
+    aceptaMascotas?: boolean;
+    fumaPermitido?: boolean;
+    depositoMeses?: number;
+    incluyeServicios?: string[];
+    requisitosOcupantes?: string[];
+    notas?: string;
+  } | null;
+  estado: string;
+  fotos: FotoExistente[];
+};
+
 const VACIO: Campos = {
   titulo: "",
   operacion: "venta",
@@ -83,7 +113,46 @@ function camposNumDe(tipo: string): CampoNum[] {
   return aplican.filter((c): c is CampoNum => c in CAMPOS_CARACTERISTICA_ETIQUETAS && c !== "espaciosAdicionales");
 }
 
-function validaPaso(paso: number, c: Campos, fotos: File[]): string | null {
+/** Lista de características (espacios/extras) guardada en el documento. */
+function listaCaracteristica(inicial: PublicacionInicial | undefined, clave: string): string[] {
+  const v = inicial?.caracteristicas?.[clave];
+  return Array.isArray(v) ? (v as string[]) : [];
+}
+
+/** Construye los campos del formulario desde una publicación existente. */
+function camposDesde(inicial?: PublicacionInicial): Campos {
+  if (!inicial) return VACIO;
+  const c = inicial.caracteristicas ?? {};
+  const num = (k: CampoNum): string => {
+    const v = c[k];
+    return v === undefined || v === null ? "" : String(v);
+  };
+  return {
+    titulo: inicial.titulo,
+    operacion: inicial.operacion,
+    tipoPropiedad: inicial.tipoPropiedad,
+    precio: String(inicial.precio),
+    calle: inicial.direccion.calle,
+    colonia: inicial.direccion.colonia,
+    ciudad: inicial.direccion.ciudad,
+    estado: inicial.direccion.estado,
+    cp: inicial.direccion.cp,
+    descripcion: inicial.descripcion,
+    depositoMeses: inicial.reglas?.depositoMeses === undefined ? "" : String(inicial.reglas.depositoMeses),
+    reglasNotas: inicial.reglas?.notas ?? "",
+    terrenoM2: num("terrenoM2"),
+    construccionM2: num("construccionM2"),
+    interioresM2: num("interioresM2"),
+    metrosM2: num("metrosM2"),
+    recamaras: num("recamaras"),
+    banos: num("banos"),
+    cajones: num("cajones"),
+    pisos: num("pisos"),
+    piso: num("piso"),
+  };
+}
+
+function validaPaso(paso: number, c: Campos, totalFotos: number): string | null {
   switch (paso) {
     case 0:
       if (c.titulo.trim().length < 8) return "Escribe un título de al menos 8 caracteres.";
@@ -100,9 +169,8 @@ function validaPaso(paso: number, c: Campos, fotos: File[]): string | null {
       if (c.descripcion.trim().length < 50) return "Describe la propiedad con al menos 50 caracteres.";
       return null;
     case 4:
-      if (fotos.length === 0) return "Sube al menos una foto.";
-      if (fotos.length > MAX_FOTOS) return `Máximo ${MAX_FOTOS} fotos.`;
-      if (fotos.some((f) => f.size > MAX_MB * 1024 * 1024)) return `Cada foto debe pesar menos de ${MAX_MB} MB.`;
+      if (totalFotos === 0) return "Sube al menos una foto.";
+      if (totalFotos > MAX_FOTOS) return `Máximo ${MAX_FOTOS} fotos.`;
       return null;
     default:
       return null;
@@ -110,29 +178,37 @@ function validaPaso(paso: number, c: Campos, fotos: File[]): string | null {
 }
 
 /** Asistente de publicación con campos por tipo, reglas y previsualización de fotos. */
-export default function AsistentePublicacion() {
+export default function AsistentePublicacion({ inicial }: { inicial?: PublicacionInicial }) {
   const router = useRouter();
+  const edicion = Boolean(inicial);
   const [paso, setPaso] = useState(0);
-  const [campos, setCampos] = useState<Campos>(VACIO);
-  const [amenidades, setAmenidades] = useState<string[]>([]);
-  const [amenidadesLibres, setAmenidadesLibres] = useState<string[]>([]);
+  const [campos, setCampos] = useState<Campos>(() => camposDesde(inicial));
+  const [amenidades, setAmenidades] = useState<string[]>(() => inicial?.amenidades ?? []);
+  const [amenidadesLibres, setAmenidadesLibres] = useState<string[]>(() => inicial?.amenidadesLibres ?? []);
   const [nuevaAmenidad, setNuevaAmenidad] = useState("");
-  const [espacios, setEspacios] = useState<string[]>([]);
+  const [espacios, setEspacios] = useState<string[]>(() =>
+    listaCaracteristica(inicial, inicial?.tipoPropiedad === "local-comercial" ? "extras" : "espaciosAdicionales")
+  );
   const [nuevoEspacio, setNuevoEspacio] = useState("");
-  const [reglas, setReglas] = useState({
-    amueblado: false,
-    aceptaMascotas: false,
-    fumaPermitido: false,
-    incluyeServicios: [] as string[],
-    requisitosOcupantes: [] as string[],
-  });
+  const [reglas, setReglas] = useState(() => ({
+    amueblado: inicial?.reglas?.amueblado ?? false,
+    aceptaMascotas: inicial?.reglas?.aceptaMascotas ?? false,
+    fumaPermitido: inicial?.reglas?.fumaPermitido ?? false,
+    incluyeServicios: (inicial?.reglas?.incluyeServicios ?? []) as string[],
+    requisitosOcupantes: (inicial?.reglas?.requisitosOcupantes ?? []) as string[],
+  }));
   const [fotos, setFotos] = useState<File[]>([]);
+  const [fotosExistentes, setFotosExistentes] = useState<FotoExistente[]>(() => inicial?.fotos ?? []);
   const [error, setError] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
-  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(() =>
+    inicial?.ubicacion ? { lat: inicial.ubicacion.coords[1], lng: inicial.ubicacion.coords[0] } : null
+  );
   const [geocodificando, setGeocodificando] = useState(false);
   const [avisoMapa, setAvisoMapa] = useState<string | null>(null);
   const fotosRef = useRef<HTMLInputElement>(null);
+
+  const totalFotos = fotos.length + fotosExistentes.length;
 
   const previews = useMemo(() => fotos.map((f) => ({ f, url: URL.createObjectURL(f) })), [fotos]);
   useEffect(() => {
@@ -184,12 +260,24 @@ export default function AsistentePublicacion() {
 
   function agregarFotos(files: FileList | null) {
     if (!files) return;
-    setFotos((prev) => [...prev, ...Array.from(files)].slice(0, MAX_FOTOS));
+    const entrantes = Array.from(files);
+    const grandes = entrantes.find((f) => f.size > MAX_MB * 1024 * 1024);
+    if (grandes) {
+      setError(`Cada foto debe pesar menos de ${MAX_MB} MB.`);
+    } else {
+      setError(null);
+    }
+    const validas = entrantes.filter((f) => f.size <= MAX_MB * 1024 * 1024);
+    setFotos((prev) => [...prev, ...validas].slice(0, Math.max(0, MAX_FOTOS - fotosExistentes.length)));
     if (fotosRef.current) fotosRef.current.value = "";
   }
 
   function quitarFoto(idx: number) {
     setFotos((prev) => prev.filter((_, i) => i !== idx));
+  }
+
+  function quitarFotoExistente(idx: number) {
+    setFotosExistentes((prev) => prev.filter((_, i) => i !== idx));
   }
 
   async function ubicarEnMapa() {
@@ -220,7 +308,7 @@ export default function AsistentePublicacion() {
   }
 
   function siguiente() {
-    const err = validaPaso(paso, campos, fotos);
+    const err = validaPaso(paso, campos, totalFotos);
     if (err) {
       setError(err);
       return;
@@ -236,7 +324,7 @@ export default function AsistentePublicacion() {
 
   async function publicar() {
     for (let i = 0; i < PASOS.length - 1; i++) {
-      const err = validaPaso(i, campos, fotos);
+      const err = validaPaso(i, campos, totalFotos);
       if (err) {
         setPaso(i);
         setError(err);
@@ -252,7 +340,8 @@ export default function AsistentePublicacion() {
       }
       for (const a of amenidades) fd.append("amenidades", a);
       for (const a of amenidadesLibres) fd.append("amenidadesLibres", a);
-      for (const e of espacios) fd.append("espaciosAdicionales", e);
+      const claveEspacios = campos.tipoPropiedad === "local-comercial" ? "extras" : "espaciosAdicionales";
+      for (const e of espacios) fd.append(claveEspacios, e);
       fd.set("amueblado", String(reglas.amueblado));
       fd.set("aceptaMascotas", String(reglas.aceptaMascotas));
       fd.set("fumaPermitido", String(reglas.fumaPermitido));
@@ -264,14 +353,28 @@ export default function AsistentePublicacion() {
       }
       for (const f of fotos) fd.append("fotos", f);
 
-      const r = await fetch("/api/publicaciones", { method: "POST", body: fd });
+      const esEdicion = Boolean(inicial);
+      if (esEdicion) {
+        fd.set(
+          "fotosExistentes",
+          JSON.stringify(
+            fotosExistentes.map((f) => ({ fileId: f.fileId ?? null, url: f.url, alt: f.alt }))
+          )
+        );
+      }
+
+      const r = await fetch(esEdicion ? `/api/publicaciones/${inicial!.id}` : "/api/publicaciones", {
+        method: esEdicion ? "PUT" : "POST",
+        body: fd,
+      });
       const data = await r.json().catch(() => ({}));
       if (!r.ok || !data.ok) {
-        setError(data.error ?? "No se pudo crear la publicación.");
+        setError(data.error ?? (esEdicion ? "No se pudo actualizar la publicación." : "No se pudo crear la publicación."));
         setEnviando(false);
         return;
       }
       router.push(`/publicaciones/${data.slug}`);
+      router.refresh();
     } catch {
       setError("Sin conexión con el servidor.");
       setEnviando(false);
@@ -617,7 +720,7 @@ export default function AsistentePublicacion() {
           </div>
 
           <label className="verif-label" htmlFor="p-fotos">
-            Fotos ({fotos.length}/{MAX_FOTOS}, máximo {MAX_MB} MB c/u)
+            Fotos ({totalFotos}/{MAX_FOTOS}, máximo {MAX_MB} MB c/u)
           </label>
           <input
             id="p-fotos"
@@ -628,24 +731,43 @@ export default function AsistentePublicacion() {
             onChange={(e) => agregarFotos(e.target.files)}
           />
 
+          {fotosExistentes.length > 0 && (
+            <>
+              <p className="asistente-fotos-nota">Fotos actuales</p>
+              <ul className="asistente-previews">
+                {fotosExistentes.map((p, i) => (
+                  <li key={`existente-${i}-${p.url}`}>
+                    <img src={p.url} alt={p.alt || `Foto ${i + 1}`} />
+                    <button type="button" className="panel-btn panel-btn-peligro" onClick={() => quitarFotoExistente(i)}>
+                      Quitar
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+
           {previews.length > 0 && (
-            <ul className="asistente-previews">
-              {previews.map((p, i) => (
-                <li key={p.url}>
-                  <img src={p.url} alt={`Foto ${i + 1}`} />
-                  <button type="button" className="panel-btn panel-btn-peligro" onClick={() => quitarFoto(i)}>
-                    Quitar
-                  </button>
-                </li>
-              ))}
-            </ul>
+            <>
+              {edicion && fotosExistentes.length > 0 && <p className="asistente-fotos-nota">Fotos nuevas</p>}
+              <ul className="asistente-previews">
+                {previews.map((p, i) => (
+                  <li key={p.url}>
+                    <img src={p.url} alt={`Foto nueva ${i + 1}`} />
+                    <button type="button" className="panel-btn panel-btn-peligro" onClick={() => quitarFoto(i)}>
+                      Quitar
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </>
           )}
         </div>
       )}
 
       {paso === 5 && (
         <div className="asistente-cuerpo">
-          <h3 className="panel-subtitulo">Revisa tu publicación</h3>
+          <h3 className="panel-subtitulo">{edicion ? "Revisa los cambios" : "Revisa tu publicación"}</h3>
           <dl className="asistente-resumen">
             <div><dt>Título</dt><dd>{campos.titulo}</dd></div>
             <div><dt>Operación</dt><dd>{etiquetaOperacion} · {ETIQUETA_TIPO[campos.tipoPropiedad]}</dd></div>
@@ -683,7 +805,7 @@ export default function AsistentePublicacion() {
                 </dd>
               </div>
             )}
-            <div><dt>Fotos</dt><dd>{fotos.length}</dd></div>
+            <div><dt>Fotos</dt><dd>{totalFotos}</dd></div>
             <div><dt>Descripción</dt><dd className="asistente-resumen-desc">{campos.descripcion}</dd></div>
           </dl>
         </div>
@@ -703,7 +825,7 @@ export default function AsistentePublicacion() {
           </button>
         ) : (
           <button type="button" className="panel-btn panel-btn-primario" onClick={publicar} disabled={enviando}>
-            {enviando ? "Publicando…" : "Publicar propiedad"}
+            {enviando ? (edicion ? "Guardando…" : "Publicando…") : edicion ? "Guardar cambios" : "Publicar propiedad"}
           </button>
         )}
       </div>

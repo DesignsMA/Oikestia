@@ -438,6 +438,13 @@
     list-style: none;
 }
 
+.asistente-fotos-nota {
+    margin: 1rem 0 0;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-neutral-dark, #52525b);
+}
+
 .asistente-previews li {
     display: flex;
     flex-direction: column;

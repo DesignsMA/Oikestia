@@ -3,7 +3,8 @@ import { origenOk } from "@/lib/guardas";
 
 /** Guardas globales de /api: host permitido, método y origen (CSRF). */
 
-const METODO_API = /^(GET|POST|HEAD)$/;
+const METODO_API = /^(GET|POST|PUT|PATCH|DELETE|HEAD)$/;
+const METODO_MUTANTE = /^(POST|PUT|PATCH|DELETE)$/;
 
 function hostPermitido(host: string): boolean {
   const nombre = host
@@ -39,11 +40,11 @@ export function middleware(req: NextRequest) {
   if (!METODO_API.test(req.method)) {
     return new NextResponse("Método no permitido", {
       status: 405,
-      headers: { "Content-Type": "text/plain; charset=utf-8", Allow: "GET, POST, HEAD" },
+      headers: { "Content-Type": "text/plain; charset=utf-8", Allow: "GET, POST, PUT, PATCH, DELETE, HEAD" },
     });
   }
 
-  if (req.method === "POST" && !origenOk(req)) {
+  if (METODO_MUTANTE.test(req.method) && !origenOk(req)) {
     return NextResponse.json({ ok: false, error: "Origen no permitido" }, { status: 403 });
   }
 

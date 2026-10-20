@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/auth";
-import AsistentePublicacion from "@/components/AsistentePublicacion";
+import { getPorSlugDelOwner } from "@/lib/listings";
+import AsistentePublicacion, { type PublicacionInicial } from "@/components/AsistentePublicacion";
 import "@/app/styles/homepage.css";
 import "@/app/styles/intereses.css";
 import "@/app/styles/panel.css";
@@ -14,8 +15,35 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic";
 
-/** Asistente de publicación: 4 pasos + revisión. Solo propietarios. */
-export default async function PublicarPage() {
+/** Serializa la publicación existente para el asistente en modo edición. */
+function serializar(
+  doc: NonNullable<Awaited<ReturnType<typeof getPorSlugDelOwner>>>
+): PublicacionInicial {
+  return {
+    id: String(doc._id),
+    slug: doc.slug,
+    titulo: doc.titulo,
+    operacion: doc.operacion,
+    tipoPropiedad: doc.tipoPropiedad,
+    precio: doc.precio,
+    descripcion: doc.descripcion,
+    direccion: doc.direccion,
+    ubicacion: doc.ubicacion ?? null,
+    caracteristicas: (doc.caracteristicas ?? {}) as Record<string, unknown>,
+    amenidades: doc.amenidades ?? [],
+    amenidadesLibres: doc.amenidadesLibres ?? [],
+    reglas: doc.reglas ?? null,
+    estado: doc.estado,
+    fotos: (doc.fotos ?? []).map((f) => ({ fileId: f.fileId ?? null, url: f.url, alt: f.alt })),
+  };
+}
+
+/** Asistente de publicación: 6 pasos + revisión. Alta o edición. Solo propietarios. */
+export default async function PublicarPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ editar?: string }>;
+}) {
   const user = await getSessionUser();
   if (!user) redirect("/login?error=sesion");
 
@@ -50,15 +78,29 @@ export default async function PublicarPage() {
     );
   }
 
+  const { editar } = await searchParams;
+  const doc = editar ? await getPorSlugDelOwner(editar, user.id) : null;
+  if (editar && !doc) {
+    return (
+      <section className="discover-section">
+        <h2>Editar publicación</h2>
+        <p>No encontramos esa publicación en tu cuenta.</p>
+        <Link href="/propietario" className="link">
+          Volver al panel
+        </Link>
+      </section>
+    );
+  }
+
   return (
     <section className="discover-section panel-section">
       <div className="panel-head">
-        <h2>Nueva publicación</h2>
+        <h2>{doc ? "Editar publicación" : "Nueva publicación"}</h2>
         <Link href="/propietario" className="publish-btn">
           Volver al panel
         </Link>
       </div>
-      <AsistentePublicacion />
+      <AsistentePublicacion inicial={doc ? serializar(doc) : undefined} />
     </section>
   );
 }

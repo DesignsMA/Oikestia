@@ -109,6 +109,9 @@ export default function PanelPublicaciones({ items, puedePausar }: { items: Item
               </p>
             </div>
             <div className="panel-item-acciones">
+              <Link href={`/propietario/publicar?editar=${encodeURIComponent(it.slug)}`} className="panel-btn">
+                Editar
+              </Link>
               {puedePausar && it.estado === "publicada" && (
                 <button
                   type="button"
