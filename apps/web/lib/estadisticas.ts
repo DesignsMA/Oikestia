@@ -1,6 +1,7 @@
 import { createHash } from "crypto";
 import type { ObjectId } from "mongodb";
 import { getCollections } from "./db";
+import { demografiaDe, type Demografia } from "./demografia";
 
 /**
  * Registro de interacciones de una publicación. Las métricas son agregadas y
@@ -19,7 +20,8 @@ function hashVisitante(ip: string, ua: string, dia: string): string {
 export async function registrarVisita(
   listingId: ObjectId,
   ip: string,
-  ua: string
+  ua: string,
+  intereses: string[] = []
 ): Promise<void> {
   try {
     const { listings, vistas } = await getCollections();
@@ -30,6 +32,11 @@ export async function registrarVisita(
     const inc: Record<string, number> = { "estadisticas.visitas": 1 };
     if (!antes) {
       inc["estadisticas.usuariosUnicos"] = 1;
+      // Demográficas: solo en el primer contacto del visitante con la publicación.
+      const demo: Demografia = demografiaDe(ua, intereses);
+      for (const [campo, valor] of Object.entries(demo)) {
+        if (valor) inc[`estadisticas.demograficas.${campo}.${valor}`] = 1;
+      }
       await vistas.updateOne(
         { listingId, visitante },
         {

@@ -67,7 +67,7 @@ export default async function ListingDetailPage({
   if (!esMia) {
     const h = await headers();
     const ip = (h.get("x-forwarded-for")?.split(",")[0] ?? h.get("x-real-ip") ?? "local").trim();
-    void registrarVisita(listing._id, ip, h.get("user-agent") ?? "");
+    void registrarVisita(listing._id, ip, h.get("user-agent") ?? "", usuario?.intereses ?? []);
     void incrementar(listing._id, "vecesMostradoContacto");
     const ref = typeof sp.ref === "string" ? sp.ref : "";
     if (ref === "busq") void incrementar(listing._id, "desdeBusqueda");
