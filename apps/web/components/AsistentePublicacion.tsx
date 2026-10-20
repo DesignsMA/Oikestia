@@ -107,6 +107,39 @@ const VACIO: Campos = {
   piso: "",
 };
 
+/** Borrador del asistente guardado en el navegador (solo modo creación). */
+type Borrador = {
+  campos: Campos;
+  amenidades: string[];
+  amenidadesLibres: string[];
+  espacios: string[];
+  reglas: {
+    amueblado: boolean;
+    aceptaMascotas: boolean;
+    fumaPermitido: boolean;
+    incluyeServicios: string[];
+    requisitosOcupantes: string[];
+  };
+  coords: { lat: number; lng: number } | null;
+  paso: number;
+  actualizado: string;
+};
+
+const CLAVE_BORRADOR = "oikestia.borrador.publicacion";
+
+function leerBorrador(): Borrador | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.localStorage.getItem(CLAVE_BORRADOR);
+    if (!raw) return null;
+    const b = JSON.parse(raw) as Borrador;
+    if (!b || typeof b !== "object" || !b.campos) return null;
+    return { ...b, campos: { ...VACIO, ...b.campos } };
+  } catch {
+    return null;
+  }
+}
+
 /** Campos numéricos que se muestran según el tipo de propiedad. */
 function camposNumDe(tipo: string): CampoNum[] {
   const aplican = (CARACTERISTICAS_POR_TIPO as Record<string, readonly string[]>)[tipo] ?? [];
@@ -206,9 +239,92 @@ export default function AsistentePublicacion({ inicial }: { inicial?: Publicacio
   );
   const [geocodificando, setGeocodificando] = useState(false);
   const [avisoMapa, setAvisoMapa] = useState<string | null>(null);
+  const [avisoBorrador, setAvisoBorrador] = useState<string | null>(null);
+  const [draftListo, setDraftListo] = useState(false);
   const fotosRef = useRef<HTMLInputElement>(null);
 
   const totalFotos = fotos.length + fotosExistentes.length;
+
+  /* Restaura el borrador guardado (solo modo creación, sin publicación inicial). */
+  useEffect(() => {
+    if (edicion) {
+      setDraftListo(true);
+      return;
+    }
+    const b = leerBorrador();
+    if (b) {
+      setCampos(b.campos);
+      setAmenidades(b.amenidades ?? []);
+      setAmenidadesLibres(b.amenidadesLibres ?? []);
+      setEspacios(b.espacios ?? []);
+      setReglas({
+        amueblado: b.reglas?.amueblado ?? false,
+        aceptaMascotas: b.reglas?.aceptaMascotas ?? false,
+        fumaPermitido: b.reglas?.fumaPermitido ?? false,
+        incluyeServicios: b.reglas?.incluyeServicios ?? [],
+        requisitosOcupantes: b.reglas?.requisitosOcupantes ?? [],
+      });
+      setCoords(b.coords ?? null);
+      setPaso(Math.min(Math.max(0, b.paso ?? 0), PASOS.length - 1));
+      const cuando = new Date(b.actualizado);
+      if (!Number.isNaN(cuando.getTime())) {
+        setAvisoBorrador(
+          `Recuperamos tu borrador del ${cuando.toLocaleString("es-MX", {
+            day: "2-digit",
+            month: "short",
+            hour: "2-digit",
+            minute: "2-digit",
+          })}.`
+        );
+      }
+    }
+    setDraftListo(true);
+    // Solo al montar.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  /* Guarda el borrador al cambiar (solo modo creación, tras restaurar). */
+  useEffect(() => {
+    if (edicion || !draftListo) return;
+    const borrador: Borrador = {
+      campos,
+      amenidades,
+      amenidadesLibres,
+      espacios,
+      reglas,
+      coords,
+      paso,
+      actualizado: new Date().toISOString(),
+    };
+    try {
+      window.localStorage.setItem(CLAVE_BORRADOR, JSON.stringify(borrador));
+      setAvisoBorrador("Borrador guardado en este navegador.");
+    } catch {
+      /* localStorage lleno o no disponible: se ignora */
+    }
+  }, [edicion, draftListo, campos, amenidades, amenidadesLibres, espacios, reglas, coords, paso]);
+
+  function descartarBorrador() {
+    try {
+      window.localStorage.removeItem(CLAVE_BORRADOR);
+    } catch {
+      /* sin acceso */
+    }
+    setAvisoBorrador("Borrador descartado.");
+    setCampos(VACIO);
+    setAmenidades([]);
+    setAmenidadesLibres([]);
+    setEspacios([]);
+    setReglas({
+      amueblado: false,
+      aceptaMascotas: false,
+      fumaPermitido: false,
+      incluyeServicios: [],
+      requisitosOcupantes: [],
+    });
+    setCoords(null);
+    setPaso(0);
+  }
 
   const previews = useMemo(() => fotos.map((f) => ({ f, url: URL.createObjectURL(f) })), [fotos]);
   useEffect(() => {
@@ -373,6 +489,13 @@ export default function AsistentePublicacion({ inicial }: { inicial?: Publicacio
         setEnviando(false);
         return;
       }
+      if (!esEdicion) {
+        try {
+          window.localStorage.removeItem(CLAVE_BORRADOR);
+        } catch {
+          /* sin acceso */
+        }
+      }
       router.push(`/publicaciones/${data.slug}`);
       router.refresh();
     } catch {
@@ -401,6 +524,15 @@ export default function AsistentePublicacion({ inicial }: { inicial?: Publicacio
       {error && (
         <p className="contact-aviso contact-error" role="alert">
           {error}
+        </p>
+      )}
+
+      {!edicion && avisoBorrador && (
+        <p className="asistente-borrador" role="status">
+          <span>{avisoBorrador}</span>
+          <button type="button" className="asistente-borrador-descartar" onClick={descartarBorrador}>
+            Descartar borrador
+          </button>
         </p>
       )}
 

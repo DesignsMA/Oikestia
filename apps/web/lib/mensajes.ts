@@ -5,6 +5,9 @@ import { decryptField } from "./crypto";
 
 /** Mensajes por lead: un hilo por contacto/visita; acceso validado contra el documento. */
 
+/** Tamaño de página de la lista de hilos. */
+export const HILOS_POR_PAGINA = 20;
+
 export type HiloUI = {
   id: string;
   listingSlug: string;
@@ -19,6 +22,14 @@ export type HiloUI = {
   ultimoCreado: string | null;
   /** true si el último mensaje del hilo es mío. */
   ultimoMio: boolean | null;
+};
+
+/** Página de hilos con metadatos de paginación. */
+export type HilosPagina = {
+  hilos: HiloUI[];
+  total: number;
+  hayMas: boolean;
+  pagina: number;
 };
 
 export type MensajeUI = {
@@ -182,7 +193,7 @@ async function accesoLead(leadHex: string): Promise<Acceso> {
 }
 
 /** Hilos de la sesión actual: recibidos (owner) o iniciados (user). */
-export async function hilosDeSesion(): Promise<HiloUI[] | null> {
+export async function hilosDeSesion(opts?: { pagina?: number }): Promise<HilosPagina | null> {
   const sesion = await getSessionUser();
   if (!sesion) return null;
   await ensureIndexes();
@@ -202,12 +213,16 @@ export async function hilosDeSesion(): Promise<HiloUI[] | null> {
     filtro = { userId: sesion.id };
   }
 
+  const pagina = Math.max(0, Math.floor(opts?.pagina ?? 0));
+  const tamano = HILOS_POR_PAGINA;
+  const total = await leads.countDocuments(filtro);
   const docs = (await leads
     .find(filtro)
     .sort({ creado: -1 })
-    .limit(50)
+    .skip(pagina * tamano)
+    .limit(tamano)
     .toArray()) as unknown as Lead[];
-  if (!docs.length) return [];
+  if (!docs.length) return { hilos: [], total, hayMas: false, pagina };
 
   // Último mensaje por hilo en una sola agregación.
   const ultimos = await messages
@@ -238,7 +253,7 @@ export async function hilosDeSesion(): Promise<HiloUI[] | null> {
     })
   );
 
-  return docs.map((lead) => {
+  const hilos = docs.map((lead) => {
     const u = porLead.get(String(lead._id));
     const pub = pubs.find((p) => String(p._id) === String(lead.listingId));
     const yoInicie = lead.userId === sesion.id;
@@ -259,6 +274,7 @@ export async function hilosDeSesion(): Promise<HiloUI[] | null> {
       ultimoMio: u ? String(u.emisorId ?? "") === sesion.id : null,
     };
   });
+  return { hilos, total, hayMas: (pagina + 1) * tamano < total, pagina };
 }
 
 /** Hilo completo con mensajes (solo participantes). */
