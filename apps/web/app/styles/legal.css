@@ -1,0 +1,163 @@
+/* Páginas de contenido: información, legales y ayuda. */
+
+.contenido {
+    max-width: 48rem;
+    margin: 0 auto;
+    padding: 2.2rem 1.25rem 3.5rem;
+    color: var(--color-neutral-darker);
+    line-height: 1.65;
+}
+
+.contenido-cabecera {
+    margin-bottom: 1.6rem;
+}
+
+.contenido-eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-primary);
+    margin-bottom: 0.5rem;
+}
+
+.contenido h1 {
+    font-size: 2rem;
+    line-height: 1.2;
+    margin: 0 0 0.6rem;
+}
+
+.contenido-intro {
+    font-size: 1.05rem;
+    color: var(--color-neutral-dark, #52525b);
+    margin: 0;
+}
+
+.contenido-bloque {
+    margin-top: 2rem;
+}
+
+.contenido-bloque h2 {
+    font-size: 1.25rem;
+    margin: 0 0 0.6rem;
+}
+
+.contenido-bloque h3 {
+    font-size: 1.05rem;
+    margin: 1.3rem 0 0.4rem;
+}
+
+.contenido-bloque p {
+    margin: 0 0 0.8rem;
+}
+
+.contenido-bloque ul,
+.contenido-bloque ol {
+    margin: 0 0 0.9rem;
+    padding-left: 1.3rem;
+}
+
+.contenido-bloque li {
+    margin-bottom: 0.35rem;
+}
+
+.contenido-aviso {
+    margin-top: 2rem;
+    padding: 0.9rem 1.1rem;
+    border: 1px solid var(--color-border, #e4e4e7);
+    border-radius: 10px;
+    background: var(--color-surface, #fafafa);
+    font-size: 0.9rem;
+    color: var(--color-neutral-dark, #52525b);
+}
+
+.contenido-fecha {
+    margin-top: 2rem;
+    font-size: 0.85rem;
+    color: var(--color-neutral, #71717a);
+}
+
+.contenido-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    padding: 0.7rem 1.2rem;
+    background: var(--color-primary);
+    color: #fff;
+    font-weight: 600;
+    border-radius: 999px;
+    text-decoration: none;
+    transition: background 0.25s ease;
+}
+
+.contenido-cta:hover {
+    background: var(--color-primary-darker);
+}
+
+/* Rejilla de tarjetas para guía/blog. */
+.contenido-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.contenido-card {
+    display: block;
+    padding: 1.1rem 1.2rem;
+    border: 1px solid var(--color-border, #e4e4e7);
+    border-radius: 12px;
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.contenido-card:hover {
+    border-color: var(--color-primary);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+}
+
+.contenido-card h3 {
+    margin: 0 0 0.35rem;
+    font-size: 1rem;
+}
+
+.contenido-card p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--color-neutral-dark, #52525b);
+}
+
+/* Tabla simple para la guía de precios. */
+.contenido-tabla {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0.5rem 0 1rem;
+    font-size: 0.92rem;
+}
+
+.contenido-tabla th,
+.contenido-tabla td {
+    text-align: left;
+    padding: 0.6rem 0.7rem;
+    border-bottom: 1px solid var(--color-border, #e4e4e7);
+}
+
+.contenido-tabla th {
+    font-weight: 600;
+    color: var(--color-neutral-darker);
+    background: var(--color-surface, #fafafa);
+}
+
+@media (max-width: 640px) {
+    .contenido {
+        padding: 1.6rem 1rem 2.8rem;
+    }
+
+    .contenido h1 {
+        font-size: 1.6rem;
+    }
+}

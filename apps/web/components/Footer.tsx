@@ -14,15 +14,15 @@ export default function Footer() {
           </p>
 
           <div className="footer-social">
-            <a href="" aria-label="Facebook">
+            <Link href="/contacto" aria-label="Facebook">
               <Icon name="i-facebook" />
-            </a>
-            <a href="" aria-label="Instagram">
+            </Link>
+            <Link href="/contacto" aria-label="Instagram">
               <Icon name="i-instagram" />
-            </a>
-            <a href="" aria-label="X">
+            </Link>
+            <Link href="/contacto" aria-label="X">
               <Icon name="i-x" />
-            </a>
+            </Link>
           </div>
         </div>
 
@@ -38,14 +38,14 @@ export default function Footer() {
           <h3>Propietarios</h3>
           <Link href="/registro">Publicar una propiedad</Link>
           <Link href="/propietario">Proceso de verificación</Link>
-          <a href="">Guía de precios</a>
+          <Link href="/guia-de-precios">Guía de precios</Link>
         </div>
 
         <div className="footer-column">
           <h3>Oikestia</h3>
-          <a href="">Sobre nosotros</a>
-          <a href="">Blog</a>
-          <a href="">Contacta a Soporte</a>
+          <Link href="/sobre-nosotros">Sobre nosotros</Link>
+          <Link href="/blog">Blog</Link>
+          <Link href="/contacto">Contacta a Soporte</Link>
         </div>
       </div>
 
@@ -53,9 +53,9 @@ export default function Footer() {
         <p>© 2026 Oikestia. Todos los derechos reservados.</p>
 
         <nav>
-          <a href="">Política de Privacidad</a>
-          <a href="">Términos de Servicio</a>
-          <a href="">Aviso de Cookies</a>
+          <Link href="/privacidad">Política de Privacidad</Link>
+          <Link href="/terminos">Términos de Servicio</Link>
+          <Link href="/cookies">Aviso de Cookies</Link>
         </nav>
       </div>
     </footer>
