@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Icon, type IconName } from "./IconSprite";
 import type { CardFeature } from "./ListingCardCompact";
 import BotonFavorito from "./BotonFavorito";
+import BotonCompartir from "./BotonCompartir";
 
 type Props = {
   href: string;
@@ -49,6 +50,7 @@ export default function ListingCardDetailed({
             <Icon name="i-heart" />
           </button>
         )}
+        {slug ? <BotonCompartir slug={slug} titulo={title} icono /> : null}
       </div>
 
       <div className="card-body">

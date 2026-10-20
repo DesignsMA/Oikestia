@@ -218,6 +218,38 @@
     transform: scale(1.1);
 }
 
+/* Botón de compartir (solo icono) debajo del favorito */
+.property-card-compact .card-share-icono {
+    position: absolute;
+    top: 3.25rem;
+    left: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.2rem;
+    height: 2.2rem;
+    margin: 0;
+    padding: 0;
+    color: var(--color-neutral-darker);
+    background-color: var(--color-white);
+    border: none;
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+    cursor: pointer;
+    transition: color 0.3s ease, background-color 0.3s ease, transform 0.3s ease;
+}
+
+.property-card-compact .card-share-icono svg {
+    width: 18px;
+    height: 18px;
+}
+
+.property-card-compact .card-share-icono:hover {
+    color: var(--color-white);
+    background-color: var(--color-primary);
+    transform: scale(1.1);
+}
+
 .card-fav-activo {
     color: var(--color-white) !important;
     background-color: var(--color-primary-darker) !important;

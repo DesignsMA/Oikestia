@@ -3,10 +3,10 @@
 import { useState } from "react";
 import { Icon } from "./IconSprite";
 
-type Props = { slug: string; titulo: string };
+type Props = { slug: string; titulo: string; icono?: boolean };
 
 /** Botón de compartir: usa Web Share API si existe y, en su defecto, copia el enlace. */
-export default function BotonCompartir({ slug, titulo }: Props) {
+export default function BotonCompartir({ slug, titulo, icono = false }: Props) {
   const [copiado, setCopiado] = useState(false);
   const [ocupado, setOcupado] = useState(false);
 
@@ -41,9 +41,15 @@ export default function BotonCompartir({ slug, titulo }: Props) {
   }
 
   return (
-    <button type="button" className="card-share" aria-label="Compartir publicación" onClick={compartir} disabled={ocupado}>
+    <button
+      type="button"
+      className={icono ? "card-share card-share-icono" : "card-share"}
+      aria-label="Compartir publicación"
+      onClick={compartir}
+      disabled={ocupado}
+    >
       <Icon name={copiado ? "i-link" : "i-share"} />
-      <span>{copiado ? "Enlace copiado" : "Compartir"}</span>
+      {!icono && <span>{copiado ? "Enlace copiado" : "Compartir"}</span>}
     </button>
   );
 }

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Icon, type IconName } from "./IconSprite";
 import BotonFavorito from "./BotonFavorito";
+import BotonCompartir from "./BotonCompartir";
 
 export type CardFeature = {
   icon: IconName;
@@ -53,6 +54,7 @@ export default function ListingCardCompact({
             rutaLogin={`/login?next=${encodeURIComponent(href)}`}
           />
         ) : null}
+        {slug ? <BotonCompartir slug={slug} titulo={title} icono /> : null}
       </div>
       <div className="card-body">
         <h3 className="card-title">{title}</h3>

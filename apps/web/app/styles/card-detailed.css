@@ -95,6 +95,38 @@
     transform: scale(1.1);
 }
 
+/* Botón de compartir (solo icono) debajo del favorito */
+.property-card-detailed .card-share-icono {
+    position: absolute;
+    top: 4.1rem;
+    right: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.6rem;
+    height: 2.6rem;
+    margin: 0;
+    padding: 0;
+    color: var(--color-neutral-darker);
+    background-color: var(--color-white);
+    border: none;
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+    cursor: pointer;
+    transition: color 0.3s ease, background-color 0.3s ease, transform 0.3s ease;
+}
+
+.property-card-detailed .card-share-icono svg {
+    width: 20px;
+    height: 20px;
+}
+
+.property-card-detailed .card-share-icono:hover {
+    color: var(--color-white);
+    background-color: var(--color-primary);
+    transform: scale(1.1);
+}
+
 /* El corazón se rellena cuando la card está marcada como favorita:
    basta con añadir la clase .is-fav al <article> */
 .property-card-detailed.is-fav .card-fav {
