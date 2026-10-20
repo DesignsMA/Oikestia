@@ -20,6 +20,7 @@ import { esFavorito } from "@/lib/favoritos";
 import { registrarVisita, incrementar } from "@/lib/estadisticas";
 import { headers } from "next/headers";
 import BotonFavorito from "@/components/BotonFavorito";
+import BotonCompartir from "@/components/BotonCompartir";
 import GaleriaFicha from "@/components/GaleriaFicha";
 import Cercanas from "@/components/Cercanas";
 import "@/app/styles/listing.css";
@@ -71,14 +72,6 @@ export default async function ListingDetailPage({
     const ref = typeof sp.ref === "string" ? sp.ref : "";
     if (ref === "busq") void incrementar(listing._id, "desdeBusqueda");
     else if (ref === "rec") void incrementar(listing._id, "desdeRecomendaciones");
-  }
-
-  // Estadística de visita (agregada y anónima): no bloquea el render.
-  if (!esMia) {
-    const h = await headers();
-    const ip = (h.get("x-forwarded-for")?.split(",")[0] ?? h.get("x-real-ip") ?? "local").trim();
-    void registrarVisita(listing._id, ip, h.get("user-agent") ?? "");
-    void incrementar(listing._id, "vecesMostradoContacto");
   }
 
   const rutaLogin = `/login?next=${encodeURIComponent(`/publicaciones/${slug}`)}`;
@@ -242,6 +235,7 @@ export default async function ListingDetailPage({
                 <span>{favorito ? "Guardada en favoritos" : "Guardar en favoritos"}</span>
               </div>
             )}
+            <BotonCompartir slug={slug} titulo={listing.titulo} />
           </section>
         </aside>
       </div>

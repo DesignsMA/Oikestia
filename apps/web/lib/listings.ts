@@ -348,6 +348,13 @@ export async function getPorSlug(slug: string): Promise<ListingDoc | null> {
   return doc as ListingDoc | null;
 }
 
+/** Id de una publicación publicada por slug (para métricas externas). */
+export async function getPublicadaIdPorSlug(slug: string): Promise<ObjectId | null> {
+  const { listings } = await getCollections();
+  const doc = await listings.findOne({ slug, estado: "publicada" }, { projection: { _id: 1 } });
+  return doc ? (doc._id as ObjectId) : null;
+}
+
 /** Publicaciones de un propietario, cualquier estado. */
 export async function getPorOwner(ownerId: string): Promise<ListingDoc[]> {
   const { listings } = await getCollections();
