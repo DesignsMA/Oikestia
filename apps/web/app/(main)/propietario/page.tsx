@@ -4,7 +4,6 @@ import { redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/auth";
 import { getPorOwner, formatearPrecio, type ListingDoc } from "@/lib/listings";
 import PanelPublicaciones from "@/components/PanelPublicaciones";
-import PanelVerificacion from "@/components/PanelVerificacion";
 import "@/app/styles/homepage.css";
 import "@/app/styles/intereses.css";
 import "@/app/styles/panel.css";
@@ -74,10 +73,12 @@ export default async function PropietarioPage() {
       {!puedePublicar ? (
         <div className="panel-aviso">
           <p>
-            <strong>Tu cuenta aún no está verificada.</strong> Sube una foto de tu identificación
-            oficial para que podamos revisarla; hasta entonces no puedes publicar.
+            <strong>Tu cuenta aún no está verificada.</strong> Verifícate con tu nombre y tu
+            INE para poder publicar propiedades.
           </p>
-          <PanelVerificacion />
+          <Link href="/cuenta/verificacion" className="panel-btn panel-btn-primario">
+            Iniciar verificación
+          </Link>
         </div>
       ) : (
         <p className="panel-estado-ok">

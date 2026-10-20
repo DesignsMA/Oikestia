@@ -10,6 +10,7 @@ export type IconName =
   | "i-instagram"
   | "i-x"
   | "i-gallery"
+  | "i-close"
   | "i-clock"
   | "i-garage"
   | "i-verified"
@@ -80,6 +81,10 @@ export default function IconSprite() {
       <symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M4 4l11.733 16h4.267l-11.733 -16z" />
         <path d="M4 20l6.768 -6.768m2.46 -2.46l6.772 -6.772" />
+      </symbol>
+      <symbol id="i-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M18 6l-12 12" />
+        <path d="M6 6l12 12" />
       </symbol>
       <symbol id="i-gallery" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path stroke="none" d="M0 0h24v24H0z" fill="none" />

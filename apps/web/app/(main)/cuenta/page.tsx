@@ -3,7 +3,6 @@ import { redirect } from "next/navigation";
 import "@/app/styles/cuenta.css";
 import { getSessionUser } from "@/lib/auth";
 import { ultimaVerificacion } from "@/lib/verificaciones";
-import PanelVerificacion from "@/components/PanelVerificacion";
 
 const MENSAJES_ERROR: Record<string, string> = {
   "3": "Revisa el nombre: máximo 60 caracteres.",
@@ -37,7 +36,9 @@ export default async function CuentaPage({
         : verificacion.estado === "rechazado"
           ? "Rechazada"
           : "Sin iniciar";
-  const puedeVerificarse = user.rol === "owner" && !user.verificado && !autoVerify;
+  const esOwner = user.rol === "owner";
+  // Un usuario normal puede habilitar permisos de propietario verificándose.
+  const puedeVerificarse = !user.verificado && (!esOwner || !autoVerify);
 
   return (
     <section className="cuenta">
@@ -111,22 +112,37 @@ export default async function CuentaPage({
       </div>
 
       <div className="cuenta-bloque">
-        <h2>Verificación</h2>
-        <p className="cuenta-ayuda">
-          Estado actual: <strong>{estadoVerif}</strong>.
-          {user.rol !== "owner" &&
-            " La verificación de identidad está disponible solo para cuentas de propietario."}
-          {autoVerify && user.rol === "owner" && " (modo desarrollo: verificada automáticamente)."}
-        </p>
+        <h2>{esOwner ? "Verificación" : "Cuenta de propietario"}</h2>
 
-        {puedeVerificarse && (
+        {esOwner ? (
+          <p className="cuenta-ayuda">
+            Estado actual: <strong>{estadoVerif}</strong>.
+            {autoVerify && " (modo desarrollo: verificada automáticamente)."}
+          </p>
+        ) : (
+          <p className="cuenta-ayuda">
+            Para publicar propiedades necesitas habilitar los permisos de propietario.
+            Verifícate con tu nombre completo y tu INE; no necesitas crear otra cuenta.
+          </p>
+        )}
+
+        {puedeVerificarse ? (
           <>
             <p className="cuenta-ayuda">
-              Sube una foto de tu identificación oficial para habilitar la publicación de
-              propiedades. La revisión puede tardar hasta 48 horas hábiles.
+              {esOwner
+                ? "Sube una foto de tu identificación oficial para poder publicar propiedades."
+                : "Al verificarte, tu cuenta adquiere permisos de propietario."}
             </p>
-            <PanelVerificacion />
+            <Link className="cuenta-enlace" href="/cuenta/verificacion">
+              {esOwner ? "Iniciar verificación" : "Habilitar cuenta de propietario"}
+            </Link>
           </>
+        ) : (
+          !esOwner && (
+            <p className="cuenta-ayuda">
+              Tu cuenta ya tiene permisos de propietario.
+            </p>
+          )
         )}
       </div>
 

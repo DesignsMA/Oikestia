@@ -1,14 +1,72 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 
 /** Formularios de registro (usuario / propietario) con cambio de rol. */
 export default function SignupForms() {
   const [role, setRole] = useState<"user" | "owner">("user");
+  const [error, setError] = useState<string | null>(null);
+  const [enviando, setEnviando] = useState(false);
   const isUser = role === "user";
+
+  /**
+   * Envía el formulario por fetch para poder mostrar los errores en un modal
+   * en lugar de dejar que el navegador renderice el JSON de la API.
+   */
+  async function enviar(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (enviando) return;
+    const form = e.currentTarget;
+    setEnviando(true);
+    try {
+      const res = await fetch(form.action, {
+        method: "post",
+        headers: { Accept: "application/json" },
+        body: new FormData(form),
+      });
+
+      const data = (await res.json().catch(() => null)) as
+        | { ok?: boolean; error?: string; ruta?: string }
+        | null;
+
+      if (res.ok && data?.ok) {
+        window.location.assign(data.ruta || "/");
+        return;
+      }
+
+      setError(data?.error ?? "No se pudo completar el registro. Intenta de nuevo.");
+    } catch {
+      setError("No se pudo conectar con el servidor. Intenta de nuevo.");
+    } finally {
+      setEnviando(false);
+    }
+  }
 
   return (
     <>
+      {error && (
+        <div
+          className="modal-overlay"
+          role="alertdialog"
+          aria-modal="true"
+          aria-labelledby="signup-error-titulo"
+          onClick={() => setError(null)}
+        >
+          <div className="modal-caja" onClick={(e) => e.stopPropagation()}>
+            <h2 id="signup-error-titulo">No pudimos crear tu cuenta</h2>
+            <p className="modal-texto">{error}</p>
+            <button
+              type="button"
+              className="modal-cerrar"
+              onClick={() => setError(null)}
+              autoFocus
+            >
+              Entendido
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="signup-switch-role">
         <button
           type="button"
@@ -27,7 +85,7 @@ export default function SignupForms() {
       </div>
 
       {isUser ? (
-        <form action="/api/auth/registro" method="post" className="signup-form-user">
+        <form action="/api/auth/registro" method="post" className="signup-form-user" onSubmit={enviar}>
           <fieldset className="signup-fieldset">
             <label htmlFor="user-username">Nombre de usuario</label>
             <div className="signup-name">
@@ -96,7 +154,7 @@ export default function SignupForms() {
           <input type="submit" value="Registrarse como usuario" />
         </form>
       ) : (
-        <form action="/api/auth/registro" method="post" className="signup-form-owner">
+        <form action="/api/auth/registro" method="post" className="signup-form-owner" onSubmit={enviar}>
           <div className="signup-verification-info">
             <svg
               xmlns="http://www.w3.org/2000/svg"

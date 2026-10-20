@@ -133,6 +133,12 @@ export const visitaSchema = z.object({
 
 /** Documento de verificación de identidad (solo metadatos; el archivo va a GridFS). */
 export const verificacionSchema = z.object({
+  fullname: z
+    .string()
+    .normalize("NFKC")
+    .trim()
+    .min(5, "Escribe tu nombre completo como aparece en tu INE")
+    .max(120, "El nombre es demasiado largo"),
   tipoDocumento: z.enum(["ine", "pasaporte", "cedula"], { message: "Elige el tipo de documento" }),
 });
 

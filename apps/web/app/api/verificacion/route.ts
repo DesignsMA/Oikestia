@@ -5,17 +5,18 @@ import { getCollections, ensureIndexes } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth";
 import { verificacionSchema } from "@/lib/validators";
 import { subirArchivo } from "@/lib/storage";
+import { encryptField } from "@/lib/crypto";
 import { consumir, HORA } from "@/lib/rate-limit";
 import { cuerpoEnLimites } from "@/lib/guardas";
 
-/** Verificación de identidad: documento a GridFS (bucket "documentos") con estado pendiente. */
+/**
+ * Verificación de identidad (nombre + INE): guarda el documento en GridFS y,
+ * al completarse, habilita permisos de propietario (rol=owner, verificado=true).
+ */
 export async function POST(req: NextRequest) {
   const user = await getSessionUser();
   if (!user) {
     return NextResponse.json({ ok: false, error: "Inicia sesión" }, { status: 401 });
-  }
-  if (user.rol !== "owner") {
-    return NextResponse.json({ ok: false, error: "Solo propietarios se verifican" }, { status: 403 });
   }
   if (user.verificado) {
     return NextResponse.json({ ok: true, estado: "verificado", yaVerificado: true });
@@ -39,6 +40,7 @@ export async function POST(req: NextRequest) {
   }
 
   const parsed = verificacionSchema.safeParse({
+    fullname: form.get("fullname")?.toString() ?? "",
     tipoDocumento: form.get("tipoDocumento")?.toString() ?? "",
   });
   if (!parsed.success) {
@@ -72,19 +74,23 @@ export async function POST(req: NextRequest) {
       resueltoEn: autoVerify ? ahora : null,
     });
 
-    if (autoVerify) {
-      await users.updateOne(
-        { usernameNorm: user.username.toLowerCase() },
-        { $set: { verificado: true, actualizado: ahora } }
-      );
-    }
+    // Al verificarse se habilitan los permisos de propietario en la misma cuenta.
+    await users.updateOne(
+      { _id: ObjectId.createFromHexString(user.id) },
+      {
+        $set: {
+          rol: "owner",
+          verificado: true,
+          fullname_enc: encryptField(parsed.data.fullname),
+          actualizado: ahora,
+        },
+      }
+    );
 
     return NextResponse.json({
       ok: true,
-      estado,
-      mensaje: autoVerify
-        ? "Cuenta verificada (modo desarrollo). Ya puedes publicar."
-        : "Documento recibido. La revisión puede tardar hasta 48 horas hábiles.",
+      estado: "verificado",
+      mensaje: "Cuenta verificada. Ya puedes publicar propiedades.",
     });
   } catch (e) {
     console.error("verificacion", e);

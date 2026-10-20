@@ -59,7 +59,7 @@ export default function Galeria({ fotos, titulo, inicial = 0, abierto, onCerrar 
       onClick={onCerrar}
     >
       <button type="button" className="galeria-cerrar" onClick={onCerrar} aria-label="Cerrar galería">
-        <Icon name="i-x" />
+        <Icon name="i-close" />
       </button>
 
       {fotos.length > 1 && (

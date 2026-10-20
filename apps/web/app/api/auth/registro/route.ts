@@ -9,6 +9,9 @@ import { cuerpoEnLimites, destino, ipDe } from "@/lib/guardas";
 
 const NORM = (v: string) => v.normalize("NFKC").trim();
 
+/** Intereses por defecto para propietarios (no se les pide configurarlos). */
+const INTERESES_OWNER = ["casa", "departamento", "comprar", "rentar"];
+
 /** Registro de usuario o propietario. Formularios: /registro, /propietario. */
 export async function POST(req: NextRequest) {
   if (!cuerpoEnLimites(req, 64 * 1024)) {
@@ -79,7 +82,7 @@ export async function POST(req: NextRequest) {
       password_enc: await hashPassword(data.password),
       rol,
       verificado: rol === "owner" && process.env.DEV_AUTO_VERIFY === "true",
-      intereses: [] as string[],
+      intereses: rol === "owner" ? INTERESES_OWNER : ([] as string[]),
       compartir: { correo: true, telefono: false, redes: false },
       creado: now,
       actualizado: now,
@@ -90,6 +93,12 @@ export async function POST(req: NextRequest) {
     await createSession(String(result.insertedId));
 
     const ruta = rol === "owner" ? "/propietario" : "/registro/intereses";
+
+    // Con JS el cliente pide JSON y navega por su cuenta; sin JS se redirige.
+    const quiereJson = req.headers.get("accept")?.includes("application/json");
+    if (quiereJson) {
+      return NextResponse.json({ ok: true, ruta });
+    }
     return NextResponse.redirect(destino(req, ruta), 303);
   } catch (e) {
     console.error("registro", e);

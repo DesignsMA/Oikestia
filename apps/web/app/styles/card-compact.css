@@ -223,8 +223,10 @@
     background-color: var(--color-primary-darker) !important;
 }
 
-.card-fav-activo svg {
-    fill: currentColor;
+.card-fav-activo svg,
+.card-fav-activo svg path {
+    fill: var(--color-white);
+    stroke: var(--color-white);
 }
 
 /* ---- Responsive ---- */

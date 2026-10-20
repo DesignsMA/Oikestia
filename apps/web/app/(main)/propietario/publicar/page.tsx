@@ -40,9 +40,9 @@ export default async function PublicarPage() {
       <section className="discover-section">
         <h2>Nueva publicación</h2>
         <p>
-          Tu cuenta aún no está verificada. Primero sube tu documento de identidad desde el{" "}
-          <Link href="/propietario" className="link">
-            panel de propietarios
+          Tu cuenta aún no está verificada. Primero verifícate con tu nombre y tu INE desde{" "}
+          <Link href="/cuenta/verificacion" className="link">
+            verificación
           </Link>
           .
         </p>

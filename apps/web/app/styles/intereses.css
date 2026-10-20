@@ -79,10 +79,22 @@
     pointer-events: none;
 }
 
-.intereses-chip-activo {
+.intereses-chip-activo,
+.intereses-chip:has(> input:checked) {
     background: var(--color-primary);
     color: var(--color-white);
     border-color: var(--color-primary);
+}
+
+/* Si el checkbox está desmarcado, el estilo activo del servidor se anula. */
+.intereses-chip:has(> input:not(:checked)) {
+    background: var(--color-neutral-light);
+    color: var(--color-neutral-darkest);
+    border-color: var(--border-light);
+}
+
+.intereses-chip:has(> input:checked) > span {
+    color: var(--color-white);
 }
 
 .intereses-submit {

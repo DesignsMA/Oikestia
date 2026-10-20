@@ -102,8 +102,10 @@
     background-color: var(--color-primary-darker);
 }
 
-.property-card-detailed.is-fav .card-fav svg {
-    fill: currentColor;
+.property-card-detailed.is-fav .card-fav svg,
+.property-card-detailed.is-fav .card-fav svg path {
+    fill: var(--color-white);
+    stroke: var(--color-white);
 }
 
 /* Estado activo controlado por el componente cliente (sin recargar la card). */
@@ -112,8 +114,10 @@
     background-color: var(--color-primary-darker);
 }
 
-.property-card-detailed .card-fav.card-fav-activo svg {
-    fill: currentColor;
+.property-card-detailed .card-fav.card-fav-activo svg,
+.property-card-detailed .card-fav.card-fav-activo svg path {
+    fill: var(--color-white);
+    stroke: var(--color-white);
 }
 
 /* ---- Cuerpo ---- */

@@ -471,8 +471,10 @@
     border-color: var(--color-primary-darker);
 }
 
-.contact-favorito .card-fav.card-fav-activo svg {
-    fill: currentColor;
+.contact-favorito .card-fav.card-fav-activo svg,
+.contact-favorito .card-fav.card-fav-activo svg path {
+    fill: var(--color-white);
+    stroke: var(--color-white);
 }
 
 
