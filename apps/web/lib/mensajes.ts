@@ -125,7 +125,7 @@ async function usuarioBasico(userId: ObjectId): Promise<UsuarioBasico> {
     }
 
     const pref = {
-      correo: u.compartir?.correo ?? true,
+      correo: u.compartir?.correo ?? false,
       telefono: u.compartir?.telefono ?? false,
       redes: u.compartir?.redes ?? false,
     };
@@ -372,7 +372,8 @@ export async function enviarMensaje(
 }
 
 /** Mensajes sin leer en los hilos de la sesión (recibidos y no abiertos). */
-export async function noLeidos(): Promise<number> {  try {
+export async function noLeidos(): Promise<number> {
+  try {
     const sesion = await getSessionUser();
     if (!sesion) return 0;
 
@@ -509,7 +510,12 @@ export async function solicitarVisita(
     return {
       ok: false,
       status: acceso.status,
-      error: acceso.status === 403 ? "No es tu conversación" : "Conversación no encontrada",
+      error:
+        acceso.status === 401
+          ? "Inicia sesión para solicitar la visita"
+          : acceso.status === 403
+            ? "No es tu conversación"
+            : "Conversación no encontrada",
     };
   }
 
@@ -526,9 +532,12 @@ export async function solicitarVisita(
   };
   const res = await messages.insertOne(doc as Document);
 
+  // La solicitud de visita no debe regresar el estado de un hilo ya atendido:
+  // solo promueve a "respondido" cuando el propietario responde y el lead sigue nuevo.
   const cambios: Document = { tipo: "visita" };
-  if ((acceso.lead.estado || "nuevo") === "nuevo") {
-    cambios.estado = acceso.soyOwner ? "respondido" : "nuevo";
+  const estadoActual = acceso.lead.estado || "nuevo";
+  if (acceso.soyOwner && estadoActual === "nuevo") {
+    cambios.estado = "respondido";
   }
   await leads.updateOne({ _id: acceso.lead._id }, { $set: cambios });
 

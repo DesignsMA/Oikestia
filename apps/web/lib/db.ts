@@ -93,6 +93,7 @@ export async function ensureIndexes(): Promise<void> {
   ]);
   await db.collection("messages").createIndexes([
     { key: { leadId: 1, creado: 1 }, name: "lead_creado" },
+    { key: { leadId: 1, leido: 1 }, name: "lead_leido" },
   ]);
   await db.collection("verificaciones").createIndexes([
     { key: { userId: 1, creado: -1 }, name: "user_creado" },

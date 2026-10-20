@@ -36,9 +36,20 @@ export async function generateMetadata({
   const { slug } = await params;
   const listing = await getPorSlug(slug);
   if (!listing) return {};
+  const titulo = `${listing.titulo} — ${formatearPrecio(listing.precio, listing.operacion)}`;
+  const descripcion = `${listing.titulo}: ${formatearPrecio(listing.precio, listing.operacion)} en ${direccionCompleta(listing.direccion)}. Conoce fotos, amenidades, ubicación y contacta directamente al propietario en Oikestia.`;
+  const imagen = listing.fotos[0]?.url;
   return {
-    title: listing.titulo,
-    description: `${listing.titulo}: ${formatearPrecio(listing.precio, listing.operacion)} en ${direccionCompleta(listing.direccion)}. Conoce fotos, amenidades, ubicación y contacta directamente al propietario en Oikestia.`,
+    title: titulo,
+    description: descripcion,
+    alternates: { canonical: `/publicaciones/${slug}` },
+    openGraph: {
+      type: "article",
+      title: titulo,
+      description: descripcion,
+      url: `/publicaciones/${slug}`,
+      images: imagen ? [{ url: imagen }] : undefined,
+    },
   };
 }
 

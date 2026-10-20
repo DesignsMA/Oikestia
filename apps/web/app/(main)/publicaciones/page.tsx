@@ -21,6 +21,7 @@ export const metadata: Metadata = {
   title: "Publicaciones",
   description:
     "Explora las publicaciones de propiedades disponibles en Oikestia: casas, departamentos y terrenos en venta y renta con filtros por precio, amenidades y ubicación.",
+  alternates: { canonical: "/publicaciones" },
 };
 
 export const dynamic = "force-dynamic";
