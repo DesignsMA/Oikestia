@@ -19,6 +19,8 @@ next-env.d.ts
 .env.production.local
 env/
 *.env
+*.env.zip
+.env.zip
 
 # Python (dashboard)
 __pycache__/
