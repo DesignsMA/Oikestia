@@ -63,6 +63,7 @@ export default function BuscadorMapa({ items, inicial }: Props) {
   );
   const [direccion, setDireccion] = useState("");
   const [aviso, setAviso] = useState<string | null>(null);
+  const [mapaListo, setMapaListo] = useState(false);
   const [cargandoGeo, setCargandoGeo] = useState(false);
   const [ubicacionPropia, setUbicacionPropia] = useState(false);
 
@@ -70,6 +71,7 @@ export default function BuscadorMapa({ items, inicial }: Props) {
     if (radio === 0) return items;
     return conCoords.filter((i) => distKm(centro, { lat: i.coords![1], lng: i.coords![0] }) <= radio);
   }, [items, conCoords, centro, radio]);
+  const vacio = radio !== 0 && visibles.length === 0;
 
   /* Inicio único del mapa (Leaflet solo existe en el navegador). */
   useEffect(() => {
@@ -100,6 +102,7 @@ export default function BuscadorMapa({ items, inicial }: Props) {
       }).addTo(map);
       capaRef.current = L.layerGroup().addTo(map);
       mapRef.current = map;
+      setMapaListo(true);
 
       // El contenedor puede empezar con altura 0 (header fijo, fuentes, etc.):
       // se recalcula el tamaño en cada cambio real y en el primer frame pintado.
@@ -150,7 +153,7 @@ export default function BuscadorMapa({ items, inicial }: Props) {
       div.append(a, p);
       L.marker([lat, lng], { icon: icono, alt: it.titulo }).addTo(capa).bindPopup(div);
     }
-  }, [visibles]);
+  }, [visibles, mapaListo]);
 
   async function irA(e: FormEvent) {
     e.preventDefault();
@@ -206,7 +209,7 @@ export default function BuscadorMapa({ items, inicial }: Props) {
   }
 
   return (
-    <div className="buscador-layout">
+    <div className={vacio ? "buscador-layout buscador-layout--vacio" : "buscador-layout"}>
       <aside className="buscador-panel">
         <form className="buscador-buscar" onSubmit={irA}>
           <input
@@ -262,7 +265,7 @@ export default function BuscadorMapa({ items, inicial }: Props) {
           ))}
         </div>
 
-        {radio !== 0 && visibles.length === 0 && (
+        {vacio && (
           <p className="buscador-vacio">Nada en este radio. Prueba un radio mayor o mueve el mapa.</p>
         )}
         {sinCoords > 0 && radio === 0 && (

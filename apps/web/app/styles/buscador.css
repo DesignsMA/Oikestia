@@ -78,6 +78,8 @@
 .buscador-layout {
     display: grid;
     grid-template-columns: 25% 75%;
+    /* Hijo de .discover-section (align-items: fit-content): sin esto se encoge al contenido. */
+    width: 100%;
     align-items: start;
     margin-top: 1rem;
 }
@@ -233,6 +235,15 @@
 .buscador-mapa-pie a {
     color: var(--text-link);
     pointer-events: auto;
+}
+
+/* Estado vacío (radio sin resultados): el panel toma todo el ancho y el mapa se oculta. */
+.buscador-layout.buscador-layout--vacio {
+    display: block;
+}
+
+.buscador-layout--vacio .buscador-mapa {
+    display: none;
 }
 
 @media (max-width: 1100px) {
