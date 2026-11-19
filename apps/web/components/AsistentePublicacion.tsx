@@ -13,6 +13,8 @@ import {
   PERFILES_OCUPANTES_ETIQUETAS,
 } from "@/lib/validators";
 import MapaPin from "./MapaPin";
+import SugerenciasDireccion, { type Elegida } from "./SugerenciasDireccion";
+import type { DireccionParcial } from "@/lib/geoapify";
 
 const PASOS = ["Datos", "Ubicación", "Detalle", "Reglas", "Fotos", "Revisar"] as const;
 
@@ -25,6 +27,9 @@ const ETIQUETA_TIPO: Record<string, string> = {
 
 const MAX_FOTOS = Number(process.env.NEXT_PUBLIC_MAX_FOTOS ?? 20);
 const MAX_MB = Number(process.env.NEXT_PUBLIC_MAX_MB ?? 8);
+
+/** Reverse desde el pin: máximo de metros entre el punto y la dirección devuelta. */
+const UMBRAL_PIN_M = 100;
 
 /** Campos numéricos del inmueble. */
 type CampoNum =
@@ -239,9 +244,12 @@ export default function AsistentePublicacion({ inicial }: { inicial?: Publicacio
   );
   const [geocodificando, setGeocodificando] = useState(false);
   const [avisoMapa, setAvisoMapa] = useState<string | null>(null);
+  const [estadoPin, setEstadoPin] = useState<"idle" | "buscando" | "ok" | "lejos">("idle");
   const [avisoBorrador, setAvisoBorrador] = useState<string | null>(null);
   const [draftListo, setDraftListo] = useState(false);
   const fotosRef = useRef<HTMLInputElement>(null);
+  const relojPinRef = useRef<number | null>(null);
+  const seqPinRef = useRef(0);
 
   const totalFotos = fotos.length + fotosExistentes.length;
 
@@ -337,6 +345,28 @@ export default function AsistentePublicacion({ inicial }: { inicial?: Publicacio
     setCampos((prev) => ({ ...prev, [campo]: valor }));
   }
 
+  /** Rellena campos desde una dirección geocodificada: solo vacíos o todos. */
+  function aplicarDireccion(d: DireccionParcial, modo: "vacio" | "todo") {
+    setCampos((prev) => {
+      const next = { ...prev };
+      for (const k of ["calle", "colonia", "ciudad", "estado", "cp"] as const) {
+        const v = d[k]?.trim();
+        if (!v) continue;
+        if (modo === "todo" || !next[k].trim()) {
+          next[k] = k === "cp" ? v.replace(/\D/g, "").slice(0, 5) : v;
+        }
+      }
+      return next;
+    });
+  }
+
+  /* Limpia el temporizador del reverse al desmontar. */
+  useEffect(() => {
+    return () => {
+      if (relojPinRef.current) window.clearTimeout(relojPinRef.current);
+    };
+  }, []);
+
   function toggleAmenidad(clave: string) {
     setAmenidades((prev) => (prev.includes(clave) ? prev.filter((a) => a !== clave) : [...prev, clave]));
   }
@@ -398,29 +428,84 @@ export default function AsistentePublicacion({ inicial }: { inicial?: Publicacio
 
   async function ubicarEnMapa() {
     if (geocodificando) return;
-    const partes = [campos.calle, campos.colonia, campos.ciudad, campos.estado].filter((p) => p.trim());
-    if (partes.length < 1) {
-      setAvisoMapa("Escribe al menos la calle o la colonia para ubicarla en el mapa.");
+    const hayAlgo = [campos.calle, campos.colonia, campos.ciudad, campos.estado, campos.cp].some((p) =>
+      p.trim()
+    );
+    if (!hayAlgo) {
+      setAvisoMapa("Escribe el código postal o la dirección para ubicarla en el mapa.");
       return;
     }
     setGeocodificando(true);
     setAvisoMapa("Buscando la ubicación…");
     try {
-      const q = `${partes.join(", ")}, México`;
-      const res = await fetch(`/api/geocode?q=${encodeURIComponent(q)}`);
-      const data = (await res.json()) as { ok: boolean; coords?: [number, number]; error?: string };
+      const params = new URLSearchParams();
+      if (campos.calle.trim()) params.set("calle", campos.calle.trim());
+      if (campos.colonia.trim()) params.set("colonia", campos.colonia.trim());
+      if (campos.ciudad.trim()) params.set("ciudad", campos.ciudad.trim());
+      if (campos.estado.trim()) params.set("estado", campos.estado.trim());
+      if (campos.cp) params.set("cp", campos.cp);
+      const res = await fetch(`/api/geocode?${params}`);
+      const data = (await res.json()) as {
+        ok: boolean;
+        coords?: [number, number];
+        direccion?: DireccionParcial;
+        error?: string;
+      };
       if (!data.ok || !data.coords) {
         setAvisoMapa(data.error ?? "No encontramos esa dirección. Mueve el pin manualmente.");
         if (!coords) setCoords({ lat: 19.0414, lng: -98.2063 });
         return;
       }
       setCoords({ lat: data.coords[1], lng: data.coords[0] });
+      // CP-first: la respuesta trae colonia/ciudad/estado deducidos; se llenan los vacíos.
+      if (data.direccion) aplicarDireccion(data.direccion, "vacio");
       setAvisoMapa(null);
+      setEstadoPin("idle");
     } catch {
       setAvisoMapa("Sin conexión con el servidor.");
     } finally {
       setGeocodificando(false);
     }
+  }
+
+  /** Pin movido: guarda las coords y, tras una pausa, rellena la dirección (reverse). */
+  function alMoverPin(lat: number, lng: number) {
+    setCoords({ lat, lng });
+    setEstadoPin("buscando");
+    if (relojPinRef.current) window.clearTimeout(relojPinRef.current);
+    relojPinRef.current = window.setTimeout(async () => {
+      const seq = ++seqPinRef.current;
+      try {
+        const res = await fetch(`/api/geocode/invertir?lat=${lat}&lng=${lng}`);
+        const data = (await res.json()) as {
+          ok: boolean;
+          direccion?: DireccionParcial;
+          distance?: number;
+        };
+        if (seq !== seqPinRef.current) return; // respuesta obsoleta
+        if (!data.ok || !data.direccion) {
+          setEstadoPin("lejos");
+          return;
+        }
+        // Umbral tipo Geoapify: solo llena si la dirección está cerca del pin.
+        if (typeof data.distance === "number" && data.distance > UMBRAL_PIN_M) {
+          setEstadoPin("lejos");
+          return;
+        }
+        aplicarDireccion(data.direccion, "todo");
+        setEstadoPin("ok");
+      } catch {
+        if (seq === seqPinRef.current) setEstadoPin("lejos");
+      }
+    }, 800);
+  }
+
+  /** Sugerencia elegida en el autocomplete: llena todos los campos y ubica el pin. */
+  function alElegirSugerencia(o: Elegida) {
+    aplicarDireccion(o.direccion, "todo");
+    setCoords({ lat: o.lat, lng: o.lng });
+    setAvisoMapa(null);
+    setEstadoPin("idle");
   }
 
   function siguiente() {
@@ -597,6 +682,8 @@ export default function AsistentePublicacion({ inicial }: { inicial?: Publicacio
 
       {paso === 1 && (
         <div className="asistente-cuerpo">
+          <SugerenciasDireccion cerca={coords} onElegir={alElegirSugerencia} />
+
           <label className="verif-label" htmlFor="p-calle">Calle y número</label>
           <input id="p-calle" className="verif-input" value={campos.calle} onChange={(e) => set("calle", e.target.value)} placeholder="Paseo de los Libres 214" maxLength={120} />
 
@@ -632,9 +719,15 @@ export default function AsistentePublicacion({ inicial }: { inicial?: Publicacio
             {avisoMapa && <p className="asistente-mapa-aviso">{avisoMapa}</p>}
             {coords && (
               <>
-                <MapaPin lat={coords.lat} lng={coords.lng} onMover={(lat, lng) => setCoords({ lat, lng })} />
+                <MapaPin lat={coords.lat} lng={coords.lng} onMover={alMoverPin} />
                 <p className="asistente-mapa-pie">
-                  Arrastra el pin o toca el mapa para ajustar la ubicación exacta.
+                  {estadoPin === "buscando"
+                    ? "Actualizando la dirección desde el pin…"
+                    : estadoPin === "ok"
+                      ? "Dirección actualizada desde el pin; puedes editar los campos."
+                      : estadoPin === "lejos"
+                        ? "Sin dirección exacta en ese punto: se guardan solo las coordenadas."
+                        : "Arrastra el pin o toca el mapa para ajustar la ubicación exacta."}
                 </p>
               </>
             )}

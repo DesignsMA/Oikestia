@@ -418,6 +418,56 @@
     z-index: 0;
 }
 
+/* ---- Autocomplete de dirección (Geoapify) ---- */
+
+.sug-dir {
+    position: relative;
+    z-index: 30;
+    margin-bottom: 0.35rem;
+}
+
+.sug-dir-lista {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    z-index: 1100;
+    margin: 0;
+    padding: 0.3rem;
+    list-style: none;
+    max-height: 240px;
+    overflow-y: auto;
+    background: var(--color-white);
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.14);
+}
+
+.sug-dir-opcion {
+    display: block;
+    width: 100%;
+    padding: 0.5rem 0.6rem;
+    font-family: var(--font-body);
+    font-size: var(--font-size-sm);
+    text-align: left;
+    color: var(--color-neutral-dark);
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.sug-dir-opcion:hover,
+.sug-dir-opcion[aria-selected="true"] {
+    background: var(--color-neutral-light);
+}
+
+.sug-dir-nota {
+    margin: 0;
+    font-size: var(--font-size-xs);
+    color: var(--color-neutral-darker);
+}
+
 .asistente-opciones .intereses-opciones {
     margin-top: 0.5rem;
 }

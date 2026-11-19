@@ -37,6 +37,7 @@ services:
       NOMINATIM_CONTACT_EMAIL: ${NOMINATIM_CONTACT_EMAIL:-}
       NOMINATIM_URL: ${NOMINATIM_URL:-https://nominatim.openstreetmap.org}
       GEOCODER: ${GEOCODER:-on}
+      GEOAPIFY_API_KEY: ${GEOAPIFY_API_KEY:-}
     ports:
       - "3000:3000"
 

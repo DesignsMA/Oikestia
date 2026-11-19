@@ -71,6 +71,20 @@ export async function geocodificar(consulta: string): Promise<[number, number] |
 
 export type Direccion = { calle: string; colonia: string; ciudad: string; estado: string; cp: string };
 
+/** Radio máximo (km) entre el ancla del CP y un resultado de calle/colonia. */
+const MAX_KM_CALLE = 15;
+
+/** Distancia en km entre dos puntos GeoJSON [lng, lat]. */
+function distKm(a: [number, number], b: [number, number]): number {
+  const R = 6371;
+  const dLat = ((b[1] - a[1]) * Math.PI) / 180;
+  const dLng = ((b[0] - a[0]) * Math.PI) / 180;
+  const s =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos((a[1] * Math.PI) / 180) * Math.cos((b[1] * Math.PI) / 180) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(s));
+}
+
 /** Quita el número de la calle para buscar de forma tolerante ("Av. Juárez 123" → "Av. Juárez"). */
 function calleSinNumero(calle: string): string {
   return calle.replace(/\s*(no\.?|núm\.?|#)?\s*\d+\s*[a-z]?\s*$/i, "").trim();
@@ -114,11 +128,24 @@ function variantesDireccion(d: Direccion): string[] {
 /** Dirección → coordenadas, probando variantes de la dirección de más completa a más simple. */
 export async function geocodificarDireccion(d: Direccion): Promise<[number, number] | null> {
   if (!activo()) return null;
+
+  const cp = /^\d{5}$/.test(d.cp.trim()) ? d.cp.trim() : "";
+  const consultaCp = cp ? `${cp}, México` : null;
+
+  //1) Ancla: el CP solo (en México los CPs están bien cubiertos y son precisos).
+  const ancla = consultaCp ? await geocodificar(consultaCp) : null;
+
+  //2) Variantes de la dirección; con ancla solo pasa la que esté cerca de ella
+  //    (evita homónimos en otro municipio, p. ej. "Av. Juárez" o calles iguales).
   for (const q of variantesDireccion(d)) {
+    if (consultaCp && q === consultaCp) continue; // ya cubierta por el ancla
     const coords = await geocodificar(q);
-    if (coords) return coords;
+    if (!coords) continue;
+    if (!ancla || distKm(ancla, coords) <= MAX_KM_CALLE) return coords;
   }
-  return null;
+
+  //3) Respaldo: el CP solo (la calle no se encontró cerca del ancla); el pin se afina.
+  return ancla;
 }
 
 /** Texto libre del buscador → coordenadas, probando la consulta y una versión sin número. */
@@ -129,4 +156,49 @@ export async function geocodificarConsulta(consulta: string): Promise<[number, n
   const sinNumero = calleSinNumero(q);
   if (sinNumero && sinNumero !== q) return geocodificar(sinNumero);
   return null;
+}
+
+/** Coordenadas → dirección (respaldo de Geoapify sin API key). Nunca lanza. */
+export async function invertirNominatim(
+  lat: number,
+  lng: number
+): Promise<Partial<Direccion> | null> {
+  if (!activo()) return null;
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+
+  try {
+    await esperaCuota();
+    const url = new URL(`${baseUrl()}/reverse`);
+    url.searchParams.set("format", "jsonv2");
+    url.searchParams.set("addressdetails", "1");
+    url.searchParams.set("zoom", "18");
+    url.searchParams.set("lat", String(lat));
+    url.searchParams.set("lon", String(lng));
+
+    const control = new AbortController();
+    const reloj = setTimeout(() => control.abort(), 8000);
+    const res = await fetch(url, {
+      headers: { "User-Agent": userAgent(), "Accept-Language": "es-MX,es" },
+      signal: control.signal,
+      cache: "no-store",
+    });
+    clearTimeout(reloj);
+    if (!res.ok) return null;
+
+    const datos = (await res.json()) as { address?: Record<string, string> };
+    const a = datos.address ?? {};
+    const d: Partial<Direccion> = {};
+    const calle = [a.road, a.house_number].filter(Boolean).join(" ").trim();
+    const colonia = a.suburb ?? a.neighbourhood ?? a.quarter ?? a.city_district ?? "";
+    const ciudad = a.city ?? a.town ?? a.village ?? a.municipality ?? "";
+    if (calle) d.calle = calle;
+    if (colonia.trim()) d.colonia = colonia.trim();
+    if (ciudad.trim()) d.ciudad = ciudad.trim();
+    if (a.state?.trim()) d.estado = a.state.trim();
+    if (a.postcode?.trim()) d.cp = a.postcode.trim();
+    return Object.keys(d).length > 0 ? d : null;
+  } catch (e) {
+    console.warn("invertirNominatim:", e instanceof Error ? e.message : e);
+    return null;
+  }
 }

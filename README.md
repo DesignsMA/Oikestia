@@ -64,6 +64,8 @@ The production override: does not publish the MongoDB port, forces `COOKIE_SECUR
 
 `NOMINATIM_CONTACT_EMAIL` is required in production (Nominatim usage policy).
 
+`GEOAPIFY_API_KEY` (optional, recommended): enables the address autocomplete, the CP-first search and the pin reverse-geocoding on `/propietario/publicar` via Geoapify (free key at geoapify.com). Without it the site falls back to Nominatim.
+
 ## Database backup
 
 ```powershell

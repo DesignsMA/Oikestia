@@ -35,6 +35,7 @@ services:
       DEV_AUTO_VERIFY: ${DEV_AUTO_VERIFY:-false}
       SEED_DEMO: ${SEED_DEMO:-false}
       NOMINATIM_CONTACT_EMAIL: ${NOMINATIM_CONTACT_EMAIL:-}
+      GEOAPIFY_API_KEY: ${GEOAPIFY_API_KEY:-}
     logging:
       driver: json-file
       options:
